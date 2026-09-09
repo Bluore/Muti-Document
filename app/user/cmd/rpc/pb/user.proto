@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+option go_package = "./pb";
+
+package user;
+
+service user {
+
+  // 获取用户
+  rpc GetUserDetail(GetUserDetailReq) returns (GetUserDetailResp);
+
+  // 更新用户
+  rpc UpdateUser(UpdateUserReq) returns (UpdateUserResp);
+
+  // 创建用户
+  rpc CreateUser(CreateUserReq) returns (CreateUserResp);
+}
+
+message GetUserDetailReq{
+  string UserID = 1;
+}
+
+message GetUserDetailResp{
+  string UserID = 1;
+  string NickName = 2;
+  string Email = 3;
+  string Avatar = 4;
+  int64 CreateAt = 5;
+  int64 UpdateAt = 6;
+  int64 DeleteAt = 7;
+}
+
+message CreateUserReq{
+  string NickName = 1;
+  string Email = 2;
+}
+
+message CreateUserResp{
+  string UserID = 1;
+  string NickName = 2;
+  string Email = 3;
+  string Avatar = 4;
+  int64 CreateAt = 5;
+  int64 UpdateAt = 6;
+  int64 DeleteAt = 7;
+}
+
+message UpdateUserReq{
+  string UserID = 1;
+  string NickName = 2;
+  string Email = 3;
+  string Avatar = 4;
+}
+
+message UpdateUserResp{
+}

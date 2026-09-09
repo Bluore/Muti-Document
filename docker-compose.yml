@@ -1,0 +1,41 @@
+version: '3'
+
+services:
+  nginx-gateway:
+    image: nginx:1.21.5
+    container_name: nginx-gateway
+    restart: always
+    privileged: true
+    environment:
+      - TZ=Asia/Shanghai
+    ports:
+      - 8888:8081
+    volumes:
+      - ./deploy/nginx/conf.d:/etc/nginx/conf.d
+      - ./data/nginx/log:/var/log/nginx
+    networks:
+      - mutidoc-net
+    depends_on:
+      - mutidoc
+
+  mutidoc:
+    image: lyumikael/gomodd:v1.22.1
+    container_name: mutidoc
+    environment:
+      TZ: Asia/Shanghai
+      GOPROXY: https://goproxy.cn,direct
+    working_dir: /go/mutidoc
+    volumes:
+      - .:/go/mutidoc
+    privileged: true
+    restart: always
+    networks:
+      - mutidoc-net
+
+networks:
+  mutidoc-net:
+    external: true
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

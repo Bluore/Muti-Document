@@ -1,0 +1,17 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: "user-api"
+    metrics_path: "/metrics"
+    scrape_interval: 5s
+    static_configs:
+      - targets:
+          - "mutidoc:4101"
+
+  - job_name: "user-rpc"
+    metrics_path: "/metrics"
+    scrape_interval: 5s
+    static_configs:
+      - targets:
+          - "mutidoc:4201"

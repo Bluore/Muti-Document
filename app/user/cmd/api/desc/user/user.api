@@ -1,0 +1,58 @@
+syntax = "v1"
+
+info(
+	title: "用户实例"
+	desc: "用户实例"
+	author: "Bluore"
+	email: "a@bluore.top"
+	version: "v1"
+)
+
+type User {
+	Id string `json:"id"`
+	NickName string `json:"nick_name"`
+	Email string `json:"email"`
+	Avatar string `json:"avatar"`
+}
+
+type (
+	RegisterReq {
+		Email string `json:"email"`
+		EmailCode string `json:"email_code"`
+		NickName string `json:"nick_name"`
+		Password string `json:"password"`
+	}
+	RegisterResp {
+		AccessToken string `json:"access_token"`
+		RefreshToken string `json:"refresh_token"`
+	}
+)
+
+type (
+	LoginReq {
+		Email string `json:"email"`
+		Password string `json:"password"`
+		RobotCode string `json:"rebot_code"`
+	}
+	LoginResp {
+		AccessToken string `json:"access_token"`
+		RefreshToken string `json:"refresh_token"`
+	}
+)
+
+type (
+	EmailCodeReq {
+		Email string `json:"email"`
+		RobotCode string `json:"rebot_code"`
+	}
+	EmailCodeResp {
+	}
+)
+
+type (
+	UserInfoReq {
+	}
+	UserInfoResp {
+		UserInfo User `json:"user_info"`
+	}
+)

@@ -1,0 +1,47 @@
+syntax = "v1"
+
+info (
+	title:   "用户服务"
+	desc:    "用户服务"
+	author:  "Bluore"
+	email:   "a@bluore.top"
+	version: "v1"
+)
+
+import (
+	"user/user.api"
+)
+
+@server (
+	prefix: /api/user/v1
+	group:  login
+)
+service user {
+	@doc "register"
+	@handler register
+	post /user (RegisterReq) returns (RegisterResp)
+
+	@doc "login"
+	@handler login
+	post /login (LoginReq) returns (LoginResp)
+
+	@doc "get email code"
+	@handler emailCode
+	get /email/code
+}
+
+@server (
+	prefix: /api/user/v1
+	group:  info
+	jwt:    JwtAuth
+)
+service user {
+	@doc "get user info"
+	@handler detail
+	get /user (UserInfoReq) returns (UserInfoResp)
+
+	@doc "change user avatar"
+	@handler avatar
+	post /user/avatar
+}
+
