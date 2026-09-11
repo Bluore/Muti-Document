@@ -8,7 +8,7 @@ import (
 	"github.com/Bluore/mutidoc/app/user/cmd/rpc/internal/server"
 	"github.com/Bluore/mutidoc/app/user/cmd/rpc/internal/svc"
 	"github.com/Bluore/mutidoc/app/user/cmd/rpc/pb"
-
+	"github.com/Bluore/mutidoc/pkg/interceptor/rpcserver"
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/service"
 	"github.com/zeromicro/go-zero/zrpc"
@@ -32,6 +32,7 @@ func main() {
 			reflection.Register(grpcServer)
 		}
 	})
+	s.AddUnaryInterceptors(rpcserver.LoggingInterceptor)
 	defer s.Stop()
 
 	fmt.Printf("Starting rpc server at %s...\n", c.ListenOn)

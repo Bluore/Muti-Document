@@ -23,8 +23,8 @@ import (
 var (
 	usersFieldNames          = builder.RawFieldNames(&Users{})
 	usersRows                = strings.Join(usersFieldNames, ",")
-	usersRowsExpectAutoSet   = strings.Join(stringx.Remove(usersFieldNames, "`create_time`", "`update_time`"), ",")
-	usersRowsWithPlaceHolder = strings.Join(stringx.Remove(usersFieldNames, "`id`", "`create_time`", "`update_time`"), "=?,") + "=?"
+	usersRowsExpectAutoSet   = strings.Join(stringx.Remove(usersFieldNames, "`create_at`", "`update_at`"), ",")
+	usersRowsWithPlaceHolder = strings.Join(stringx.Remove(usersFieldNames, "`id`", "`create_at`", "`update_at`"), "=?,") + "=?"
 
 	cacheUsersIdPrefix       = "cache:users:id:"
 	cacheUsersEmailPrefix    = "cache:users:email:"

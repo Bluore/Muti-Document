@@ -1,0 +1,19 @@
+package grpcerr
+
+type ErrCode uint32
+
+// 全局错误码
+const (
+	SERVER_COMMON_ERROR ErrCode = 100001
+	REQUEST_PARAM_ERROR ErrCode = 100002
+	DB_ERROR            ErrCode = 100003
+	REDIS_ERROR         ErrCode = 100004
+)
+
+// user模块
+const (
+	USER_ID_EXIST_ERROR       ErrCode = 101001
+	USER_NICKNAME_EXIST_ERROR ErrCode = 101002
+	USER_EMAIL_EXIST_ERROR    ErrCode = 101003
+	USER_NOT_EXIST_ERROR      ErrCode = 101004
+)
