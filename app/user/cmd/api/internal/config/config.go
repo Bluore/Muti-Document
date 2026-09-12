@@ -13,4 +13,11 @@ type Config struct {
 		AccessSecret string
 		AccessExpire int64
 	}
+	EmailSender EmailConfig
+}
+
+type EmailConfig struct {
+	Platform    string
+	ApiKey      string
+	SenderEmail string
 }

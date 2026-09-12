@@ -7,6 +7,8 @@ import (
 	"context"
 
 	"github.com/Bluore/mutidoc/app/user/cmd/api/internal/svc"
+	"github.com/Bluore/mutidoc/app/user/cmd/api/internal/types"
+
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -25,8 +27,8 @@ func NewAvatarLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AvatarLogi
 	}
 }
 
-func (l *AvatarLogic) Avatar() error {
+func (l *AvatarLogic) Avatar(req *types.UploadAvatarReq) (resp *types.UploadAvatarResp, err error) {
 	// todo: add your logic here and delete this line
 
-	return nil
+	return
 }

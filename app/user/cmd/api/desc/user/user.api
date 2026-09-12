@@ -43,7 +43,7 @@ type (
 type (
 	EmailCodeReq {
 		Email string `json:"email"`
-		RobotCode string `json:"rebot_code"`
+		RobotCode string `json:"robot_code"`
 	}
 	EmailCodeResp {
 	}
@@ -55,4 +55,11 @@ type (
 	UserInfoResp {
 		UserInfo User `json:"user_info"`
 	}
+)
+
+type (
+    UploadAvatarReq {
+    }
+    UploadAvatarResp {
+    }
 )

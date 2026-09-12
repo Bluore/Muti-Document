@@ -5,7 +5,7 @@ package types
 
 type EmailCodeReq struct {
 	Email     string `json:"email"`
-	RobotCode string `json:"rebot_code"`
+	RobotCode string `json:"robot_code"`
 }
 
 type EmailCodeResp struct {
@@ -32,6 +32,12 @@ type RegisterReq struct {
 type RegisterResp struct {
 	AccessToken  string `json:"access_token"`
 	RefreshToken string `json:"refresh_token"`
+}
+
+type UploadAvatarReq struct {
+}
+
+type UploadAvatarResp struct {
 }
 
 type User struct {

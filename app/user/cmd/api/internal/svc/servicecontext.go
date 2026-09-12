@@ -5,14 +5,22 @@ package svc
 
 import (
 	"github.com/Bluore/mutidoc/app/user/cmd/api/internal/config"
+	"github.com/Bluore/mutidoc/pkg/emailcontrol"
 )
 
 type ServiceContext struct {
-	Config config.Config
+	Config      config.Config
+	EmailSender emailcontrol.EmailSender
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
+	if c.EmailSender.Platform != "resend" {
+		panic("email platform not supported")
+	}
+	emailClient := emailcontrol.NewResendClient(c.EmailSender.ApiKey)
+
 	return &ServiceContext{
-		Config: c,
+		Config:      c,
+		EmailSender: emailClient,
 	}
 }

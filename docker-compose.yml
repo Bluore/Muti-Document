@@ -10,6 +10,7 @@ services:
       - TZ=Asia/Shanghai
     ports:
       - 8888:8081
+      - 18888:18888
       - 8889:8082
     volumes:
       - ./deploy/nginx/conf.d:/etc/nginx/conf.d
@@ -17,19 +18,39 @@ services:
     networks:
       - mutidoc-net
     depends_on:
-      - mutidoc
+      - mutidoc-user-api
 
-  mutidoc:
-    image: lyumikael/gomodd:v1.22.1
-    container_name: mutidoc
-    environment:
-      TZ: Asia/Shanghai
-      GOPROXY: https://goproxy.cn,direct
-    working_dir: /go/mutidoc
+  mutidoc-user-api:
+    build:
+      context: .
+      dockerfile: ./app/user/cmd/api/Dockerfile
+    container_name: mutidoc-user-api
+    command:
+      - go
+      - run
+      - /app/app/user/cmd/api
+      - -f
+      - /app/deploy/config/user-api.yml
     volumes:
-      - .:/go/mutidoc
-    privileged: true
-    restart: always
+      - .:/app
+    ports: []
+    networks:
+      - mutidoc-net
+
+  mutidoc-user-rpc:
+    build:
+      context: .
+      dockerfile: ./app/user/cmd/api/Dockerfile
+    container_name: mutidoc-user-rpc
+    command:
+      - go
+      - run
+      - /app/app/user/cmd/rpc
+      - -f
+      - /app/deploy/config/user-rpc.yml
+    volumes:
+      - .:/app
+    ports: []
     networks:
       - mutidoc-net
 

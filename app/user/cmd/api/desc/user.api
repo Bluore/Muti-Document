@@ -27,7 +27,7 @@ service user {
 
 	@doc "get email code"
 	@handler emailCode
-	get /email/code
+	get /email/code (EmailCodeReq) returns (EmailCodeResp)
 }
 
 @server (
@@ -42,6 +42,6 @@ service user {
 
 	@doc "change user avatar"
 	@handler avatar
-	post /user/avatar
+	post /user/avatar (UploadAvatarReq) returns (UploadAvatarResp)
 }
 

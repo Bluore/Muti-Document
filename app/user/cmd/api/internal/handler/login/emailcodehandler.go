@@ -8,18 +8,22 @@ import (
 
 	"github.com/Bluore/mutidoc/app/user/cmd/api/internal/logic/login"
 	"github.com/Bluore/mutidoc/app/user/cmd/api/internal/svc"
+	"github.com/Bluore/mutidoc/app/user/cmd/api/internal/types"
+	"github.com/Bluore/mutidoc/pkg/response"
 	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
 // get email code
 func EmailCodeHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		l := login.NewEmailCodeLogic(r.Context(), svcCtx)
-		err := l.EmailCode()
-		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
-		} else {
-			httpx.Ok(w)
+		var req types.EmailCodeReq
+		if err := httpx.Parse(r, &req); err != nil {
+			response.ResponseErrWithCtx(r.Context(), w, response.ErrValidation)
+			return
 		}
+
+		l := login.NewEmailCodeLogic(r.Context(), svcCtx)
+		resp, err := l.EmailCode(&req)
+		response.ResponseWithCtx(r.Context(), w, err, resp)
 	}
 }

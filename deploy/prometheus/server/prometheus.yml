@@ -7,11 +7,11 @@ scrape_configs:
     scrape_interval: 5s
     static_configs:
       - targets:
-          - "mutidoc:4101"
+          - "mutidoc-user-api:4101"
 
   - job_name: "user-rpc"
     metrics_path: "/metrics"
     scrape_interval: 5s
     static_configs:
       - targets:
-          - "mutidoc:4201"
+          - "mutidoc-user-rpc:4201"
