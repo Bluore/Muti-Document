@@ -34,3 +34,11 @@ func (e ErrCode) Equal(status *status.Status) bool {
 	}
 	return true
 }
+
+func (e ErrCode) EqualError(err error) bool {
+	st, ok := status.FromError(err)
+	if !ok {
+		return false
+	}
+	return e.Equal(st)
+}

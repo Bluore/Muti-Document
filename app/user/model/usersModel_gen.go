@@ -62,6 +62,7 @@ type (
 		NickName string    `db:"nick_name"`
 		Email    string    `db:"email"`
 		Avatar   string    `db:"avatar"`
+		Password string    `db:"password"`
 		Version  int64     `db:"version"`
 		CreateAt time.Time `db:"create_at"`
 		UpdateAt time.Time `db:"update_at"`
@@ -84,11 +85,11 @@ func (m *defaultUsersModel) Insert(ctx context.Context, session sqlx.Session, da
 	usersIdKey := fmt.Sprintf("%s%v", cacheUsersIdPrefix, data.Id)
 	usersNickNameKey := fmt.Sprintf("%s%v", cacheUsersNickNamePrefix, data.NickName)
 	return m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?)", m.table, usersRowsExpectAutoSet)
+		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?)", m.table, usersRowsExpectAutoSet)
 		if session != nil {
-			return session.ExecCtx(ctx, query, data.Id, data.NickName, data.Email, data.Avatar, data.Version, data.DeleteAt, data.DelState)
+			return session.ExecCtx(ctx, query, data.Id, data.NickName, data.Email, data.Avatar, data.Password, data.Version, data.DeleteAt, data.DelState)
 		}
-		return conn.ExecCtx(ctx, query, data.Id, data.NickName, data.Email, data.Avatar, data.Version, data.DeleteAt, data.DelState)
+		return conn.ExecCtx(ctx, query, data.Id, data.NickName, data.Email, data.Avatar, data.Password, data.Version, data.DeleteAt, data.DelState)
 	}, usersEmailKey, usersIdKey, usersNickNameKey)
 }
 
@@ -160,9 +161,9 @@ func (m *defaultUsersModel) Update(ctx context.Context, session sqlx.Session, ne
 	return m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, usersRowsWithPlaceHolder)
 		if session != nil {
-			return session.ExecCtx(ctx, query, newData.NickName, newData.Email, newData.Avatar, newData.Version, newData.DeleteAt, newData.DelState, newData.Id)
+			return session.ExecCtx(ctx, query, newData.NickName, newData.Email, newData.Avatar, newData.Password, newData.Version, newData.DeleteAt, newData.DelState, newData.Id)
 		}
-		return conn.ExecCtx(ctx, query, newData.NickName, newData.Email, newData.Avatar, newData.Version, newData.DeleteAt, newData.DelState, newData.Id)
+		return conn.ExecCtx(ctx, query, newData.NickName, newData.Email, newData.Avatar, newData.Password, newData.Version, newData.DeleteAt, newData.DelState, newData.Id)
 	}, usersEmailKey, usersIdKey, usersNickNameKey)
 }
 
@@ -184,9 +185,9 @@ func (m *defaultUsersModel) UpdateWithVersion(ctx context.Context, session sqlx.
 	sqlResult, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("update %s set %s where `id` = ? and version = ? ", m.table, usersRowsWithPlaceHolder)
 		if session != nil {
-			return session.ExecCtx(ctx, query, newData.NickName, newData.Email, newData.Avatar, newData.Version, newData.DeleteAt, newData.DelState, newData.Id, oldVersion)
+			return session.ExecCtx(ctx, query, newData.NickName, newData.Email, newData.Avatar, newData.Password, newData.Version, newData.DeleteAt, newData.DelState, newData.Id, oldVersion)
 		}
-		return conn.ExecCtx(ctx, query, newData.NickName, newData.Email, newData.Avatar, newData.Version, newData.DeleteAt, newData.DelState, newData.Id, oldVersion)
+		return conn.ExecCtx(ctx, query, newData.NickName, newData.Email, newData.Avatar, newData.Password, newData.Version, newData.DeleteAt, newData.DelState, newData.Id, oldVersion)
 	}, usersEmailKey, usersIdKey, usersNickNameKey)
 	if err != nil {
 		return err

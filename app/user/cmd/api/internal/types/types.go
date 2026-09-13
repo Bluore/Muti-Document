@@ -12,7 +12,7 @@ type EmailCodeResp struct {
 }
 
 type LoginReq struct {
-	Email     string `json:"email"`
+	Login     string `json:"login"`
 	Password  string `json:"password"`
 	RobotCode string `json:"rebot_code"`
 }

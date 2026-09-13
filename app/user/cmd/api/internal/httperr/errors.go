@@ -10,4 +10,6 @@ var (
 	ErrEmailVerifyFail        = response.NewError(200, 1014005, "验证码错误")
 	ErrEmailExist             = response.NewError(200, 1014006, "邮箱已存在")
 	ErrNicknameExist          = response.NewError(200, 1014006, "昵称已使用")
+	ErrPasswordWrong          = response.NewError(200, 1014007, "用户名或密码错误")
+	ErrUserNotExist           = response.NewError(200, 1014008, "用户不存在")
 )

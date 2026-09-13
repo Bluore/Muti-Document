@@ -33,6 +33,7 @@ func (l *CreateUserLogic) CreateUser(in *pb.CreateUserReq) (*pb.CreateUserResp, 
 		Id:       idgenerate.NewID(l.svcCtx.Config.ServerID),
 		NickName: in.NickName,
 		Email:    in.Email,
+		Password: in.Password,
 	}
 	logx.Infof("create user: %+v", userModel)
 

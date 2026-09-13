@@ -20,6 +20,8 @@ type (
 	GenerateTokenResp = pb.GenerateTokenResp
 	GetUserDetailReq  = pb.GetUserDetailReq
 	GetUserDetailResp = pb.GetUserDetailResp
+	LoginUserReq      = pb.LoginUserReq
+	LoginUserResp     = pb.LoginUserResp
 	UpdateUserReq     = pb.UpdateUserReq
 	UpdateUserResp    = pb.UpdateUserResp
 
@@ -32,6 +34,8 @@ type (
 		CreateUser(ctx context.Context, in *CreateUserReq, opts ...grpc.CallOption) (*CreateUserResp, error)
 		// 生成Token
 		GenerateToken(ctx context.Context, in *GenerateTokenReq, opts ...grpc.CallOption) (*GenerateTokenResp, error)
+		// 用户登录
+		LoginUser(ctx context.Context, in *LoginUserReq, opts ...grpc.CallOption) (*LoginUserResp, error)
 	}
 
 	defaultUser struct {
@@ -67,4 +71,10 @@ func (m *defaultUser) CreateUser(ctx context.Context, in *CreateUserReq, opts ..
 func (m *defaultUser) GenerateToken(ctx context.Context, in *GenerateTokenReq, opts ...grpc.CallOption) (*GenerateTokenResp, error) {
 	client := pb.NewUserClient(m.cli.Conn())
 	return client.GenerateToken(ctx, in, opts...)
+}
+
+// 用户登录
+func (m *defaultUser) LoginUser(ctx context.Context, in *LoginUserReq, opts ...grpc.CallOption) (*LoginUserResp, error) {
+	client := pb.NewUserClient(m.cli.Conn())
+	return client.LoginUser(ctx, in, opts...)
 }

@@ -17,4 +17,5 @@ func init() {
 	codeMsg[USER_NICKNAME_EXIST_ERROR] = "user nickname already exist"
 	codeMsg[USER_NOT_EXIST_ERROR] = "user no exist"
 	codeMsg[USER_TOKEN_GERENATE_ERROR] = "token generate error"
+	codeMsg[USER_PASSWORD_ERROR] = "user password or login error"
 }

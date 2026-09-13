@@ -46,3 +46,9 @@ func (s *UserServer) GenerateToken(ctx context.Context, in *pb.GenerateTokenReq)
 	l := logic.NewGenerateTokenLogic(ctx, s.svcCtx)
 	return l.GenerateToken(in)
 }
+
+// 用户登录
+func (s *UserServer) LoginUser(ctx context.Context, in *pb.LoginUserReq) (*pb.LoginUserResp, error) {
+	l := logic.NewLoginUserLogic(ctx, s.svcCtx)
+	return l.LoginUser(in)
+}

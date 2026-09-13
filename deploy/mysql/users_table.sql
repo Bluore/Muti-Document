@@ -7,6 +7,7 @@ CREATE TABLE `users`
     `nick_name` VARCHAR(100) NOT NULL ,
     `email` VARCHAR(100) NOT NULL ,
     `avatar` VARCHAR(100) NOT NULL DEFAULT 'default-avatar.png',
+    `password` VARCHAR(255) NOT NULL ,
 
     `version` INTEGER NOT NULL DEFAULT 1,
     `create_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,

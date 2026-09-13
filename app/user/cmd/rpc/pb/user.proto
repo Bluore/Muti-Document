@@ -17,6 +17,9 @@ service user {
 
   // 生成Token
   rpc GenerateToken(GenerateTokenReq) returns (GenerateTokenResp);
+
+  // 用户登录
+  rpc LoginUser(LoginUserReq) returns (LoginUserResp);
 }
 
 message GetUserDetailReq{
@@ -36,6 +39,7 @@ message GetUserDetailResp{
 message CreateUserReq{
   string NickName = 1;
   string Email = 2;
+  string Password = 3;
 }
 
 message CreateUserResp{
@@ -63,6 +67,16 @@ message GenerateTokenReq{
 }
 
 message GenerateTokenResp{
+  string AccessToken = 1;
+  int64 AccessExpire = 2;
+}
+
+message LoginUserReq {
+  string Login = 1;
+  string Password = 2;
+}
+
+message LoginUserResp{
   string AccessToken = 1;
   int64 AccessExpire = 2;
 }
