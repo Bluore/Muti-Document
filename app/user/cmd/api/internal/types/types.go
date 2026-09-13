@@ -19,7 +19,7 @@ type LoginReq struct {
 
 type LoginResp struct {
 	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh_token"`
+	AccessExpire int64  `json:"access_expire"`
 }
 
 type RegisterReq struct {
@@ -31,7 +31,7 @@ type RegisterReq struct {
 
 type RegisterResp struct {
 	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh_token"`
+	AccessExpire int64  `json:"access_expire"`
 }
 
 type UploadAvatarReq struct {

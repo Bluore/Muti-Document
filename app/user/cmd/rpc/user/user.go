@@ -16,6 +16,8 @@ import (
 type (
 	CreateUserReq     = pb.CreateUserReq
 	CreateUserResp    = pb.CreateUserResp
+	GenerateTokenReq  = pb.GenerateTokenReq
+	GenerateTokenResp = pb.GenerateTokenResp
 	GetUserDetailReq  = pb.GetUserDetailReq
 	GetUserDetailResp = pb.GetUserDetailResp
 	UpdateUserReq     = pb.UpdateUserReq
@@ -28,6 +30,8 @@ type (
 		UpdateUser(ctx context.Context, in *UpdateUserReq, opts ...grpc.CallOption) (*UpdateUserResp, error)
 		// 创建用户
 		CreateUser(ctx context.Context, in *CreateUserReq, opts ...grpc.CallOption) (*CreateUserResp, error)
+		// 生成Token
+		GenerateToken(ctx context.Context, in *GenerateTokenReq, opts ...grpc.CallOption) (*GenerateTokenResp, error)
 	}
 
 	defaultUser struct {
@@ -57,4 +61,10 @@ func (m *defaultUser) UpdateUser(ctx context.Context, in *UpdateUserReq, opts ..
 func (m *defaultUser) CreateUser(ctx context.Context, in *CreateUserReq, opts ...grpc.CallOption) (*CreateUserResp, error) {
 	client := pb.NewUserClient(m.cli.Conn())
 	return client.CreateUser(ctx, in, opts...)
+}
+
+// 生成Token
+func (m *defaultUser) GenerateToken(ctx context.Context, in *GenerateTokenReq, opts ...grpc.CallOption) (*GenerateTokenResp, error) {
+	client := pb.NewUserClient(m.cli.Conn())
+	return client.GenerateToken(ctx, in, opts...)
 }

@@ -5,6 +5,7 @@ package config
 
 import (
 	"github.com/zeromicro/go-zero/rest"
+	"github.com/zeromicro/go-zero/zrpc"
 )
 
 type Config struct {
@@ -14,10 +15,18 @@ type Config struct {
 		AccessExpire int64
 	}
 	EmailSender EmailConfig
+	RedisConf   RedisConfig
+	UserRpcConf zrpc.RpcClientConf
 }
 
 type EmailConfig struct {
 	Platform    string
 	ApiKey      string
 	SenderEmail string
+}
+
+type RedisConfig struct {
+	Addr     string
+	Password string
+	DB       int
 }

@@ -3,6 +3,11 @@ Host: 0.0.0.0
 Port: 1101
 Mode: dev
 
+RedisConf:
+  Addr: redis:6379
+  Password:
+  DB: 0
+
 JwtAuth:
   AccessSecret: 123456-456789-123
   AccessExpire: 60
@@ -26,3 +31,10 @@ EmailSender:
   Platform: resend
   ApiKey:
   SenderEmail:
+
+UserRpcConf:
+  Etcd:
+    Hosts:
+      - etcd:2379
+    Key: user.rpc
+  Timeout: 2000

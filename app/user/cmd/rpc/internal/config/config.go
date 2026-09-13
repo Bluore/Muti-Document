@@ -13,5 +13,11 @@ type Config struct {
 	DB struct {
 		sqlx.SqlConf
 	}
-	Cache cache.CacheConf
+	Cache   cache.CacheConf
+	JwtAuth JwtAuthConf
+}
+
+type JwtAuthConf struct {
+	AccessSecret string
+	AccessExpire int64
 }

@@ -2,6 +2,8 @@ package grpcerr
 
 import (
 	"fmt"
+
+	"google.golang.org/grpc/status"
 )
 
 func (e ErrCode) Error() string {
@@ -21,4 +23,14 @@ func (e ErrCode) Msg() string {
 
 func ToError(code uint32) error {
 	return ErrCode(code)
+}
+
+func (e ErrCode) Equal(status *status.Status) bool {
+	if status == nil {
+		return false
+	}
+	if uint32(status.Code()) != e.Code() {
+		return false
+	}
+	return true
 }

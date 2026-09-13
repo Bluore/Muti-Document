@@ -40,3 +40,9 @@ func (s *UserServer) CreateUser(ctx context.Context, in *pb.CreateUserReq) (*pb.
 	l := logic.NewCreateUserLogic(ctx, s.svcCtx)
 	return l.CreateUser(in)
 }
+
+// 生成Token
+func (s *UserServer) GenerateToken(ctx context.Context, in *pb.GenerateTokenReq) (*pb.GenerateTokenResp, error) {
+	l := logic.NewGenerateTokenLogic(ctx, s.svcCtx)
+	return l.GenerateToken(in)
+}

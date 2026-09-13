@@ -405,6 +405,102 @@ func (*UpdateUserResp) Descriptor() ([]byte, []int) {
 	return file_pb_user_proto_rawDescGZIP(), []int{5}
 }
 
+type GenerateTokenReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=UserId,proto3" json:"UserId,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GenerateTokenReq) Reset() {
+	*x = GenerateTokenReq{}
+	mi := &file_pb_user_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GenerateTokenReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GenerateTokenReq) ProtoMessage() {}
+
+func (x *GenerateTokenReq) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_user_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GenerateTokenReq.ProtoReflect.Descriptor instead.
+func (*GenerateTokenReq) Descriptor() ([]byte, []int) {
+	return file_pb_user_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *GenerateTokenReq) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+type GenerateTokenResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	AccessToken   string                 `protobuf:"bytes,1,opt,name=AccessToken,proto3" json:"AccessToken,omitempty"`
+	AccessExpire  int64                  `protobuf:"varint,2,opt,name=AccessExpire,proto3" json:"AccessExpire,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GenerateTokenResp) Reset() {
+	*x = GenerateTokenResp{}
+	mi := &file_pb_user_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GenerateTokenResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GenerateTokenResp) ProtoMessage() {}
+
+func (x *GenerateTokenResp) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_user_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GenerateTokenResp.ProtoReflect.Descriptor instead.
+func (*GenerateTokenResp) Descriptor() ([]byte, []int) {
+	return file_pb_user_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *GenerateTokenResp) GetAccessToken() string {
+	if x != nil {
+		return x.AccessToken
+	}
+	return ""
+}
+
+func (x *GenerateTokenResp) GetAccessExpire() int64 {
+	if x != nil {
+		return x.AccessExpire
+	}
+	return 0
+}
+
 var File_pb_user_proto protoreflect.FileDescriptor
 
 const file_pb_user_proto_rawDesc = "" +
@@ -436,13 +532,19 @@ const file_pb_user_proto_rawDesc = "" +
 	"\bNickName\x18\x02 \x01(\tR\bNickName\x12\x14\n" +
 	"\x05Email\x18\x03 \x01(\tR\x05Email\x12\x16\n" +
 	"\x06Avatar\x18\x04 \x01(\tR\x06Avatar\"\x10\n" +
-	"\x0eUpdateUserResp2\xba\x01\n" +
+	"\x0eUpdateUserResp\"*\n" +
+	"\x10GenerateTokenReq\x12\x16\n" +
+	"\x06UserId\x18\x01 \x01(\tR\x06UserId\"Y\n" +
+	"\x11GenerateTokenResp\x12 \n" +
+	"\vAccessToken\x18\x01 \x01(\tR\vAccessToken\x12\"\n" +
+	"\fAccessExpire\x18\x02 \x01(\x03R\fAccessExpire2\xfc\x01\n" +
 	"\x04user\x12@\n" +
 	"\rGetUserDetail\x12\x16.user.GetUserDetailReq\x1a\x17.user.GetUserDetailResp\x127\n" +
 	"\n" +
 	"UpdateUser\x12\x13.user.UpdateUserReq\x1a\x14.user.UpdateUserResp\x127\n" +
 	"\n" +
-	"CreateUser\x12\x13.user.CreateUserReq\x1a\x14.user.CreateUserRespB\x06Z\x04./pbb\x06proto3"
+	"CreateUser\x12\x13.user.CreateUserReq\x1a\x14.user.CreateUserResp\x12@\n" +
+	"\rGenerateToken\x12\x16.user.GenerateTokenReq\x1a\x17.user.GenerateTokenRespB\x06Z\x04./pbb\x06proto3"
 
 var (
 	file_pb_user_proto_rawDescOnce sync.Once
@@ -456,7 +558,7 @@ func file_pb_user_proto_rawDescGZIP() []byte {
 	return file_pb_user_proto_rawDescData
 }
 
-var file_pb_user_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_pb_user_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_pb_user_proto_goTypes = []any{
 	(*GetUserDetailReq)(nil),  // 0: user.GetUserDetailReq
 	(*GetUserDetailResp)(nil), // 1: user.GetUserDetailResp
@@ -464,16 +566,20 @@ var file_pb_user_proto_goTypes = []any{
 	(*CreateUserResp)(nil),    // 3: user.CreateUserResp
 	(*UpdateUserReq)(nil),     // 4: user.UpdateUserReq
 	(*UpdateUserResp)(nil),    // 5: user.UpdateUserResp
+	(*GenerateTokenReq)(nil),  // 6: user.GenerateTokenReq
+	(*GenerateTokenResp)(nil), // 7: user.GenerateTokenResp
 }
 var file_pb_user_proto_depIdxs = []int32{
 	0, // 0: user.user.GetUserDetail:input_type -> user.GetUserDetailReq
 	4, // 1: user.user.UpdateUser:input_type -> user.UpdateUserReq
 	2, // 2: user.user.CreateUser:input_type -> user.CreateUserReq
-	1, // 3: user.user.GetUserDetail:output_type -> user.GetUserDetailResp
-	5, // 4: user.user.UpdateUser:output_type -> user.UpdateUserResp
-	3, // 5: user.user.CreateUser:output_type -> user.CreateUserResp
-	3, // [3:6] is the sub-list for method output_type
-	0, // [0:3] is the sub-list for method input_type
+	6, // 3: user.user.GenerateToken:input_type -> user.GenerateTokenReq
+	1, // 4: user.user.GetUserDetail:output_type -> user.GetUserDetailResp
+	5, // 5: user.user.UpdateUser:output_type -> user.UpdateUserResp
+	3, // 6: user.user.CreateUser:output_type -> user.CreateUserResp
+	7, // 7: user.user.GenerateToken:output_type -> user.GenerateTokenResp
+	4, // [4:8] is the sub-list for method output_type
+	0, // [0:4] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name
@@ -490,7 +596,7 @@ func file_pb_user_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_pb_user_proto_rawDesc), len(file_pb_user_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

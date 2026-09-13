@@ -32,7 +32,7 @@ func NewError(status int, code int, msg string) error {
 		HttpCode: status,
 		Code:     code,
 		Msg:      msg,
-		Data:     nil,
+		Data:     make(map[string]any),
 	}
 }
 
@@ -41,7 +41,7 @@ func ResponseErrWithCtx(ctx context.Context, w http.ResponseWriter, err error) {
 	if ok := errors.As(err, &resp); !ok {
 		logx.WithContext(ctx).
 			Errorf("response error not support: %+v", err)
-		httpx.WriteJsonCtx(ctx, w, http.StatusInternalServerError, nil)
+		httpx.WriteJsonCtx(ctx, w, http.StatusInternalServerError, map[string]any{})
 		return
 	}
 	logx.WithContext(ctx).
@@ -57,7 +57,7 @@ func ResponseWithCtx(ctx context.Context, w http.ResponseWriter, err error, data
 	}
 
 	httpx.WriteJsonCtx(ctx, w, http.StatusOK, response{
-		Code: 200,
+		Code: 0,
 		Msg:  "",
 		Data: data,
 	})

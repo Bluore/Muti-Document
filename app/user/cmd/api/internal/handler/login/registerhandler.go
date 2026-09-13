@@ -9,6 +9,7 @@ import (
 	"github.com/Bluore/mutidoc/app/user/cmd/api/internal/logic/login"
 	"github.com/Bluore/mutidoc/app/user/cmd/api/internal/svc"
 	"github.com/Bluore/mutidoc/app/user/cmd/api/internal/types"
+	"github.com/Bluore/mutidoc/pkg/response"
 	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
@@ -17,16 +18,12 @@ func RegisterHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.RegisterReq
 		if err := httpx.Parse(r, &req); err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			response.ResponseErrWithCtx(r.Context(), w, response.ErrValidation)
 			return
 		}
 
 		l := login.NewRegisterLogic(r.Context(), svcCtx)
 		resp, err := l.Register(&req)
-		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
-		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
-		}
+		response.ResponseWithCtx(r.Context(), w, err, resp)
 	}
 }

@@ -7,16 +7,17 @@ import (
 	"context"
 	"fmt"
 	"math/rand"
+	"strings"
+	"time"
 
+	"github.com/Bluore/mutidoc/app/user/cmd/api/internal/httperr"
 	"github.com/Bluore/mutidoc/app/user/cmd/api/internal/svc"
 	"github.com/Bluore/mutidoc/app/user/cmd/api/internal/types"
 	"github.com/Bluore/mutidoc/pkg/emailcontrol"
+	"github.com/Bluore/mutidoc/pkg/globalkey"
 	"github.com/Bluore/mutidoc/pkg/response"
+	"github.com/redis/go-redis/v9"
 	"github.com/zeromicro/go-zero/core/logx"
-)
-
-var (
-	ErrSendEmailFailed = response.NewError(200, 1015001, "发送邮件失败，请稍后再试")
 )
 
 type EmailCodeLogic struct {
@@ -35,12 +36,51 @@ func NewEmailCodeLogic(ctx context.Context, svcCtx *svc.ServiceContext) *EmailCo
 }
 
 func (l *EmailCodeLogic) EmailCode(req *types.EmailCodeReq) (resp *types.EmailCodeResp, err error) {
-	// todo 添加rebot 检查
+	// email格式化
+	req.Email = strings.ToLower(strings.TrimSpace(req.Email))
 
-	// todo 验证邮箱格式
+	// todo 添加robot 检查
+
+	// 验证邮箱格式
+	ok := globalkey.RegexpEmail.MatchString(req.Email)
+	if !ok {
+		return nil, httperr.ErrEmailFormatUnsupported
+	}
+
+	// 频率限制
+	result, err := l.svcCtx.RedisClient.Get(l.ctx, fmt.Sprintf(globalkey.RedisKeyUserVerifyLimit, req.Email)).Result()
+	if err != nil && err != redis.Nil {
+		logx.WithContext(l.ctx).Errorf("redis fail: %v", err)
+		return nil, response.ErrServer
+	}
+	if result != "" {
+		return nil, httperr.ErrEmailLimitExceed
+	}
+
+	// 更新redis
+	verifyCode := rand.Intn(999999)
+	_, err = l.svcCtx.RedisClient.Set(
+		l.ctx,
+		fmt.Sprintf(globalkey.RedisKeyUserVerifyKey, req.Email),
+		fmt.Sprintf("%06d", verifyCode),
+		time.Minute*10,
+	).Result()
+	if err != nil {
+		logx.WithContext(l.ctx).Errorf("redis fail: %v", err)
+		return nil, response.ErrServer
+	}
+	_, err = l.svcCtx.RedisClient.Set(
+		l.ctx,
+		fmt.Sprintf(globalkey.RedisKeyUserVerifyLimit, req.Email),
+		1,
+		time.Minute*1,
+	).Result()
+	if err != nil {
+		logx.WithContext(l.ctx).Errorf("redis fail: %v", err)
+		return nil, response.ErrServer
+	}
 
 	// 发送邮件
-	verifyCode := rand.Intn(999999)
 	emailText := `
 你好，
 欢迎注册mutidoc，你的一次性验证码是 %06d 。
@@ -54,8 +94,8 @@ func (l *EmailCodeLogic) EmailCode(req *types.EmailCodeReq) (resp *types.EmailCo
 	}
 	err = l.svcCtx.EmailSender.SendEmail(l.ctx, email)
 	if err != nil {
-		return nil, ErrSendEmailFailed
+		return nil, httperr.ErrSendEmailFailed
 	}
 
-	return
+	return &types.EmailCodeResp{}, nil
 }

@@ -24,7 +24,7 @@ type (
 	}
 	RegisterResp {
 		AccessToken string `json:"access_token"`
-		RefreshToken string `json:"refresh_token"`
+		AccessExpire int64 `json:"access_expire"`
 	}
 )
 
@@ -36,7 +36,7 @@ type (
 	}
 	LoginResp {
 		AccessToken string `json:"access_token"`
-		RefreshToken string `json:"refresh_token"`
+		AccessExpire int64 `json:"access_expire"`
 	}
 )
 

@@ -29,3 +29,7 @@ DB:
 Cache:
   - Host: redis:6379
     Pass:
+
+JwtAuth:
+  AccessSecret: 123456-456789-123
+  AccessExpire: 60
