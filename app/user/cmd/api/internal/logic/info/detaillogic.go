@@ -6,8 +6,13 @@ package info
 import (
 	"context"
 
+	"github.com/Bluore/mutidoc/app/user/cmd/api/internal/httperr"
 	"github.com/Bluore/mutidoc/app/user/cmd/api/internal/svc"
 	"github.com/Bluore/mutidoc/app/user/cmd/api/internal/types"
+	"github.com/Bluore/mutidoc/app/user/cmd/rpc/user"
+	"github.com/Bluore/mutidoc/pkg/ctxdata"
+	"github.com/Bluore/mutidoc/pkg/grpcerr"
+	"github.com/Bluore/mutidoc/pkg/response"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -28,7 +33,26 @@ func NewDetailLogic(ctx context.Context, svcCtx *svc.ServiceContext) *DetailLogi
 }
 
 func (l *DetailLogic) Detail(req *types.UserInfoReq) (resp *types.UserInfoResp, err error) {
-	// todo: add your logic here and delete this line
+	userID, ok := ctxdata.GetUserIdFromCtx(l.ctx)
+	if !ok {
+		return nil, response.ErrServer
+	}
+	result, err := l.svcCtx.UserRpc.GetUserDetail(l.ctx, &user.GetUserDetailReq{
+		UserID: userID,
+	})
+	if err != nil {
+		if grpcerr.USER_NOT_EXIST_ERROR.EqualError(err) {
+			return nil, httperr.ErrUserNotExist
+		}
+		return nil, response.ErrServer
+	}
 
-	return
+	return &types.UserInfoResp{
+		UserInfo: types.User{
+			Id:       result.UserID,
+			NickName: result.NickName,
+			Email:    result.Email,
+			Avatar:   result.Avatar,
+		},
+	}, nil
 }

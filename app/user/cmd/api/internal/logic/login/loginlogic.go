@@ -5,13 +5,11 @@ package login
 
 import (
 	"context"
-	"strings"
 
 	"github.com/Bluore/mutidoc/app/user/cmd/api/internal/httperr"
 	"github.com/Bluore/mutidoc/app/user/cmd/api/internal/svc"
 	"github.com/Bluore/mutidoc/app/user/cmd/api/internal/types"
 	"github.com/Bluore/mutidoc/app/user/cmd/rpc/user"
-	"github.com/Bluore/mutidoc/pkg/globalkey"
 	"github.com/Bluore/mutidoc/pkg/grpcerr"
 	"github.com/Bluore/mutidoc/pkg/response"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -33,12 +31,6 @@ func NewLoginLogic(ctx context.Context, svcCtx *svc.ServiceContext) *LoginLogic 
 }
 
 func (l *LoginLogic) Login(req *types.LoginReq) (resp *types.LoginResp, err error) {
-	// email格式化
-	req.Password = strings.ToLower(strings.TrimSpace(req.Password))
-	if ok := globalkey.RegexpEmail.MatchString(req.Password); !ok {
-		return nil, httperr.ErrEmailFormatUnsupported
-	}
-
 	// todo 验证robot
 
 	// login user

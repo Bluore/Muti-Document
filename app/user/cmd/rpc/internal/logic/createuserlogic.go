@@ -8,6 +8,7 @@ import (
 	"github.com/Bluore/mutidoc/app/user/model"
 	"github.com/Bluore/mutidoc/pkg/grpcerr"
 	"github.com/Bluore/mutidoc/pkg/idgenerate"
+	"github.com/Bluore/mutidoc/pkg/pwdhash"
 	"github.com/pkg/errors"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -33,9 +34,12 @@ func (l *CreateUserLogic) CreateUser(in *pb.CreateUserReq) (*pb.CreateUserResp, 
 		Id:       idgenerate.NewID(l.svcCtx.Config.ServerID),
 		NickName: in.NickName,
 		Email:    in.Email,
-		Password: in.Password,
+		Password: "",
 	}
 	logx.Infof("create user: %+v", userModel)
+
+	password := pwdhash.HashPassword(in.Password)
+	userModel.Password = password
 
 	userExist, err := l.svcCtx.UserModel.FindOne(l.ctx, userModel.Id)
 	if err != nil && err != model.ErrNotFound {

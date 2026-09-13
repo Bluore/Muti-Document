@@ -72,6 +72,7 @@ func (l *RegisterLogic) Register(req *types.RegisterReq) (resp *types.RegisterRe
 	userDetail, err := l.svcCtx.UserRpc.CreateUser(l.ctx, &user.CreateUserReq{
 		NickName: req.NickName,
 		Email:    req.Email,
+		Password: req.Password,
 	})
 	if err != nil {
 		if st, ok := status.FromError(err); ok {

@@ -32,7 +32,7 @@ type (
 	LoginReq {
 		Login string `json:"login"`
 		Password string `json:"password"`
-		RobotCode string `json:"rebot_code"`
+		RobotCode string `json:"robot_code"`
 	}
 	LoginResp {
 		AccessToken string `json:"access_token"`

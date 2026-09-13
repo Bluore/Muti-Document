@@ -10,7 +10,6 @@ services:
       - TZ=Asia/Shanghai
     ports:
       - 8888:8081
-      - 18888:18888
       - 8889:8082
     volumes:
       - ./deploy/nginx/conf.d:/etc/nginx/conf.d
@@ -26,14 +25,23 @@ services:
       dockerfile: ./app/user/cmd/api/Dockerfile
     container_name: mutidoc-user-api
     command:
-      - go
-      - run
+      - dlv
+      - debug
       - /app/app/user/cmd/api
+      - --log
+      - --headless
+      - --listen=:18888
+      - --api-version=2
+      - --accept-multiclient
+      - --output=/app/data/server/user-api
+      - --build-flags=-buildvcs=false
+      - --
       - -f
       - /app/deploy/config/user-api.yml
     volumes:
       - .:/app
-    ports: []
+    ports:
+      - 18888:18888
     networks:
       - mutidoc-net
 

@@ -14,7 +14,7 @@ type EmailCodeResp struct {
 type LoginReq struct {
 	Login     string `json:"login"`
 	Password  string `json:"password"`
-	RobotCode string `json:"rebot_code"`
+	RobotCode string `json:"robot_code"`
 }
 
 type LoginResp struct {
