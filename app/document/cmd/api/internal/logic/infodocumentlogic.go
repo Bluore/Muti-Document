@@ -7,6 +7,8 @@ import (
 	"context"
 
 	"github.com/Bluore/mutidoc/app/document/cmd/api/internal/svc"
+	"github.com/Bluore/mutidoc/app/document/cmd/api/internal/types"
+
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -25,8 +27,8 @@ func NewInfoDocumentLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Info
 	}
 }
 
-func (l *InfoDocumentLogic) InfoDocument() error {
+func (l *InfoDocumentLogic) InfoDocument(req *types.GetDocumentInfoReq) (resp *types.GetDocumentInfoResp, err error) {
 	// todo: add your logic here and delete this line
 
-	return nil
+	return
 }

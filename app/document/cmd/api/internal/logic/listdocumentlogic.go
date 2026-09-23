@@ -7,6 +7,8 @@ import (
 	"context"
 
 	"github.com/Bluore/mutidoc/app/document/cmd/api/internal/svc"
+	"github.com/Bluore/mutidoc/app/document/cmd/api/internal/types"
+
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -25,8 +27,8 @@ func NewListDocumentLogic(ctx context.Context, svcCtx *svc.ServiceContext) *List
 	}
 }
 
-func (l *ListDocumentLogic) ListDocument() error {
+func (l *ListDocumentLogic) ListDocument(req *types.GetDocumentListReq) (resp *types.GetDocumentListResp, err error) {
 	// todo: add your logic here and delete this line
 
-	return nil
+	return
 }

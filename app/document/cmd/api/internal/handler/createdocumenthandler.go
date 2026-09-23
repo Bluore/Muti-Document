@@ -8,14 +8,22 @@ import (
 
 	"github.com/Bluore/mutidoc/app/document/cmd/api/internal/logic"
 	"github.com/Bluore/mutidoc/app/document/cmd/api/internal/svc"
+	"github.com/Bluore/mutidoc/app/document/cmd/api/internal/types"
 	"github.com/Bluore/mutidoc/pkg/response"
+	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
 // create document
 func createDocumentHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		var req types.CreateDocumentReq
+		if err := httpx.Parse(r, &req); err != nil {
+			response.ResponseErrWithCtx(r.Context(), w, response.ErrValidation)
+			return
+		}
+
 		l := logic.NewCreateDocumentLogic(r.Context(), svcCtx)
-		err := l.CreateDocument()
-		response.ResponseWithCtx(r.Context(), w, err, nil)
+		resp, err := l.CreateDocument(&req)
+		response.ResponseWithCtx(r.Context(), w, err, resp)
 	}
 }

@@ -7,6 +7,8 @@ import (
 	"context"
 
 	"github.com/Bluore/mutidoc/app/document/cmd/api/internal/svc"
+	"github.com/Bluore/mutidoc/app/document/cmd/api/internal/types"
+
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -25,8 +27,8 @@ func NewDeleteDocumentLogic(ctx context.Context, svcCtx *svc.ServiceContext) *De
 	}
 }
 
-func (l *DeleteDocumentLogic) DeleteDocument() error {
+func (l *DeleteDocumentLogic) DeleteDocument(req *types.DeleteDocumentReq) (resp *types.DeleteDocumentResp, err error) {
 	// todo: add your logic here and delete this line
 
-	return nil
+	return
 }

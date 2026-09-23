@@ -19,22 +19,22 @@ import (
 service document {
 	@doc "create document"
 	@handler createDocument
-	post /document
+	post /document (CreateDocumentReq) returns (CreateDocumentResp)
 
 	@doc "delete document"
 	@handler deleteDocument
-	delete /document
+	delete /document (DeleteDocumentReq) returns (DeleteDocumentResp)
 
 	@doc "edit document"
 	@handler editDocument
-	post /document/edit
+	post /document/edit (EditDocumentReq) returns (EditDocumentResp)
 
 	@doc "get document info"
 	@handler infoDocument
-	get /document/info
+	get /document/info (GetDocumentInfoReq) returns (GetDocumentInfoResp)
 
 	@doc "list document"
 	@handler listDocument
-	get /document/list
+	get /document/list (GetDocumentListReq) returns (GetDocumentListResp)
 }
 

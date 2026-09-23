@@ -7,6 +7,8 @@ import (
 	"context"
 
 	"github.com/Bluore/mutidoc/app/document/cmd/api/internal/svc"
+	"github.com/Bluore/mutidoc/app/document/cmd/api/internal/types"
+
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -25,8 +27,8 @@ func NewCreateDocumentLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Cr
 	}
 }
 
-func (l *CreateDocumentLogic) CreateDocument() error {
+func (l *CreateDocumentLogic) CreateDocument(req *types.CreateDocumentReq) (resp *types.CreateDocumentResp, err error) {
 	// todo: add your logic here and delete this line
 
-	return nil
+	return
 }
