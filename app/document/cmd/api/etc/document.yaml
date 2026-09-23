@@ -1,0 +1,28 @@
+Name: document-api
+Host: 0.0.0.0
+Port: 1101
+Mode: dev
+
+RedisConf:
+  Addr: redis:6379
+  Password:
+  DB: 0
+
+JwtAuth:
+  AccessSecret: 123456-456789-123
+  AccessExpire: 60
+
+Log:
+  ServiceName: document-api
+  Level: debug
+
+Prometheus:
+  Host: 0.0.0.0
+  Port: 4101
+  Path: /metrics
+
+Telemetry:
+  Name: document-api
+  Endpoint: http://jaeger:14268/api/traces
+  Sampler: 1.0
+  Batcher: otlphttp

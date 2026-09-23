@@ -1,0 +1,40 @@
+syntax = "v1"
+
+info (
+	title:   "文档实例"
+	desc:    "文档实例"
+	author:  "Bluore"
+	email:   "a@bluore.top"
+	version: "v1"
+)
+
+import (
+	"document/document.api"
+)
+
+@server (
+	handler: /api/doc/v1
+	jwt:     JwtAuth
+)
+service document {
+	@doc "create document"
+	@handler createDocument
+	post /document
+
+	@doc "delete document"
+	@handler deleteDocument
+	delete /document
+
+	@doc "edit document"
+	@handler editDocument
+	post /document/edit
+
+	@doc "get document info"
+	@handler infoDocument
+	get /document/info
+
+	@doc "list document"
+	@handler listDocument
+	get /document/list
+}
+

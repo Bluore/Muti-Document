@@ -1,0 +1,61 @@
+syntax = "v1"
+
+info (
+    title: "文档实例"
+    desc: "文档实例"
+    author: "Bluore"
+    email: "a@bluore.top"
+    version: "v1"
+)
+
+type Document {
+    Id string `json:"id"`
+    OwnerId string `json:"owner_id"`
+    Summary string `json:"summary"`
+    
+    CreateAt int64 `json:"create_at"`
+    UpdateAt int64 `json:"update_at"`
+}
+
+type (
+    CreateDocumentReq {
+    }
+    CreateDocumentResp {
+        DocumentId string `json:"document_id"`
+    }
+)
+
+type (
+    DeleteDocumentReq {
+        DocumentId string `json:"document_id"`
+    }
+    DeleteDocumentResp {
+    }
+)
+
+type (
+    EditDocumentReq {
+        DocumentId string `json:"document_id"`
+    }
+    EditDocumentResp {
+    }
+)
+
+type (
+    GetDocumentInfoReq {
+        DocumentId string `json:"document_id"`
+    }
+    GetDocumentInfoResp {
+        DocumentInfo Document `json:"document_info"`
+    }
+)
+
+type (
+    GetDocumentListReq {
+        Page int `json:"page"`
+        Size int `json:"size"`
+    }
+    GetDocumentListResp {
+        DocumentInfo []Document `json:"document_info"`
+    }
+)

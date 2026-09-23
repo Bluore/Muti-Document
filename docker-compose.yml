@@ -25,17 +25,9 @@ services:
       dockerfile: ./app/user/cmd/api/Dockerfile
     container_name: mutidoc-user-api
     command:
-      - dlv
-      - debug
+      - go
+      - run
       - /app/app/user/cmd/api
-      - --log
-      - --headless
-      - --listen=:18888
-      - --api-version=2
-      - --accept-multiclient
-      - --output=/app/data/server/user-api
-      - --build-flags=-buildvcs=false
-      - --
       - -f
       - /app/deploy/config/user-api.yml
     volumes:
@@ -56,6 +48,23 @@ services:
       - /app/app/user/cmd/rpc
       - -f
       - /app/deploy/config/user-rpc.yml
+    volumes:
+      - .:/app
+    ports: []
+    networks:
+      - mutidoc-net
+
+  mutidoc-document-api:
+    build:
+      context: .
+      dockerfile: ./app/document/cmd/api/Dockerfile
+    container_name: mutidoc-document-api
+    command:
+      - go
+      - run
+      - /app/app/document/cmd/api
+      - -f
+      - /app/deploy/config/document-api.yml
     volumes:
       - .:/app
     ports: []
