@@ -18,4 +18,8 @@ func init() {
 	codeMsg[USER_NOT_EXIST_ERROR] = "user no exist"
 	codeMsg[USER_TOKEN_GERENATE_ERROR] = "token generate error"
 	codeMsg[USER_PASSWORD_ERROR] = "user password or login error"
+
+	// document模块
+	codeMsg[DOCUMENT_NOT_EXIST_ERROR] = "document no exist"
+	codeMsg[DOCUMENT_NO_PERMISSION_ERROR] = "document permission denied"
 }

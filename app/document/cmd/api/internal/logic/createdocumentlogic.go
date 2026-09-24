@@ -8,6 +8,9 @@ import (
 
 	"github.com/Bluore/mutidoc/app/document/cmd/api/internal/svc"
 	"github.com/Bluore/mutidoc/app/document/cmd/api/internal/types"
+	"github.com/Bluore/mutidoc/app/document/cmd/rpc/document"
+	"github.com/Bluore/mutidoc/pkg/ctxdata"
+	"github.com/Bluore/mutidoc/pkg/response"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -28,7 +31,19 @@ func NewCreateDocumentLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Cr
 }
 
 func (l *CreateDocumentLogic) CreateDocument(req *types.CreateDocumentReq) (resp *types.CreateDocumentResp, err error) {
-	// todo: add your logic here and delete this line
+	// 文档归属者从jwt中获取
+	ownerID := ctxdata.MustGetUserIdFromCtx(l.ctx)
 
-	return
+	result, err := l.svcCtx.DocumentRpc.CreateDocument(l.ctx, &document.CreateDocumentReq{
+		OwnerId: ownerID,
+	})
+	if err != nil {
+		logx.WithContext(l.ctx).Errorf("create document fail: %v", err)
+		return nil, response.ErrServer
+	}
+	logx.WithContext(l.ctx).Infow("create document success", logx.Field("document_id", result.DocumentId))
+
+	return &types.CreateDocumentResp{
+		DocumentId: result.DocumentId,
+	}, nil
 }

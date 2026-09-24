@@ -13,8 +13,8 @@ import (
 )
 
 @server (
-	handler: /api/doc/v1
-	jwt:     JwtAuth
+	prefix: /api/doc/v1
+	jwt:    JwtAuth
 )
 service document {
 	@doc "create document"

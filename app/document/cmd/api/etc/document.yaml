@@ -18,7 +18,7 @@ Log:
 
 Prometheus:
   Host: 0.0.0.0
-  Port: 4101
+  Port: 4201
   Path: /metrics
 
 Telemetry:
@@ -26,3 +26,10 @@ Telemetry:
   Endpoint: http://jaeger:14268/api/traces
   Sampler: 1.0
   Batcher: otlphttp
+
+DocumentRpcConf:
+  Etcd:
+    Hosts:
+      - etcd:2379
+    Key: document.rpc
+  Timeout: 2000

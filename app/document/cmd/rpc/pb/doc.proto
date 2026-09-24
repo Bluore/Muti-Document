@@ -1,0 +1,79 @@
+syntax = "proto3";
+
+option go_package = "./pb";
+
+package document;
+
+service document {
+
+  // 创建文档
+  rpc CreateDocument(CreateDocumentReq) returns (CreateDocumentResp);
+
+  // 删除文档
+  rpc DeleteDocument(DeleteDocumentReq) returns (DeleteDocumentResp);
+
+  // 更新文档(全量更新)
+  rpc UpdateDocument(UpdateDocumentReq) returns (UpdateDocumentResp);
+
+  // 获取文档详情(仅元信息)
+  rpc GetDocumentInfo(GetDocumentInfoReq) returns (GetDocumentInfoResp);
+
+  // 获取文档列表(仅元信息)
+  rpc GetDocumentList(GetDocumentListReq) returns (GetDocumentListResp);
+}
+
+message Document{
+  string Id = 1;
+  string OwnerId = 2;
+  string Summary = 3;
+  // 文档版本号, 由服务端维护
+  int64 Version = 4;
+  int64 CreateAt = 5;
+  int64 UpdateAt = 6;
+  // 软删除时间, 未删除为 0
+  int64 DeleteAt = 7;
+}
+
+message CreateDocumentReq{
+  string OwnerId = 1;
+}
+
+message CreateDocumentResp{
+  string DocumentId = 1;
+}
+
+message DeleteDocumentReq{
+  string DocumentId = 1;
+}
+
+message DeleteDocumentResp{
+}
+
+message UpdateDocumentReq{
+  string DocumentId = 1;
+  string Summary = 2;
+  string Content = 3;
+}
+
+message UpdateDocumentResp{
+}
+
+message GetDocumentInfoReq{
+  string DocumentId = 1;
+}
+
+message GetDocumentInfoResp{
+  Document DocumentInfo = 1;
+}
+
+message GetDocumentListReq{
+  // 文档归属者, 只返回该用户的文档
+  string OwnerId = 1;
+  int64 Page = 2;
+  int64 Size = 3;
+}
+
+message GetDocumentListResp{
+  repeated Document DocumentInfo = 1;
+  int64 Total = 2;
+}

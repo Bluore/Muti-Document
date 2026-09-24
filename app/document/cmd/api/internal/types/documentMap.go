@@ -41,10 +41,12 @@ func (m DocumentMap) Set(key string, value *connection.DocumentClient) {
 	m.docs[key] = value
 }
 
-func (m DocumentMap) Delete(key string) {
+func (m DocumentMap) CheckAndDelete(key string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	delete(m.docs, key)
+	if _, ok := m.docs[key]; ok {
+		delete(m.docs, key)
+	}
 }
 
 func (m DocumentMap) Len() int {

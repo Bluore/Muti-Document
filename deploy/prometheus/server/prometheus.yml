@@ -22,3 +22,10 @@ scrape_configs:
     static_configs:
       - targets:
           - "mutidoc-document-api:4101"
+
+  - job_name: "document-rpc"
+    metrics_path: "/metrics"
+    scrape_interval: 5s
+    static_configs:
+      - targets:
+          - "mutidoc-document-rpc:4202"

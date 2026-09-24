@@ -46,5 +46,6 @@ type GetDocumentListReq struct {
 }
 
 type GetDocumentListResp struct {
-	DocumentInfo []Document `json:"document_info"`
+	DocumentInfo []Document `json:"documents_info"`
+	DocumentLen  int        `json:"documents_len"`
 }

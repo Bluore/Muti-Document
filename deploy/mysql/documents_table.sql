@@ -5,8 +5,8 @@ CREATE TABLE documents
 (
     `id` VARCHAR(50) NOT NULL,
     `owner_id` VARCHAR(50) NOT NULL,
-    `summary` TEXT NOT NULL DEFAULT 'new document',
-    `content` TEXT NOT NULL DEFAULT '',
+    `summary` VARCHAR(255) NOT NULL DEFAULT 'new document',
+    `content` TEXT NOT NULL,
 
     `version` INTEGER NOT NULL DEFAULT 1,
     `create_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,

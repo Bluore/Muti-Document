@@ -71,6 +71,23 @@ services:
     networks:
       - mutidoc-net
 
+  mutidoc-document-rpc:
+    build:
+      context: .
+      dockerfile: ./app/document/cmd/rpc/Dockerfile
+    container_name: mutidoc-document-rpc
+    command:
+      - go
+      - run
+      - /app/app/document/cmd/rpc
+      - -f
+      - /app/deploy/config/document-rpc.yml
+    volumes:
+      - .:/app
+    ports: []
+    networks:
+      - mutidoc-net
+
 networks:
   mutidoc-net:
     external: true

@@ -2,34 +2,38 @@ package idgenerate
 
 import (
 	"fmt"
-	"sync/atomic"
+	"strconv"
+	"sync"
 	"time"
 )
 
 var (
-	sequence atomic.Int32
+	sequence   int32
+	sequenceMu sync.Mutex
 
-	lastGenerateTime time.Time
+	lastGenerateTime int64
 )
-
-func init() {
-	sequence.Store(0)
-	lastGenerateTime = time.Now()
-}
 
 func NewID(serverID int64) string {
 	if serverID >= 1e4 {
 		panic("serverID out of range")
 	}
 
-	cur := time.Now()
-	if cur.After(lastGenerateTime) {
-		sequence.Store(0)
+	sequenceMu.Lock()
+	defer sequenceMu.Unlock()
+	cur := time.Now().Unix()
+	if cur > lastGenerateTime {
+		sequence = 0
 		lastGenerateTime = cur
-		return fmt.Sprintf("0%014d%03d%04d", cur.Unix(), serverID, 0)
-	} else if cur.Equal(lastGenerateTime) {
-		seq := sequence.Add(1)
-		return fmt.Sprintf("0%014d%03d%04d", cur.Unix(), serverID, seq)
+		return fmt.Sprintf("0%014d%03d%04d", cur, serverID, 0)
+	} else if cur == lastGenerateTime {
+		sequence += 1
+		return fmt.Sprintf("0%014d%03d%04d", cur, serverID, sequence)
 	}
 	panic("InvalidSystemClock")
+}
+
+func generateID(cur time.Time, serverID int64, seq int32) string {
+	str := strconv.FormatInt(cur.Unix()*10^7+serverID*10^4+int64(seq), 10)
+	return fmt.Sprintf("0%21s", str)
 }

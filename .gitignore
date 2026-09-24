@@ -1,4 +1,9 @@
 .idea/
+.opencode/
 *.exe
 data/
 deploy/config/
+AGENTS.md
+.agents/
+opencode.json
+skills-lock.json

@@ -10,6 +10,8 @@ import (
 	"github.com/Bluore/mutidoc/app/document/cmd/api/internal/config"
 	"github.com/Bluore/mutidoc/app/document/cmd/api/internal/handler"
 	"github.com/Bluore/mutidoc/app/document/cmd/api/internal/svc"
+	"github.com/Bluore/mutidoc/pkg/response"
+	"github.com/zeromicro/go-zero/core/logx"
 
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/rest"
@@ -23,12 +25,15 @@ func main() {
 	var c config.Config
 	conf.MustLoad(*configFile, &c)
 
-	server := rest.MustNewServer(c.RestConf)
+	server := rest.MustNewServer(
+		c.RestConf,
+		rest.WithUnauthorizedCallback(response.AuthHook),
+	)
 	defer server.Stop()
 
 	ctx := svc.NewServiceContext(c)
 	handler.RegisterHandlers(server, ctx)
 
-	fmt.Printf("Starting server at %s:%d...\n", c.Host, c.Port)
+	logx.Info(fmt.Sprintf("Starting server at %s:%d...\n", c.Host, c.Port))
 	server.Start()
 }
