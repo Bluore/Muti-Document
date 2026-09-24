@@ -43,7 +43,7 @@ type (
 
 type (
     GetDocumentInfoReq {
-        DocumentId string `json:"document_id"`
+        DocumentId string `form:"document_id"`
     }
     GetDocumentInfoResp {
         DocumentInfo Document `json:"document_info"`
@@ -52,8 +52,8 @@ type (
 
 type (
     GetDocumentListReq {
-        Page int `json:"page"`
-        Size int `json:"size"`
+        Page int `form:"page"`
+        Size int `form:"size"`
     }
     GetDocumentListResp {
         DocumentInfo []Document `json:"documents_info"`

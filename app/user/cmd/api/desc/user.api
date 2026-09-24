@@ -27,7 +27,7 @@ service user {
 
 	@doc "get email code"
 	@handler emailCode
-	get /email/code (EmailCodeReq) returns (EmailCodeResp)
+	post /email/code (EmailCodeReq) returns (EmailCodeResp)
 }
 
 @server (

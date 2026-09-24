@@ -33,7 +33,7 @@ type EditDocumentResp struct {
 }
 
 type GetDocumentInfoReq struct {
-	DocumentId string `json:"document_id"`
+	DocumentId string `form:"document_id"`
 }
 
 type GetDocumentInfoResp struct {
@@ -41,8 +41,8 @@ type GetDocumentInfoResp struct {
 }
 
 type GetDocumentListReq struct {
-	Page int `json:"page"`
-	Size int `json:"size"`
+	Page int `form:"page"`
+	Size int `form:"size"`
 }
 
 type GetDocumentListResp struct {

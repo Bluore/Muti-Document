@@ -37,7 +37,7 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 		[]rest.Route{
 			{
 				// get email code
-				Method:  http.MethodGet,
+				Method:  http.MethodPost,
 				Path:    "/email/code",
 				Handler: login.EmailCodeHandler(serverCtx),
 			},
