@@ -13,7 +13,8 @@ type DocumentMap struct {
 
 func NewDocumentMap() *DocumentMap {
 	return &DocumentMap{
-		docs: make(map[string]*connection.DocumentClient),
+		docs: make(map[string]*connection.DocumentClient, 100),
+		mu:   &sync.RWMutex{},
 	}
 }
 

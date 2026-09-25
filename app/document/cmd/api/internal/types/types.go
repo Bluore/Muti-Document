@@ -26,7 +26,7 @@ type Document struct {
 }
 
 type EditDocumentReq struct {
-	DocumentId string `json:"document_id"`
+	DocumentId string `form:"document_id"`
 }
 
 type EditDocumentResp struct {

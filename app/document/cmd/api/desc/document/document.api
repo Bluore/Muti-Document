@@ -35,7 +35,7 @@ type (
 
 type (
     EditDocumentReq {
-        DocumentId string `json:"document_id"`
+        DocumentId string `form:"document_id"`
     }
     EditDocumentResp {
     }

@@ -6,6 +6,8 @@ package logic
 import (
 	"context"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/Bluore/mutidoc/app/document/cmd/api/internal/connection"
@@ -13,6 +15,11 @@ import (
 	"github.com/Bluore/mutidoc/app/document/cmd/api/internal/protocol"
 	"github.com/Bluore/mutidoc/app/document/cmd/api/internal/svc"
 	"github.com/Bluore/mutidoc/app/document/cmd/api/internal/types"
+	"github.com/Bluore/mutidoc/app/user/cmd/rpc/user"
+	"github.com/Bluore/mutidoc/pkg/ctxdata"
+	"github.com/Bluore/mutidoc/pkg/grpcerr"
+	"github.com/Bluore/mutidoc/pkg/response"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/gorilla/websocket"
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -78,18 +85,80 @@ func (l *EditDocumentLogic) EditDocument(w http.ResponseWriter, r *http.Request,
 		break
 	}
 
+	// check jwt
+	ctx, err := l.parseToken(initMessage.Token)
+	if err != nil {
+		l.Errorw("check jwt fail",
+			logx.Field("error", err),
+			logx.Field("document_id", req.DocumentId),
+		)
+		return response.ErrAuth
+	}
+
+	// query userInfo
+	userID := ctxdata.MustGetUserIdFromCtx(ctx)
+	userDetail, err := l.svcCtx.UserRpc.GetUserDetail(ctx, &user.GetUserDetailReq{
+		UserID: userID,
+	})
+	if err != nil {
+		if grpcerr.USER_NOT_EXIST_ERROR.EqualError(err) {
+			return httperr.ErrUserNotExist
+		}
+		l.Errorw("query user info fail",
+			logx.Field("error", err),
+			logx.Field("user_id", userID),
+		)
+		return response.ErrServer
+	}
+
+	// todo but not now check grant
+
 	documentClient := l.svcCtx.Document.GetOrCreate(req.DocumentId)
 
 	connHandler := connection.NewConnection(
 		conn,
-		initMessage.UserID,
-		initMessage.UserName,
+		userID,
+		userDetail.NickName,
 		documentClient,
 		r.Context(),
 	)
 
-	l.Infow("join user", logx.Field("user", initMessage))
+	l.Infow("join user", logx.Field("user", connHandler.UserDetail))
 
 	connHandler.Handle()
 	return nil
+}
+
+// parseToken validates the jwt token, stores the user id carried in its claims
+// into a new context and returns it. The user id can then be read with
+// ctxdata.GetUserIdFromCtx / ctxdata.MustGetUserIdFromCtx.
+func (l *EditDocumentLogic) parseToken(tokenString string) (context.Context, error) {
+	if tokenString == "" {
+		return nil, errors.New("empty token")
+	}
+
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte(l.svcCtx.Config.JwtAuth.AccessSecret), nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	if !token.Valid {
+		return nil, errors.New("invalid token")
+	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return nil, errors.New("invalid token claims")
+	}
+
+	userID, ok := claims[ctxdata.CtxKewJwtUserId].(string)
+	if !ok || userID == "" {
+		return nil, errors.New("token missing user id")
+	}
+
+	return context.WithValue(l.ctx, ctxdata.CtxKewJwtUserId, userID), nil
 }

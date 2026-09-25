@@ -47,7 +47,12 @@ func NewConnection(
 
 func (c *Connection) Handle() {
 	var sendChannel = make(chan protocol.ServerMessage, 10)
-	c.Ot.ConnectUser(c.UserID, c.UserDetail, sendChannel)
+	connSuccess := c.Ot.ConnectUser(c.UserID, c.UserDetail, sendChannel)
+	if !connSuccess {
+		//todo kill conn
+
+		return
+	}
 
 	c.sendInitMassage()
 
@@ -167,9 +172,28 @@ func (c *Connection) sendInitMassage() {
 			Content:   string(content),
 			UserID:    c.UserID,
 			Users:     c.Ot.GetUsers(),
+			// todo random a color
+			CursorColor: "",
 		},
 	}
 	c.Reversion = reversion
 
 	c.SendMassage(msg)
+}
+
+func (c *Connection) killConnection() {
+	// todo delete user from documentClient
+
+}
+
+func (c *Connection) listenAndSendMsg() {
+	// todo listen c.Inbox and send msg
+
+}
+
+func (c *Connection) clientPing() {
+	// todo send ping msg
+
+	// todo kill conn if user not receive
+
 }

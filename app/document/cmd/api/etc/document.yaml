@@ -33,3 +33,10 @@ DocumentRpcConf:
       - etcd:2379
     Key: document.rpc
   Timeout: 2000
+
+UserRpcConf:
+  Etcd:
+    Hosts:
+      - etcd:2379
+    Key: user.rpc
+  Timeout: 2000

@@ -30,13 +30,21 @@ func NewOt() *DocumentClient {
 	}
 }
 
-func (o *DocumentClient) ConnectUser(userID string, userInfo protocol.User, subscriber chan<- protocol.ServerMessage) {
+func (o *DocumentClient) ConnectUser(userID string, userInfo protocol.User, subscriber chan<- protocol.ServerMessage) bool {
 
 	o.UserMu.Lock()
 	defer o.UserMu.Unlock()
 
+	if _, exist := o.Users[userID]; exist {
+		return false
+	}
+	if _, exist := o.Subscribers[userID]; exist {
+		return false
+	}
+
 	o.Users[userID] = userInfo
 	o.Subscribers[userID] = subscriber
+	return true
 }
 
 func (o *DocumentClient) Broadcase(msg protocol.ServerMessage) {
