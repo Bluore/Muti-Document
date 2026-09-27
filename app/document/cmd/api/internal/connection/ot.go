@@ -38,39 +38,69 @@ func NewOt() *DocumentClient {
 }
 
 func (o *DocumentClient) ConnectUser(userID string, userInfo protocol.User, subscriber chan<- protocol.ServerMessage) bool {
-
 	o.UserMu.Lock()
-	defer o.UserMu.Unlock()
 
 	if _, exist := o.Users[userID]; exist {
+		o.UserMu.Unlock()
 		return false
 	}
 	if _, exist := o.Subscribers[userID]; exist {
+		o.UserMu.Unlock()
 		return false
 	}
 
 	o.Users[userID] = userInfo
 	o.Subscribers[userID] = subscriber
+
+	o.UserMu.Unlock()
+
+	// Notify the users already in the room that someone joined. The newcomer
+	// learns the full roster from its init message, so it is skipped here.
+	o.Broadcase(userID, protocol.ServerMessage{
+		User: &protocol.ServerUserMsg{
+			JoinUsers: []protocol.User{userInfo},
+		},
+	})
+
 	return true
 }
 
 func (o *DocumentClient) DisconnectUser(userID string) {
 	o.UserMu.Lock()
-	defer o.UserMu.Unlock()
 
 	o.CursorMu.Lock()
-	defer o.CursorMu.Unlock()
-
+	userInfo, existed := o.Users[userID]
 	delete(o.Users, userID)
 	delete(o.Subscribers, userID)
 	delete(o.Cursors, userID)
+	o.CursorMu.Unlock()
+
+	o.UserMu.Unlock()
+
+	if !existed {
+		return
+	}
+
+	// Notify the users still in the room that someone left. The user is already
+	// gone from Subscribers, so it cannot receive its own quit message.
+	o.Broadcase(userID, protocol.ServerMessage{
+		User: &protocol.ServerUserMsg{
+			QuitUsers: []protocol.User{userInfo},
+		},
+	})
 }
 
-func (o *DocumentClient) Broadcase(msg protocol.ServerMessage) {
+// Broadcase delivers msg to every connected user except exceptUserID (pass an
+// empty string to reach everyone). Delivery is best-effort: a full subscriber
+// channel is dropped instead of blocking the room.
+func (o *DocumentClient) Broadcase(exceptUserID string, msg protocol.ServerMessage) {
 	o.UserMu.RLock()
 	defer o.UserMu.RUnlock()
 
 	for userID, ch := range o.Subscribers {
+		if userID == exceptUserID {
+			continue
+		}
 		select {
 		case ch <- msg:
 		default:
@@ -252,9 +282,9 @@ func (o *DocumentClient) SetCursor(cursor ot.Cursor) {
 	o.NotifyEdit()
 }
 
-// GetCursor returns the cursor changes recorded from version up to the current
+// GetHistoryCursor returns the cursor changes recorded from version up to the current
 // one, mirroring GetHistory for the cursor stream.
-func (o *DocumentClient) GetCursor(version uint32) ([][]ot.Cursor, uint32) {
+func (o *DocumentClient) GetHistoryCursor(version uint32) ([][]ot.Cursor, uint32) {
 	o.CursorMu.RLock()
 	defer o.CursorMu.RUnlock()
 
@@ -264,4 +294,15 @@ func (o *DocumentClient) GetCursor(version uint32) ([][]ot.Cursor, uint32) {
 	}
 
 	return o.CursorLogs[version:newVersion], newVersion
+}
+
+func (o *DocumentClient) GetNowCursor() ([]ot.Cursor, uint32) {
+	o.CursorMu.RLock()
+	defer o.CursorMu.RUnlock()
+
+	cursors := make([]ot.Cursor, 0)
+	for _, cursor := range o.Cursors {
+		cursors = append(cursors, cursor)
+	}
+	return cursors, uint32(len(o.CursorLogs))
 }

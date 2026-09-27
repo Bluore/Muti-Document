@@ -79,9 +79,8 @@ func (o *Operator) MarshalJSON() ([]byte, error) {
 	}
 
 	var data = map[string]any{
-		"ops":       ops,
-		"reversion": o.Reversion,
-		"id":        o.UserID,
+		"ops": ops,
+		"id":  o.UserID,
 	}
 	return json.Marshal(data)
 }

@@ -56,7 +56,7 @@ func TestApplyEditTransformsCursors(t *testing.T) {
 		t.Fatalf("cursors after insert = %v, want u1=3 u2=5", got)
 	}
 
-	logs, newVersion := dc.GetCursor(0)
+	logs, newVersion := dc.GetHistoryCursor(0)
 	if newVersion != 1 || len(logs) != 1 {
 		t.Fatalf("got %d logs at version %d, want 1 at 1", len(logs), newVersion)
 	}
@@ -83,7 +83,7 @@ func TestApplyEditTransformsCursors(t *testing.T) {
 		t.Fatalf("cursors after delete = %v, want u1=2 u2=4", got)
 	}
 
-	logs, newVersion = dc.GetCursor(1)
+	logs, newVersion = dc.GetHistoryCursor(1)
 	if newVersion != 2 || len(logs) != 1 {
 		t.Fatalf("got %d logs at version %d, want 1 at 2", len(logs), newVersion)
 	}
@@ -95,14 +95,14 @@ func TestApplyEditTransformsCursors(t *testing.T) {
 func TestGetCursorUpToDate(t *testing.T) {
 	dc := NewOt()
 
-	logs, newVersion := dc.GetCursor(0)
+	logs, newVersion := dc.GetHistoryCursor(0)
 	if len(logs) != 0 || newVersion != 0 {
 		t.Fatalf("expected no logs, got %v at %d", logs, newVersion)
 	}
 
 	dc.SetCursor(namedCursor("u1", 1))
 
-	logs, newVersion = dc.GetCursor(1)
+	logs, newVersion = dc.GetHistoryCursor(1)
 	if len(logs) != 0 || newVersion != 1 {
 		t.Fatalf("expected caller to be up to date, got %v at %d", logs, newVersion)
 	}
@@ -142,7 +142,7 @@ func TestSetCursorRecordsLog(t *testing.T) {
 
 	dc.SetCursor(namedCursor("u1", 1))
 
-	logs, newVersion := dc.GetCursor(0)
+	logs, newVersion := dc.GetHistoryCursor(0)
 	if newVersion != 1 || len(logs) != 1 {
 		t.Fatalf("got %d logs at version %d, want 1 at 1", len(logs), newVersion)
 	}

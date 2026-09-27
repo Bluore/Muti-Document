@@ -19,10 +19,10 @@ type ClientEditMsg struct {
 }
 
 type ServerMessage struct {
-	Edit   *ServerEditMsg   `json:"edit"`
-	Init   *ServerInitMsg   `json:"init"`
-	User   *[]ServerUserMsg `json:"user"`
-	Cursor *[]ot.Cursor     `json:"cursor"`
+	Edit   *ServerEditMsg `json:"edit"`
+	Init   *ServerInitMsg `json:"init"`
+	User   *ServerUserMsg `json:"user"`
+	Cursor *[]ot.Cursor   `json:"cursor"`
 }
 
 type ServerEditMsg struct {
@@ -31,14 +31,15 @@ type ServerEditMsg struct {
 }
 
 type ServerInitMsg struct {
-	Reversion   uint32 `json:"reversion"`
-	Content     string `json:"content"`
-	UserID      string `json:"user_id"`
-	Users       []User `json:"users"`
-	CursorColor string `json:"cursor_color"`
+	Reversion   uint32      `json:"reversion"`
+	Content     string      `json:"content"`
+	UserID      string      `json:"user_id"`
+	Users       []User      `json:"users"`
+	Cursor      []ot.Cursor `json:"cursor"`
+	CursorColor string      `json:"cursor_color"`
 }
 
 type ServerUserMsg struct {
-	JoinUsers *[]User `json:"join_users"`
-	QuitUsers *[]User `json:"quit_users"`
+	JoinUsers []User `json:"join_users"`
+	QuitUsers []User `json:"quit_users"`
 }

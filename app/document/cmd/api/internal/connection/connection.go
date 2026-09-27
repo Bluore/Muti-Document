@@ -3,6 +3,7 @@ package connection
 import (
 	"context"
 	"encoding/json"
+	"sync"
 	"time"
 
 	"github.com/Bluore/mutidoc/app/document/cmd/api/internal/protocol"
@@ -36,6 +37,10 @@ type Connection struct {
 	Notify     <-chan struct{}
 	Reversion  uint32
 	CursorIdx  uint32
+	// WriteMu serialises SendMassage: the Handle goroutine and the outbox
+	// goroutine both write to the socket and gorilla allows only one
+	// concurrent writer (WriteControl is exempt).
+	WriteMu sync.Mutex
 }
 
 func NewConnection(
@@ -74,7 +79,13 @@ func (c *Connection) Handle() {
 			websocket.FormatCloseMessage(websocket.ClosePolicyViolation, "user already connected"),
 			time.Now().Add(writeWait),
 		)
-		c.killConnection()
+		c.Cancel()
+		if err := c.Conn.Close(); err != nil {
+			logx.WithContext(c.Ctx).Debugw("error to close conn",
+				logx.Field("error", err),
+				logx.Field("user_id", c.UserID),
+			)
+		}
 		return
 	}
 	defer c.killConnection()
@@ -83,6 +94,7 @@ func (c *Connection) Handle() {
 
 	go c.readMessage()
 	go c.clientPing()
+	go c.listenOutbox()
 
 	for {
 		c.Notify = c.Ot.GetNotify()
@@ -176,7 +188,7 @@ func (c *Connection) checkAndSendHistory() {
 		hasMessage = true
 	}
 
-	historyCursor, newVersion := c.Ot.GetCursor(c.CursorIdx)
+	historyCursor, newVersion := c.Ot.GetHistoryCursor(c.CursorIdx)
 
 	if len(historyCursor) > 0 {
 		cursorMap := make(map[string]ot.Cursor, len(historyCursor))
@@ -209,6 +221,9 @@ func (c *Connection) checkAndSendHistory() {
 }
 
 func (c *Connection) SendMassage(msg protocol.ServerMessage) error {
+	c.WriteMu.Lock()
+	defer c.WriteMu.Unlock()
+
 	rawMsg, err := json.Marshal(msg)
 	if err != nil {
 		logx.WithContext(c.Ctx).Errorw("server edit marshal error",
@@ -237,6 +252,8 @@ func (c *Connection) SendMassage(msg protocol.ServerMessage) error {
 
 func (c *Connection) sendInitMassage() {
 	content, reversion := c.Ot.GetContent()
+	cursors, cursorIdx := c.Ot.GetNowCursor()
+	c.CursorIdx = cursorIdx
 	msg := protocol.ServerMessage{
 		Init: &protocol.ServerInitMsg{
 			Reversion:   reversion,
@@ -244,6 +261,7 @@ func (c *Connection) sendInitMassage() {
 			UserID:      c.UserID,
 			Users:       c.Ot.GetUsers(),
 			CursorColor: c.UserDetail.CursorColor,
+			Cursor:      cursors,
 		},
 	}
 	c.Reversion = reversion
@@ -295,4 +313,90 @@ func (c *Connection) clientPing() {
 			}
 		}
 	}
+}
+
+// listenOutbox consumes the outbox on its own goroutine. It waits for the
+// first message, then drains whatever else has queued up behind it, merges the
+// batch and sends the result once.
+func (c *Connection) listenOutbox() {
+	for {
+		select {
+		case <-c.Ctx.Done():
+			return
+		case <-c.UserCxt.Done():
+			return
+		case message := <-c.Outbox:
+			c.handleOutbox(message)
+		}
+	}
+}
+
+// handleOutbox drains every message currently waiting in the outbox, folds
+// them into a single message and writes it once. It is called from the outbox
+// goroutine, so SendMassage serialises the write against the ones made from the
+// Handle goroutine.
+func (c *Connection) handleOutbox(message protocol.ServerMessage) {
+	for {
+		select {
+		case next := <-c.Outbox:
+			message = mergeServerMessage(message, next)
+			continue
+		default:
+		}
+		break
+	}
+
+	if err := c.SendMassage(message); err != nil {
+		logx.WithContext(c.Ctx).Errorw("error to send outbox msg, kill conn",
+			logx.Field("error", err),
+			logx.Field("user_id", c.UserID),
+		)
+		c.Cancel()
+	}
+}
+
+// only merge ServerMessage.User Msg NOW.
+func mergeServerMessage(base, next protocol.ServerMessage) protocol.ServerMessage {
+	var newMsg protocol.ServerMessage
+	if next.User != nil {
+		joinMap := make(map[string]protocol.User, len(next.User.JoinUsers))
+		quitMap := make(map[string]protocol.User, len(next.User.QuitUsers))
+
+		if base.User != nil {
+			for _, user := range base.User.JoinUsers {
+				joinMap[user.ID] = user
+			}
+			for _, user := range base.User.QuitUsers {
+				quitMap[user.ID] = user
+			}
+		}
+
+		for _, user := range next.User.JoinUsers {
+			joinMap[user.ID] = user
+		}
+		for _, user := range next.User.QuitUsers {
+			quitMap[user.ID] = user
+		}
+
+		// A user that quit must not also be reported as joining.
+		for id := range quitMap {
+			delete(joinMap, id)
+		}
+
+		joins := make([]protocol.User, 0, len(joinMap))
+		for _, user := range joinMap {
+			joins = append(joins, user)
+		}
+		quits := make([]protocol.User, 0, len(quitMap))
+		for _, user := range quitMap {
+			quits = append(quits, user)
+		}
+
+		newMsg.User = &protocol.ServerUserMsg{
+			JoinUsers: joins,
+			QuitUsers: quits,
+		}
+	}
+
+	return newMsg
 }
