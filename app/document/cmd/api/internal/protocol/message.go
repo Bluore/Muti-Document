@@ -5,7 +5,8 @@ import (
 )
 
 type ClientMessage struct {
-	Edit *ClientEditMsg `json:"edit,omitempty"`
+	Edit   *ClientEditMsg `json:"edit,omitempty"`
+	Cursor *ot.Cursor     `json:"cursor"`
 }
 
 type ClientInitMessage struct {
@@ -18,8 +19,10 @@ type ClientEditMsg struct {
 }
 
 type ServerMessage struct {
-	Edit *ServerEditMsg `json:"edit"`
-	Init *ServerInitMsg `json:"init"`
+	Edit   *ServerEditMsg   `json:"edit"`
+	Init   *ServerInitMsg   `json:"init"`
+	User   *[]ServerUserMsg `json:"user"`
+	Cursor *[]ot.Cursor     `json:"cursor"`
 }
 
 type ServerEditMsg struct {
@@ -33,4 +36,9 @@ type ServerInitMsg struct {
 	UserID      string `json:"user_id"`
 	Users       []User `json:"users"`
 	CursorColor string `json:"cursor_color"`
+}
+
+type ServerUserMsg struct {
+	JoinUsers *[]User `json:"join_users"`
+	QuitUsers *[]User `json:"quit_users"`
 }

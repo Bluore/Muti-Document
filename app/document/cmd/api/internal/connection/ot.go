@@ -1,6 +1,7 @@
 package connection
 
 import (
+	"sort"
 	"sync"
 
 	"github.com/Bluore/mutidoc/app/document/cmd/api/internal/protocol"
@@ -18,6 +19,10 @@ type DocumentClient struct {
 	UserMu    sync.RWMutex  `json:"-"`
 	ContentMu sync.RWMutex  `json:"-"`
 	SendMu    sync.Mutex    `json:"-"`
+
+	Cursors    map[string]ot.Cursor `json:"cursors"`
+	CursorLogs [][]ot.Cursor        `json:"cursor_logs"`
+	CursorMu   sync.RWMutex         `json:"-"`
 }
 
 func NewOt() *DocumentClient {
@@ -27,6 +32,8 @@ func NewOt() *DocumentClient {
 		Content:     []byte("helloworld"),
 		Ops:         make([]ot.Operator, 0),
 		Notify:      make(chan struct{}),
+		Cursors:     make(map[string]ot.Cursor, 100),
+		CursorLogs:  make([][]ot.Cursor, 0),
 	}
 }
 
@@ -47,7 +54,22 @@ func (o *DocumentClient) ConnectUser(userID string, userInfo protocol.User, subs
 	return true
 }
 
+func (o *DocumentClient) DisconnectUser(userID string) {
+	o.UserMu.Lock()
+	defer o.UserMu.Unlock()
+
+	o.CursorMu.Lock()
+	defer o.CursorMu.Unlock()
+
+	delete(o.Users, userID)
+	delete(o.Subscribers, userID)
+	delete(o.Cursors, userID)
+}
+
 func (o *DocumentClient) Broadcase(msg protocol.ServerMessage) {
+	o.UserMu.RLock()
+	defer o.UserMu.RUnlock()
+
 	for userID, ch := range o.Subscribers {
 		select {
 		case ch <- msg:
@@ -145,10 +167,101 @@ func (o *DocumentClient) applyEdit(oper *ot.Operator) {
 	o.Content = operPrime.Apply(o.Content)
 	o.Ops = append(o.Ops, *operPrime)
 
+	o.transformCursors(operPrime)
+
 	o.NotifyEdit()
 
 	logx.Infow("apply edit",
 		logx.Field("oper", oper),
 		logx.Field("text", string(o.Content)),
 	)
+}
+
+// transformCursors rebases every stored cursor through oper and records the
+// result in CursorLogs. CursorLogs stays aligned with Ops so that the cursor
+// changes for a given reversion line up with its operation.
+func (o *DocumentClient) transformCursors(oper *ot.Operator) {
+	o.CursorMu.Lock()
+	defer o.CursorMu.Unlock()
+
+	changed := make([]ot.Cursor, 0)
+	for userID, cursor := range o.Cursors {
+		oldCursor := cursor
+		cursor.ApplyTransform(oper)
+		if cursor == oldCursor {
+			continue
+		}
+		o.Cursors[userID] = cursor
+		changed = append(changed, cursor)
+	}
+
+	if len(changed) == 0 {
+		return
+	}
+
+	// Keep the log deterministic regardless of map iteration order.
+	sort.Slice(changed, func(i, j int) bool {
+		return changed[i].UserID < changed[j].UserID
+	})
+
+	o.CursorLogs = append(o.CursorLogs, changed)
+}
+
+// SetCursor stores the latest cursor reported by a user, rebasing it from the
+// reversion the client computed it at to the current one so its offsets stay
+// valid after the edits that happened in the meantime. The change is appended
+// to CursorLogs and every connection is woken so it gets delivered.
+//
+// ContentMu is taken before CursorMu on purpose, matching applyEdit's lock
+// order: an edit appends an operation and transforms every stored cursor
+// atomically, so a cursor must never be stored while an edit is half applied.
+func (o *DocumentClient) SetCursor(cursor ot.Cursor) {
+	o.ContentMu.RLock()
+	o.CursorMu.Lock()
+
+	targetReversion := uint32(len(o.Ops))
+	reversion := cursor.Reversion
+	if reversion > targetReversion {
+		logx.Infow("cursor reversion is ahead of ops",
+			logx.Field("user_id", cursor.UserID),
+			logx.Field("reversion", cursor.Reversion),
+			logx.Field("ops_len", targetReversion),
+		)
+		reversion = targetReversion
+	}
+
+	for i := reversion; i < targetReversion; i++ {
+		oper := o.Ops[i]
+		cursor.ApplyTransform(&oper)
+	}
+
+	cursor.Reversion = targetReversion
+
+	if existing, ok := o.Cursors[cursor.UserID]; ok && existing == cursor {
+		o.CursorMu.Unlock()
+		o.ContentMu.RUnlock()
+		return
+	}
+
+	o.Cursors[cursor.UserID] = cursor
+	o.CursorLogs = append(o.CursorLogs, []ot.Cursor{cursor})
+
+	o.CursorMu.Unlock()
+	o.ContentMu.RUnlock()
+
+	o.NotifyEdit()
+}
+
+// GetCursor returns the cursor changes recorded from version up to the current
+// one, mirroring GetHistory for the cursor stream.
+func (o *DocumentClient) GetCursor(version uint32) ([][]ot.Cursor, uint32) {
+	o.CursorMu.RLock()
+	defer o.CursorMu.RUnlock()
+
+	newVersion := uint32(len(o.CursorLogs))
+	if version >= newVersion {
+		return make([][]ot.Cursor, 0), version
+	}
+
+	return o.CursorLogs[version:newVersion], newVersion
 }
