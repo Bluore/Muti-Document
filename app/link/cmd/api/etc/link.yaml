@@ -3,6 +3,8 @@ Host: 0.0.0.0
 Port: 1101
 Mode: dev
 
+BaseUrl: http://localhost:8888
+
 JwtAuth:
   AccessSecret: 123456-456789-123
   AccessExpire: 60
@@ -27,4 +29,11 @@ LinkRpcConf:
     Hosts:
       - etcd:2379
     Key: link.rpc
+  Timeout: 2000
+
+DocumentRpcConf:
+  Etcd:
+    Hosts:
+      - etcd:2379
+    Key: document.rpc
   Timeout: 2000

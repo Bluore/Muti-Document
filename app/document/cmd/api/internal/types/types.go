@@ -49,3 +49,11 @@ type GetDocumentListResp struct {
 	DocumentInfo []Document `json:"documents_info"`
 	DocumentLen  int        `json:"documents_len"`
 }
+
+type GetGrantLinkReq struct {
+	DocumentId string `form:"document_id"`
+}
+
+type GetGrantLinkResp struct {
+	Link string `json:"link"`
+}

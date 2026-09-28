@@ -29,8 +29,8 @@ func (s *LinkServer) GetShortLink(ctx context.Context, in *pb.GetShortLinkReq) (
 	return l.GetShortLink(in)
 }
 
-// 授予用户文档权限并获取跳转链接
-func (s *LinkServer) GetGrantLink(ctx context.Context, in *pb.GetGrantLinkReq) (*pb.GetGrantLinkResp, error) {
+// 获取授予用户文档权限对应文档
+func (s *LinkServer) GetGrantLink(ctx context.Context, in *pb.GetGrantDocumentReq) (*pb.GetGrantDocumentResp, error) {
 	l := logic.NewGetGrantLinkLogic(ctx, s.svcCtx)
 	return l.GetGrantLink(in)
 }

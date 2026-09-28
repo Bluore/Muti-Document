@@ -19,11 +19,13 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Document_CreateDocument_FullMethodName  = "/document.document/CreateDocument"
-	Document_DeleteDocument_FullMethodName  = "/document.document/DeleteDocument"
-	Document_UpdateDocument_FullMethodName  = "/document.document/UpdateDocument"
-	Document_GetDocumentInfo_FullMethodName = "/document.document/GetDocumentInfo"
-	Document_GetDocumentList_FullMethodName = "/document.document/GetDocumentList"
+	Document_CreateDocument_FullMethodName           = "/document.document/CreateDocument"
+	Document_DeleteDocument_FullMethodName           = "/document.document/DeleteDocument"
+	Document_UpdateDocument_FullMethodName           = "/document.document/UpdateDocument"
+	Document_GetDocumentInfo_FullMethodName          = "/document.document/GetDocumentInfo"
+	Document_GetDocumentList_FullMethodName          = "/document.document/GetDocumentList"
+	Document_GetDocumentPermission_FullMethodName    = "/document.document/GetDocumentPermission"
+	Document_GrantaDocumentPermission_FullMethodName = "/document.document/GrantaDocumentPermission"
 )
 
 // DocumentClient is the client API for Document service.
@@ -36,10 +38,14 @@ type DocumentClient interface {
 	DeleteDocument(ctx context.Context, in *DeleteDocumentReq, opts ...grpc.CallOption) (*DeleteDocumentResp, error)
 	// 更新文档(全量更新)
 	UpdateDocument(ctx context.Context, in *UpdateDocumentReq, opts ...grpc.CallOption) (*UpdateDocumentResp, error)
-	// 获取文档详情
+	// 获取文档详情(仅元信息)
 	GetDocumentInfo(ctx context.Context, in *GetDocumentInfoReq, opts ...grpc.CallOption) (*GetDocumentInfoResp, error)
-	// 获取文档列表
+	// 获取文档列表(仅元信息)
 	GetDocumentList(ctx context.Context, in *GetDocumentListReq, opts ...grpc.CallOption) (*GetDocumentListResp, error)
+	// 获取用户是否有授权
+	GetDocumentPermission(ctx context.Context, in *GetDocumentPermissionReq, opts ...grpc.CallOption) (*GetDocumentPermissionResp, error)
+	// 授权用户文档权限
+	GrantaDocumentPermission(ctx context.Context, in *GrantDocumentPermissionReq, opts ...grpc.CallOption) (*GrantDocumentPermissionResp, error)
 }
 
 type documentClient struct {
@@ -100,6 +106,26 @@ func (c *documentClient) GetDocumentList(ctx context.Context, in *GetDocumentLis
 	return out, nil
 }
 
+func (c *documentClient) GetDocumentPermission(ctx context.Context, in *GetDocumentPermissionReq, opts ...grpc.CallOption) (*GetDocumentPermissionResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetDocumentPermissionResp)
+	err := c.cc.Invoke(ctx, Document_GetDocumentPermission_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *documentClient) GrantaDocumentPermission(ctx context.Context, in *GrantDocumentPermissionReq, opts ...grpc.CallOption) (*GrantDocumentPermissionResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GrantDocumentPermissionResp)
+	err := c.cc.Invoke(ctx, Document_GrantaDocumentPermission_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // DocumentServer is the server API for Document service.
 // All implementations must embed UnimplementedDocumentServer
 // for forward compatibility.
@@ -110,10 +136,14 @@ type DocumentServer interface {
 	DeleteDocument(context.Context, *DeleteDocumentReq) (*DeleteDocumentResp, error)
 	// 更新文档(全量更新)
 	UpdateDocument(context.Context, *UpdateDocumentReq) (*UpdateDocumentResp, error)
-	// 获取文档详情
+	// 获取文档详情(仅元信息)
 	GetDocumentInfo(context.Context, *GetDocumentInfoReq) (*GetDocumentInfoResp, error)
-	// 获取文档列表
+	// 获取文档列表(仅元信息)
 	GetDocumentList(context.Context, *GetDocumentListReq) (*GetDocumentListResp, error)
+	// 获取用户是否有授权
+	GetDocumentPermission(context.Context, *GetDocumentPermissionReq) (*GetDocumentPermissionResp, error)
+	// 授权用户文档权限
+	GrantaDocumentPermission(context.Context, *GrantDocumentPermissionReq) (*GrantDocumentPermissionResp, error)
 	mustEmbedUnimplementedDocumentServer()
 }
 
@@ -138,6 +168,12 @@ func (UnimplementedDocumentServer) GetDocumentInfo(context.Context, *GetDocument
 }
 func (UnimplementedDocumentServer) GetDocumentList(context.Context, *GetDocumentListReq) (*GetDocumentListResp, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetDocumentList not implemented")
+}
+func (UnimplementedDocumentServer) GetDocumentPermission(context.Context, *GetDocumentPermissionReq) (*GetDocumentPermissionResp, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetDocumentPermission not implemented")
+}
+func (UnimplementedDocumentServer) GrantaDocumentPermission(context.Context, *GrantDocumentPermissionReq) (*GrantDocumentPermissionResp, error) {
+	return nil, status.Error(codes.Unimplemented, "method GrantaDocumentPermission not implemented")
 }
 func (UnimplementedDocumentServer) mustEmbedUnimplementedDocumentServer() {}
 func (UnimplementedDocumentServer) testEmbeddedByValue()                  {}
@@ -250,6 +286,42 @@ func _Document_GetDocumentList_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Document_GetDocumentPermission_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetDocumentPermissionReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DocumentServer).GetDocumentPermission(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Document_GetDocumentPermission_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DocumentServer).GetDocumentPermission(ctx, req.(*GetDocumentPermissionReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Document_GrantaDocumentPermission_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GrantDocumentPermissionReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DocumentServer).GrantaDocumentPermission(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Document_GrantaDocumentPermission_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DocumentServer).GrantaDocumentPermission(ctx, req.(*GrantDocumentPermissionReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Document_ServiceDesc is the grpc.ServiceDesc for Document service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -276,6 +348,14 @@ var Document_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetDocumentList",
 			Handler:    _Document_GetDocumentList_Handler,
+		},
+		{
+			MethodName: "GetDocumentPermission",
+			Handler:    _Document_GetDocumentPermission_Handler,
+		},
+		{
+			MethodName: "GrantaDocumentPermission",
+			Handler:    _Document_GrantaDocumentPermission_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

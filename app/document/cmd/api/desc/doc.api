@@ -32,6 +32,10 @@ service document {
 	@doc "list document"
 	@handler listDocument
 	get /document/list (GetDocumentListReq) returns (GetDocumentListResp)
+
+	@doc "get grant link"
+	@handler getGrantLink
+	get /document/grant (GetGrantLinkReq) returns (GetGrantLinkResp)
 }
 
 @server (

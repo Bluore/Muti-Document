@@ -31,8 +31,8 @@ const (
 type LinkClient interface {
 	// 打开短链, 获取跳转链接
 	GetShortLink(ctx context.Context, in *GetShortLinkReq, opts ...grpc.CallOption) (*GetShortLinkResp, error)
-	// 授予用户文档权限并获取跳转链接
-	GetGrantLink(ctx context.Context, in *GetGrantLinkReq, opts ...grpc.CallOption) (*GetGrantLinkResp, error)
+	// 获取授予用户文档权限对应文档
+	GetGrantLink(ctx context.Context, in *GetGrantDocumentReq, opts ...grpc.CallOption) (*GetGrantDocumentResp, error)
 	// 创建短链
 	CreateShortLink(ctx context.Context, in *CreateShortLinkReq, opts ...grpc.CallOption) (*CreateShortLinkResp, error)
 	// 创建文档授权链接
@@ -57,9 +57,9 @@ func (c *linkClient) GetShortLink(ctx context.Context, in *GetShortLinkReq, opts
 	return out, nil
 }
 
-func (c *linkClient) GetGrantLink(ctx context.Context, in *GetGrantLinkReq, opts ...grpc.CallOption) (*GetGrantLinkResp, error) {
+func (c *linkClient) GetGrantLink(ctx context.Context, in *GetGrantDocumentReq, opts ...grpc.CallOption) (*GetGrantDocumentResp, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetGrantLinkResp)
+	out := new(GetGrantDocumentResp)
 	err := c.cc.Invoke(ctx, Link_GetGrantLink_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -93,8 +93,8 @@ func (c *linkClient) CreateGrantLink(ctx context.Context, in *CreateGrantLinkReq
 type LinkServer interface {
 	// 打开短链, 获取跳转链接
 	GetShortLink(context.Context, *GetShortLinkReq) (*GetShortLinkResp, error)
-	// 授予用户文档权限并获取跳转链接
-	GetGrantLink(context.Context, *GetGrantLinkReq) (*GetGrantLinkResp, error)
+	// 获取授予用户文档权限对应文档
+	GetGrantLink(context.Context, *GetGrantDocumentReq) (*GetGrantDocumentResp, error)
 	// 创建短链
 	CreateShortLink(context.Context, *CreateShortLinkReq) (*CreateShortLinkResp, error)
 	// 创建文档授权链接
@@ -112,7 +112,7 @@ type UnimplementedLinkServer struct{}
 func (UnimplementedLinkServer) GetShortLink(context.Context, *GetShortLinkReq) (*GetShortLinkResp, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetShortLink not implemented")
 }
-func (UnimplementedLinkServer) GetGrantLink(context.Context, *GetGrantLinkReq) (*GetGrantLinkResp, error) {
+func (UnimplementedLinkServer) GetGrantLink(context.Context, *GetGrantDocumentReq) (*GetGrantDocumentResp, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetGrantLink not implemented")
 }
 func (UnimplementedLinkServer) CreateShortLink(context.Context, *CreateShortLinkReq) (*CreateShortLinkResp, error) {
@@ -161,7 +161,7 @@ func _Link_GetShortLink_Handler(srv interface{}, ctx context.Context, dec func(i
 }
 
 func _Link_GetGrantLink_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetGrantLinkReq)
+	in := new(GetGrantDocumentReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -173,7 +173,7 @@ func _Link_GetGrantLink_Handler(srv interface{}, ctx context.Context, dec func(i
 		FullMethod: Link_GetGrantLink_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(LinkServer).GetGrantLink(ctx, req.(*GetGrantLinkReq))
+		return srv.(LinkServer).GetGrantLink(ctx, req.(*GetGrantDocumentReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }

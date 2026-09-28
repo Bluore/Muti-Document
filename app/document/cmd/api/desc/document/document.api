@@ -60,3 +60,12 @@ type (
         DocumentLen int `json:"documents_len"`
     }
 )
+
+type (
+    GetGrantLinkReq {
+        DocumentId string `form:"document_id"`
+    }
+    GetGrantLinkResp {
+        Link string `json:"link"`
+    }
+)

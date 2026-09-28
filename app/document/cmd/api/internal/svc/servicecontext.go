@@ -7,6 +7,7 @@ import (
 	"github.com/Bluore/mutidoc/app/document/cmd/api/internal/config"
 	"github.com/Bluore/mutidoc/app/document/cmd/api/internal/types"
 	"github.com/Bluore/mutidoc/app/document/cmd/rpc/document"
+	"github.com/Bluore/mutidoc/app/link/cmd/rpc/link"
 	"github.com/Bluore/mutidoc/app/user/cmd/rpc/user"
 	"github.com/zeromicro/go-zero/zrpc"
 )
@@ -16,16 +17,19 @@ type ServiceContext struct {
 	Document    *types.DocumentMap
 	DocumentRpc document.DocumentZrpcClient
 	UserRpc     user.User
+	LinkRpc     link.Link
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
 	documentRpc := document.NewDocumentZrpcClient(zrpc.MustNewClient(c.DocumentRpcConf))
 	userRpc := user.NewUser(zrpc.MustNewClient(c.UserRpcConf))
+	linkRpc := link.NewLink(zrpc.MustNewClient(c.LinkRpcConf))
 
 	return &ServiceContext{
 		Config:      c,
 		Document:    types.NewDocumentMap(),
 		DocumentRpc: documentRpc,
 		UserRpc:     userRpc,
+		LinkRpc:     linkRpc,
 	}
 }

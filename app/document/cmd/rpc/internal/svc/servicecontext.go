@@ -9,14 +9,16 @@ import (
 type ServiceContext struct {
 	Config config.Config
 
-	DocumentModel model.DocumentsModel
+	DocumentModel           model.DocumentsModel
+	DocumentPermissionModel model.GrantDocumentsPermissionModel
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
 	sqlConn := sqlx.MustNewConn(c.DB.SqlConf)
 
 	return &ServiceContext{
-		Config:        c,
-		DocumentModel: model.NewDocumentsModel(sqlConn, c.Cache),
+		Config:                  c,
+		DocumentModel:           model.NewDocumentsModel(sqlConn, c.Cache),
+		DocumentPermissionModel: model.NewGrantDocumentsPermissionModel(sqlConn, c.Cache),
 	}
 }

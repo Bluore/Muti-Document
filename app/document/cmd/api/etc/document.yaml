@@ -40,3 +40,10 @@ UserRpcConf:
       - etcd:2379
     Key: user.rpc
   Timeout: 2000
+
+LinkRpcConf:
+  Etcd:
+    Hosts:
+      - etcd:2379
+    Key: link.rpc
+  Timeout: 2000

@@ -41,14 +41,26 @@ func (s *DocumentServer) UpdateDocument(ctx context.Context, in *pb.UpdateDocume
 	return l.UpdateDocument(in)
 }
 
-// 获取文档详情
+// 获取文档详情(仅元信息)
 func (s *DocumentServer) GetDocumentInfo(ctx context.Context, in *pb.GetDocumentInfoReq) (*pb.GetDocumentInfoResp, error) {
 	l := logic.NewGetDocumentInfoLogic(ctx, s.svcCtx)
 	return l.GetDocumentInfo(in)
 }
 
-// 获取文档列表
+// 获取文档列表(仅元信息)
 func (s *DocumentServer) GetDocumentList(ctx context.Context, in *pb.GetDocumentListReq) (*pb.GetDocumentListResp, error) {
 	l := logic.NewGetDocumentListLogic(ctx, s.svcCtx)
 	return l.GetDocumentList(in)
+}
+
+// 获取用户是否有授权
+func (s *DocumentServer) GetDocumentPermission(ctx context.Context, in *pb.GetDocumentPermissionReq) (*pb.GetDocumentPermissionResp, error) {
+	l := logic.NewGetDocumentPermissionLogic(ctx, s.svcCtx)
+	return l.GetDocumentPermission(in)
+}
+
+// 授权用户文档权限
+func (s *DocumentServer) GrantaDocumentPermission(ctx context.Context, in *pb.GrantDocumentPermissionReq) (*pb.GrantDocumentPermissionResp, error) {
+	l := logic.NewGrantaDocumentPermissionLogic(ctx, s.svcCtx)
+	return l.GrantaDocumentPermission(in)
 }

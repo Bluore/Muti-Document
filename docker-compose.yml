@@ -119,7 +119,8 @@ services:
       - /app/deploy/config/link-rpc.yml
     volumes:
       - .:/app
-    ports: []
+    ports:
+      - 9999:1201
     networks:
       - mutidoc-net
 

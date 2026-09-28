@@ -1,5 +1,5 @@
 Name: link.rpc
-ListenOn: 0.0.0.0:1203
+ListenOn: 0.0.0.0:1201
 Mode: dev
 ServerID: 003
 Etcd:
@@ -31,3 +31,8 @@ DB:
 Cache:
   - Host: redis:6379
     Pass:
+
+Redis:
+  Host: redis:6379
+  Pass:
+  Key: short_link

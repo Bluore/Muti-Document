@@ -4,19 +4,22 @@
 package svc
 
 import (
+	"github.com/Bluore/mutidoc/app/document/cmd/rpc/document"
 	"github.com/Bluore/mutidoc/app/link/cmd/api/internal/config"
 	"github.com/Bluore/mutidoc/app/link/cmd/rpc/link"
 	"github.com/zeromicro/go-zero/zrpc"
 )
 
 type ServiceContext struct {
-	Config  config.Config
-	LinkRpc link.Link
+	Config      config.Config
+	LinkRpc     link.Link
+	DocumentRpc document.DocumentZrpcClient
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
 	return &ServiceContext{
-		Config:  c,
-		LinkRpc: link.NewLink(zrpc.MustNewClient(c.LinkRpcConf)),
+		Config:      c,
+		LinkRpc:     link.NewLink(zrpc.MustNewClient(c.LinkRpcConf)),
+		DocumentRpc: document.NewDocumentZrpcClient(zrpc.MustNewClient(c.DocumentRpcConf)),
 	}
 }

@@ -14,17 +14,21 @@ import (
 )
 
 type (
-	CreateDocumentReq   = pb.CreateDocumentReq
-	CreateDocumentResp  = pb.CreateDocumentResp
-	DeleteDocumentReq   = pb.DeleteDocumentReq
-	DeleteDocumentResp  = pb.DeleteDocumentResp
-	Document            = pb.Document
-	GetDocumentInfoReq  = pb.GetDocumentInfoReq
-	GetDocumentInfoResp = pb.GetDocumentInfoResp
-	GetDocumentListReq  = pb.GetDocumentListReq
-	GetDocumentListResp = pb.GetDocumentListResp
-	UpdateDocumentReq   = pb.UpdateDocumentReq
-	UpdateDocumentResp  = pb.UpdateDocumentResp
+	CreateDocumentReq           = pb.CreateDocumentReq
+	CreateDocumentResp          = pb.CreateDocumentResp
+	DeleteDocumentReq           = pb.DeleteDocumentReq
+	DeleteDocumentResp          = pb.DeleteDocumentResp
+	Document                    = pb.Document
+	GetDocumentInfoReq          = pb.GetDocumentInfoReq
+	GetDocumentInfoResp         = pb.GetDocumentInfoResp
+	GetDocumentListReq          = pb.GetDocumentListReq
+	GetDocumentListResp         = pb.GetDocumentListResp
+	GetDocumentPermissionReq    = pb.GetDocumentPermissionReq
+	GetDocumentPermissionResp   = pb.GetDocumentPermissionResp
+	GrantDocumentPermissionReq  = pb.GrantDocumentPermissionReq
+	GrantDocumentPermissionResp = pb.GrantDocumentPermissionResp
+	UpdateDocumentReq           = pb.UpdateDocumentReq
+	UpdateDocumentResp          = pb.UpdateDocumentResp
 
 	DocumentZrpcClient interface {
 		// 创建文档
@@ -33,10 +37,14 @@ type (
 		DeleteDocument(ctx context.Context, in *DeleteDocumentReq, opts ...grpc.CallOption) (*DeleteDocumentResp, error)
 		// 更新文档(全量更新)
 		UpdateDocument(ctx context.Context, in *UpdateDocumentReq, opts ...grpc.CallOption) (*UpdateDocumentResp, error)
-		// 获取文档详情
+		// 获取文档详情(仅元信息)
 		GetDocumentInfo(ctx context.Context, in *GetDocumentInfoReq, opts ...grpc.CallOption) (*GetDocumentInfoResp, error)
-		// 获取文档列表
+		// 获取文档列表(仅元信息)
 		GetDocumentList(ctx context.Context, in *GetDocumentListReq, opts ...grpc.CallOption) (*GetDocumentListResp, error)
+		// 获取用户是否有授权
+		GetDocumentPermission(ctx context.Context, in *GetDocumentPermissionReq, opts ...grpc.CallOption) (*GetDocumentPermissionResp, error)
+		// 授权用户文档权限
+		GrantaDocumentPermission(ctx context.Context, in *GrantDocumentPermissionReq, opts ...grpc.CallOption) (*GrantDocumentPermissionResp, error)
 	}
 
 	defaultDocumentZrpcClient struct {
@@ -68,14 +76,26 @@ func (m *defaultDocumentZrpcClient) UpdateDocument(ctx context.Context, in *Upda
 	return client.UpdateDocument(ctx, in, opts...)
 }
 
-// 获取文档详情
+// 获取文档详情(仅元信息)
 func (m *defaultDocumentZrpcClient) GetDocumentInfo(ctx context.Context, in *GetDocumentInfoReq, opts ...grpc.CallOption) (*GetDocumentInfoResp, error) {
 	client := pb.NewDocumentClient(m.cli.Conn())
 	return client.GetDocumentInfo(ctx, in, opts...)
 }
 
-// 获取文档列表
+// 获取文档列表(仅元信息)
 func (m *defaultDocumentZrpcClient) GetDocumentList(ctx context.Context, in *GetDocumentListReq, opts ...grpc.CallOption) (*GetDocumentListResp, error) {
 	client := pb.NewDocumentClient(m.cli.Conn())
 	return client.GetDocumentList(ctx, in, opts...)
+}
+
+// 获取用户是否有授权
+func (m *defaultDocumentZrpcClient) GetDocumentPermission(ctx context.Context, in *GetDocumentPermissionReq, opts ...grpc.CallOption) (*GetDocumentPermissionResp, error) {
+	client := pb.NewDocumentClient(m.cli.Conn())
+	return client.GetDocumentPermission(ctx, in, opts...)
+}
+
+// 授权用户文档权限
+func (m *defaultDocumentZrpcClient) GrantaDocumentPermission(ctx context.Context, in *GrantDocumentPermissionReq, opts ...grpc.CallOption) (*GrantDocumentPermissionResp, error) {
+	client := pb.NewDocumentClient(m.cli.Conn())
+	return client.GrantaDocumentPermission(ctx, in, opts...)
 }

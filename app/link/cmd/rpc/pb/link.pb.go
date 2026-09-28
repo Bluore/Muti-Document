@@ -109,29 +109,27 @@ func (x *GetShortLinkResp) GetTargetUrl() string {
 	return ""
 }
 
-type GetGrantLinkReq struct {
-	state   protoimpl.MessageState `protogen:"open.v1"`
-	GrantId string                 `protobuf:"bytes,1,opt,name=GrantId,proto3" json:"GrantId,omitempty"`
-	// 接受授权的用户
-	UserId        string `protobuf:"bytes,2,opt,name=UserId,proto3" json:"UserId,omitempty"`
+type GetGrantDocumentReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	GrantId       string                 `protobuf:"bytes,1,opt,name=GrantId,proto3" json:"GrantId,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *GetGrantLinkReq) Reset() {
-	*x = GetGrantLinkReq{}
+func (x *GetGrantDocumentReq) Reset() {
+	*x = GetGrantDocumentReq{}
 	mi := &file_pb_link_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GetGrantLinkReq) String() string {
+func (x *GetGrantDocumentReq) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GetGrantLinkReq) ProtoMessage() {}
+func (*GetGrantDocumentReq) ProtoMessage() {}
 
-func (x *GetGrantLinkReq) ProtoReflect() protoreflect.Message {
+func (x *GetGrantDocumentReq) ProtoReflect() protoreflect.Message {
 	mi := &file_pb_link_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -143,46 +141,40 @@ func (x *GetGrantLinkReq) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GetGrantLinkReq.ProtoReflect.Descriptor instead.
-func (*GetGrantLinkReq) Descriptor() ([]byte, []int) {
+// Deprecated: Use GetGrantDocumentReq.ProtoReflect.Descriptor instead.
+func (*GetGrantDocumentReq) Descriptor() ([]byte, []int) {
 	return file_pb_link_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *GetGrantLinkReq) GetGrantId() string {
+func (x *GetGrantDocumentReq) GetGrantId() string {
 	if x != nil {
 		return x.GrantId
 	}
 	return ""
 }
 
-func (x *GetGrantLinkReq) GetUserId() string {
-	if x != nil {
-		return x.UserId
-	}
-	return ""
-}
-
-type GetGrantLinkResp struct {
+type GetGrantDocumentResp struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	TargetUrl     string                 `protobuf:"bytes,1,opt,name=TargetUrl,proto3" json:"TargetUrl,omitempty"`
+	Document      string                 `protobuf:"bytes,1,opt,name=Document,proto3" json:"Document,omitempty"`
+	OwnerId       string                 `protobuf:"bytes,2,opt,name=OwnerId,proto3" json:"OwnerId,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *GetGrantLinkResp) Reset() {
-	*x = GetGrantLinkResp{}
+func (x *GetGrantDocumentResp) Reset() {
+	*x = GetGrantDocumentResp{}
 	mi := &file_pb_link_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GetGrantLinkResp) String() string {
+func (x *GetGrantDocumentResp) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GetGrantLinkResp) ProtoMessage() {}
+func (*GetGrantDocumentResp) ProtoMessage() {}
 
-func (x *GetGrantLinkResp) ProtoReflect() protoreflect.Message {
+func (x *GetGrantDocumentResp) ProtoReflect() protoreflect.Message {
 	mi := &file_pb_link_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -194,14 +186,21 @@ func (x *GetGrantLinkResp) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GetGrantLinkResp.ProtoReflect.Descriptor instead.
-func (*GetGrantLinkResp) Descriptor() ([]byte, []int) {
+// Deprecated: Use GetGrantDocumentResp.ProtoReflect.Descriptor instead.
+func (*GetGrantDocumentResp) Descriptor() ([]byte, []int) {
 	return file_pb_link_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *GetGrantLinkResp) GetTargetUrl() string {
+func (x *GetGrantDocumentResp) GetDocument() string {
 	if x != nil {
-		return x.TargetUrl
+		return x.Document
+	}
+	return ""
+}
+
+func (x *GetGrantDocumentResp) GetOwnerId() string {
+	if x != nil {
+		return x.OwnerId
 	}
 	return ""
 }
@@ -414,12 +413,12 @@ const file_pb_link_proto_rawDesc = "" +
 	"\x0fGetShortLinkReq\x12\x0e\n" +
 	"\x02Id\x18\x01 \x01(\tR\x02Id\"0\n" +
 	"\x10GetShortLinkResp\x12\x1c\n" +
-	"\tTargetUrl\x18\x01 \x01(\tR\tTargetUrl\"C\n" +
-	"\x0fGetGrantLinkReq\x12\x18\n" +
-	"\aGrantId\x18\x01 \x01(\tR\aGrantId\x12\x16\n" +
-	"\x06UserId\x18\x02 \x01(\tR\x06UserId\"0\n" +
-	"\x10GetGrantLinkResp\x12\x1c\n" +
-	"\tTargetUrl\x18\x01 \x01(\tR\tTargetUrl\"N\n" +
+	"\tTargetUrl\x18\x01 \x01(\tR\tTargetUrl\"/\n" +
+	"\x13GetGrantDocumentReq\x12\x18\n" +
+	"\aGrantId\x18\x01 \x01(\tR\aGrantId\"L\n" +
+	"\x14GetGrantDocumentResp\x12\x1a\n" +
+	"\bDocument\x18\x01 \x01(\tR\bDocument\x12\x18\n" +
+	"\aOwnerId\x18\x02 \x01(\tR\aOwnerId\"N\n" +
 	"\x12CreateShortLinkReq\x12\x1c\n" +
 	"\tTargetUrl\x18\x01 \x01(\tR\tTargetUrl\x12\x1a\n" +
 	"\bExpireAt\x18\x02 \x01(\x03R\bExpireAt\"3\n" +
@@ -432,10 +431,10 @@ const file_pb_link_proto_rawDesc = "" +
 	"\x06UserId\x18\x02 \x01(\tR\x06UserId\x12\x1a\n" +
 	"\bExpireAt\x18\x03 \x01(\x03R\bExpireAt\"3\n" +
 	"\x13CreateGrantLinkResp\x12\x1c\n" +
-	"\tGrantLink\x18\x01 \x01(\tR\tGrantLink2\x94\x02\n" +
+	"\tGrantLink\x18\x01 \x01(\tR\tGrantLink2\x9c\x02\n" +
 	"\x04link\x12=\n" +
-	"\fGetShortLink\x12\x15.link.GetShortLinkReq\x1a\x16.link.GetShortLinkResp\x12=\n" +
-	"\fGetGrantLink\x12\x15.link.GetGrantLinkReq\x1a\x16.link.GetGrantLinkResp\x12F\n" +
+	"\fGetShortLink\x12\x15.link.GetShortLinkReq\x1a\x16.link.GetShortLinkResp\x12E\n" +
+	"\fGetGrantLink\x12\x19.link.GetGrantDocumentReq\x1a\x1a.link.GetGrantDocumentResp\x12F\n" +
 	"\x0fCreateShortLink\x12\x18.link.CreateShortLinkReq\x1a\x19.link.CreateShortLinkResp\x12F\n" +
 	"\x0fCreateGrantLink\x12\x18.link.CreateGrantLinkReq\x1a\x19.link.CreateGrantLinkRespB\x06Z\x04./pbb\x06proto3"
 
@@ -453,22 +452,22 @@ func file_pb_link_proto_rawDescGZIP() []byte {
 
 var file_pb_link_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_pb_link_proto_goTypes = []any{
-	(*GetShortLinkReq)(nil),     // 0: link.GetShortLinkReq
-	(*GetShortLinkResp)(nil),    // 1: link.GetShortLinkResp
-	(*GetGrantLinkReq)(nil),     // 2: link.GetGrantLinkReq
-	(*GetGrantLinkResp)(nil),    // 3: link.GetGrantLinkResp
-	(*CreateShortLinkReq)(nil),  // 4: link.CreateShortLinkReq
-	(*CreateShortLinkResp)(nil), // 5: link.CreateShortLinkResp
-	(*CreateGrantLinkReq)(nil),  // 6: link.CreateGrantLinkReq
-	(*CreateGrantLinkResp)(nil), // 7: link.CreateGrantLinkResp
+	(*GetShortLinkReq)(nil),      // 0: link.GetShortLinkReq
+	(*GetShortLinkResp)(nil),     // 1: link.GetShortLinkResp
+	(*GetGrantDocumentReq)(nil),  // 2: link.GetGrantDocumentReq
+	(*GetGrantDocumentResp)(nil), // 3: link.GetGrantDocumentResp
+	(*CreateShortLinkReq)(nil),   // 4: link.CreateShortLinkReq
+	(*CreateShortLinkResp)(nil),  // 5: link.CreateShortLinkResp
+	(*CreateGrantLinkReq)(nil),   // 6: link.CreateGrantLinkReq
+	(*CreateGrantLinkResp)(nil),  // 7: link.CreateGrantLinkResp
 }
 var file_pb_link_proto_depIdxs = []int32{
 	0, // 0: link.link.GetShortLink:input_type -> link.GetShortLinkReq
-	2, // 1: link.link.GetGrantLink:input_type -> link.GetGrantLinkReq
+	2, // 1: link.link.GetGrantLink:input_type -> link.GetGrantDocumentReq
 	4, // 2: link.link.CreateShortLink:input_type -> link.CreateShortLinkReq
 	6, // 3: link.link.CreateGrantLink:input_type -> link.CreateGrantLinkReq
 	1, // 4: link.link.GetShortLink:output_type -> link.GetShortLinkResp
-	3, // 5: link.link.GetGrantLink:output_type -> link.GetGrantLinkResp
+	3, // 5: link.link.GetGrantLink:output_type -> link.GetGrantDocumentResp
 	5, // 6: link.link.CreateShortLink:output_type -> link.CreateShortLinkResp
 	7, // 7: link.link.CreateGrantLink:output_type -> link.CreateGrantLinkResp
 	4, // [4:8] is the sub-list for method output_type

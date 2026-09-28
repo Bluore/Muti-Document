@@ -9,8 +9,8 @@ service link {
   // 打开短链, 获取跳转链接
   rpc GetShortLink(GetShortLinkReq) returns (GetShortLinkResp);
 
-  // 授予用户文档权限并获取跳转链接
-  rpc GetGrantLink(GetGrantLinkReq) returns (GetGrantLinkResp);
+  // 获取授予用户文档权限对应文档
+  rpc GetGrantLink(GetGrantDocumentReq) returns (GetGrantDocumentResp);
 
   // 创建短链
   rpc CreateShortLink(CreateShortLinkReq) returns (CreateShortLinkResp);
@@ -27,14 +27,13 @@ message GetShortLinkResp{
   string TargetUrl = 1;
 }
 
-message GetGrantLinkReq{
+message GetGrantDocumentReq{
   string GrantId = 1;
-  // 接受授权的用户
-  string UserId = 2;
 }
 
-message GetGrantLinkResp{
-  string TargetUrl = 1;
+message GetGrantDocumentResp{
+  string Document = 1;
+  string OwnerId = 2;
 }
 
 message CreateShortLinkReq {

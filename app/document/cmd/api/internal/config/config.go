@@ -16,4 +16,5 @@ type Config struct {
 	}
 	DocumentRpcConf zrpc.RpcClientConf
 	UserRpcConf     zrpc.RpcClientConf
+	LinkRpcConf     zrpc.RpcClientConf
 }

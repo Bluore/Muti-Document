@@ -27,6 +27,12 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Handler: deleteDocumentHandler(serverCtx),
 			},
 			{
+				// get grant link
+				Method:  http.MethodGet,
+				Path:    "/document/grant",
+				Handler: getGrantLinkHandler(serverCtx),
+			},
+			{
 				// get document info
 				Method:  http.MethodGet,
 				Path:    "/document/info",

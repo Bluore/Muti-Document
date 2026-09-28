@@ -6,11 +6,13 @@ package grantLink
 import (
 	"context"
 
+	"github.com/Bluore/mutidoc/app/document/cmd/rpc/document"
 	"github.com/Bluore/mutidoc/app/link/cmd/api/internal/httperr"
 	"github.com/Bluore/mutidoc/app/link/cmd/api/internal/svc"
 	"github.com/Bluore/mutidoc/app/link/cmd/api/internal/types"
 	"github.com/Bluore/mutidoc/app/link/cmd/rpc/link"
 	"github.com/Bluore/mutidoc/pkg/ctxdata"
+	"github.com/Bluore/mutidoc/pkg/globalkey"
 	"github.com/Bluore/mutidoc/pkg/grpcerr"
 	"github.com/Bluore/mutidoc/pkg/response"
 
@@ -39,10 +41,9 @@ func (l *GetGrantLinkLogic) GetGrantLink(req *types.GetGrantDocumentReq) (resp *
 		return nil, response.ErrValidation
 	}
 
-	// 授权链接会为当前用户授予文档权限, 并返回可跳转的链接
-	result, err := l.svcCtx.LinkRpc.GetGrantLink(l.ctx, &link.GetGrantLinkReq{
+	// rpc 只解析授权链接, 返回对应文档与所有者
+	grant, err := l.svcCtx.LinkRpc.GetGrantLink(l.ctx, &link.GetGrantDocumentReq{
 		GrantId: req.GrantID,
-		UserId:  userID,
 	})
 	if err != nil {
 		if grpcerr.LINK_NOT_EXIST_ERROR.EqualError(err) {
@@ -51,14 +52,42 @@ func (l *GetGrantLinkLogic) GetGrantLink(req *types.GetGrantDocumentReq) (resp *
 		if grpcerr.LINK_EXPIRED_ERROR.EqualError(err) {
 			return nil, httperr.ErrLinkExpired
 		}
-		if grpcerr.LINK_NO_PERMISSION_ERROR.EqualError(err) {
-			return nil, httperr.ErrLinkNoPermission
-		}
 		logx.WithContext(l.ctx).Errorf("get grant link fail: %v", err)
 		return nil, response.ErrServer
 	}
 
+	// 已授权直接跳转, 未授权则先为用户授予文档权限
+	permission, err := l.svcCtx.DocumentRpc.GetDocumentPermission(l.ctx, &document.GetDocumentPermissionReq{
+		UserId:     userID,
+		DocumentId: grant.Document,
+	})
+	if err != nil {
+		if grpcerr.DOCUMENT_NOT_EXIST_ERROR.EqualError(err) {
+			return nil, httperr.ErrLinkNotExist
+		}
+		logx.WithContext(l.ctx).Errorf("get document permission fail: %v", err)
+		return nil, response.ErrServer
+	}
+	if !permission.HasPermission {
+		if _, err = l.svcCtx.DocumentRpc.GrantaDocumentPermission(l.ctx, &document.GrantDocumentPermissionReq{
+			UserId:     userID,
+			DocumentId: grant.Document,
+		}); err != nil {
+			if grpcerr.DOCUMENT_NOT_EXIST_ERROR.EqualError(err) {
+				return nil, httperr.ErrLinkNotExist
+			}
+			logx.WithContext(l.ctx).Errorf("grant document permission fail: %v", err)
+			return nil, httperr.ErrLinkNoPermission
+		}
+		logx.WithContext(l.ctx).Infow("grant document permission",
+			logx.Field("user_id", userID),
+			logx.Field("document_id", grant.Document),
+			logx.Field("owner_id", grant.OwnerId),
+		)
+	}
+
+	// 授权成功, 跳转到文档编辑页
 	return &types.GetGrantDocumentResp{
-		Link: result.TargetUrl,
+		Link: l.svcCtx.Config.BaseUrl + globalkey.UrlDocument(grant.Document),
 	}, nil
 }

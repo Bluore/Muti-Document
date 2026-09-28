@@ -20,6 +20,12 @@ service document {
 
   // 获取文档列表(仅元信息)
   rpc GetDocumentList(GetDocumentListReq) returns (GetDocumentListResp);
+
+  // 获取用户是否有授权
+  rpc GetDocumentPermission(GetDocumentPermissionReq) returns (GetDocumentPermissionResp);
+
+  // 授权用户文档权限
+  rpc GrantaDocumentPermission(GrantDocumentPermissionReq) returns (GrantDocumentPermissionResp);
 }
 
 message Document{
@@ -76,4 +82,21 @@ message GetDocumentListReq{
 message GetDocumentListResp{
   repeated Document DocumentInfo = 1;
   int64 Total = 2;
+}
+
+message GetDocumentPermissionReq{
+  string UserId = 1;
+  string DocumentId = 2;
+}
+
+message GetDocumentPermissionResp{
+  bool HasPermission = 1;
+}
+
+message GrantDocumentPermissionReq{
+  string UserId = 1;
+  string DocumentId = 2;
+}
+
+message GrantDocumentPermissionResp{
 }

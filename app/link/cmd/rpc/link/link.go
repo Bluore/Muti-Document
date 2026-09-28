@@ -14,20 +14,20 @@ import (
 )
 
 type (
-	CreateGrantLinkReq  = pb.CreateGrantLinkReq
-	CreateGrantLinkResp = pb.CreateGrantLinkResp
-	CreateShortLinkReq  = pb.CreateShortLinkReq
-	CreateShortLinkResp = pb.CreateShortLinkResp
-	GetGrantLinkReq     = pb.GetGrantLinkReq
-	GetGrantLinkResp    = pb.GetGrantLinkResp
-	GetShortLinkReq     = pb.GetShortLinkReq
-	GetShortLinkResp    = pb.GetShortLinkResp
+	CreateGrantLinkReq   = pb.CreateGrantLinkReq
+	CreateGrantLinkResp  = pb.CreateGrantLinkResp
+	CreateShortLinkReq   = pb.CreateShortLinkReq
+	CreateShortLinkResp  = pb.CreateShortLinkResp
+	GetGrantDocumentReq  = pb.GetGrantDocumentReq
+	GetGrantDocumentResp = pb.GetGrantDocumentResp
+	GetShortLinkReq      = pb.GetShortLinkReq
+	GetShortLinkResp     = pb.GetShortLinkResp
 
 	Link interface {
 		// 打开短链, 获取跳转链接
 		GetShortLink(ctx context.Context, in *GetShortLinkReq, opts ...grpc.CallOption) (*GetShortLinkResp, error)
-		// 授予用户文档权限并获取跳转链接
-		GetGrantLink(ctx context.Context, in *GetGrantLinkReq, opts ...grpc.CallOption) (*GetGrantLinkResp, error)
+		// 获取授予用户文档权限对应文档
+		GetGrantLink(ctx context.Context, in *GetGrantDocumentReq, opts ...grpc.CallOption) (*GetGrantDocumentResp, error)
 		// 创建短链
 		CreateShortLink(ctx context.Context, in *CreateShortLinkReq, opts ...grpc.CallOption) (*CreateShortLinkResp, error)
 		// 创建文档授权链接
@@ -51,8 +51,8 @@ func (m *defaultLink) GetShortLink(ctx context.Context, in *GetShortLinkReq, opt
 	return client.GetShortLink(ctx, in, opts...)
 }
 
-// 授予用户文档权限并获取跳转链接
-func (m *defaultLink) GetGrantLink(ctx context.Context, in *GetGrantLinkReq, opts ...grpc.CallOption) (*GetGrantLinkResp, error) {
+// 获取授予用户文档权限对应文档
+func (m *defaultLink) GetGrantLink(ctx context.Context, in *GetGrantDocumentReq, opts ...grpc.CallOption) (*GetGrantDocumentResp, error) {
 	client := pb.NewLinkClient(m.cli.Conn())
 	return client.GetGrantLink(ctx, in, opts...)
 }
