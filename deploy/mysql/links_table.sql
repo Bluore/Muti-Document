@@ -1,0 +1,37 @@
+USE mutidoc;
+
+DROP TABLE IF EXISTS short_links;
+CREATE TABLE short_links
+(
+    `link_id` VARCHAR(50) NOT NULL ,
+    `target_url` VARCHAR(255) UNIQUE NOT NULL,
+    `expire_at` DATETIME NOT NULL,
+
+    `version` INTEGER NOT NULL DEFAULT 1,
+    `create_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `update_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `delete_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `del_state` TINYINT NOT NULL DEFAULT 0,
+
+    PRIMARY KEY (`link_id`),
+    INDEX (`target_url`)
+);
+
+
+DROP TABLE IF EXISTS grant_document_links;
+CREATE TABLE grant_document_links
+(
+    `grant_id` VARCHAR(50) NOT NULL ,
+    `document_id` VARCHAR(50) NOT NULL ,
+    `user_id` VARCHAR(50) NOT NULL ,
+    `expire_at` DATETIME NOT NULL,
+
+    `version` INTEGER NOT NULL DEFAULT 1,
+    `create_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `update_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `delete_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `del_state` TINYINT NOT NULL DEFAULT 0,
+
+    PRIMARY KEY (`grant_id`),
+    INDEX (`document_id`)
+)

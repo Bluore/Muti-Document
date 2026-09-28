@@ -1,0 +1,30 @@
+Name: link-api
+Host: 0.0.0.0
+Port: 1101
+Mode: dev
+
+JwtAuth:
+  AccessSecret: 123456-456789-123
+  AccessExpire: 60
+
+Log:
+  ServiceName: link-api
+  Level: debug
+
+Prometheus:
+  Host: 0.0.0.0
+  Port: 4301
+  Path: /metrics
+
+Telemetry:
+  Name: link-api
+  Endpoint: http://jaeger:14268/api/traces
+  Sampler: 1.0
+  Batcher: otlphttp
+
+LinkRpcConf:
+  Etcd:
+    Hosts:
+      - etcd:2379
+    Key: link.rpc
+  Timeout: 2000

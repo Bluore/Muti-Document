@@ -22,4 +22,9 @@ func init() {
 	// document模块
 	codeMsg[DOCUMENT_NOT_EXIST_ERROR] = "document no exist"
 	codeMsg[DOCUMENT_NO_PERMISSION_ERROR] = "document permission denied"
+
+	// link模块
+	codeMsg[LINK_NOT_EXIST_ERROR] = "link no exist"
+	codeMsg[LINK_EXPIRED_ERROR] = "link expired"
+	codeMsg[LINK_NO_PERMISSION_ERROR] = "link permission denied"
 }

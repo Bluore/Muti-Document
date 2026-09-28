@@ -1,0 +1,35 @@
+syntax = "v1"
+
+info (
+	title:   "链接实例"
+	desc:    "链接实例"
+	author:  "Bluore"
+	email:   "a@bluore.top"
+	version: "v1"
+)
+
+import (
+	"link/link.api"
+)
+
+@server (
+	prefix: /s
+	grant:  shortLink
+)
+service link {
+	@doc "open short link"
+	@handler GetShortLink
+	get /:id (GetShortLinkReq) returns (GetShortLinkResp)
+}
+
+@server (
+	prefix: /grant
+	group:  grantLink
+	jwt:    JwtAuth
+)
+service link {
+	@doc "grant document permission and open link"
+	@handler GetGrantLink
+	get /:id (GetGrantDocumentReq) returns (GetGrantDocumentResp)
+}
+

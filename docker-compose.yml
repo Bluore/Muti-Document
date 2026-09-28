@@ -18,6 +18,7 @@ services:
       - mutidoc-net
     depends_on:
       - mutidoc-user-api
+      - mutidoc-link-api
 
   mutidoc-user-api:
     build:
@@ -82,6 +83,40 @@ services:
       - /app/app/document/cmd/rpc
       - -f
       - /app/deploy/config/document-rpc.yml
+    volumes:
+      - .:/app
+    ports: []
+    networks:
+      - mutidoc-net
+
+  mutidoc-link-api:
+    build:
+      context: .
+      dockerfile: ./app/link/cmd/api/Dockerfile
+    container_name: mutidoc-link-api
+    command:
+      - go
+      - run
+      - /app/app/link/cmd/api
+      - -f
+      - /app/deploy/config/link-api.yml
+    volumes:
+      - .:/app
+    ports: []
+    networks:
+      - mutidoc-net
+
+  mutidoc-link-rpc:
+    build:
+      context: .
+      dockerfile: ./app/link/cmd/rpc/Dockerfile
+    container_name: mutidoc-link-rpc
+    command:
+      - go
+      - run
+      - /app/app/link/cmd/rpc
+      - -f
+      - /app/deploy/config/link-rpc.yml
     volumes:
       - .:/app
     ports: []

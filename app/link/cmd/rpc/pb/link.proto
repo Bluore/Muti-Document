@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+option go_package = "./pb";
+
+package link;
+
+service link {
+
+  // 打开短链, 获取跳转链接
+  rpc GetShortLink(GetShortLinkReq) returns (GetShortLinkResp);
+
+  // 授予用户文档权限并获取跳转链接
+  rpc GetGrantLink(GetGrantLinkReq) returns (GetGrantLinkResp);
+
+  // 创建短链
+  rpc CreateShortLink(CreateShortLinkReq) returns (CreateShortLinkResp);
+
+  // 创建文档授权链接
+  rpc CreateGrantLink(CreateGrantLinkReq) returns (CreateGrantLinkResp);
+}
+
+message GetShortLinkReq{
+  string Id = 1;
+}
+
+message GetShortLinkResp{
+  string TargetUrl = 1;
+}
+
+message GetGrantLinkReq{
+  string GrantId = 1;
+  // 接受授权的用户
+  string UserId = 2;
+}
+
+message GetGrantLinkResp{
+  string TargetUrl = 1;
+}
+
+message CreateShortLinkReq {
+  string TargetUrl = 1;
+  int64 ExpireAt = 2;
+}
+
+message CreateShortLinkResp {
+  string ShortLink = 1;
+}
+
+message CreateGrantLinkReq {
+  string DocumentId = 1;
+  string UserId = 2;
+  int64 ExpireAt = 3;
+}
+
+message CreateGrantLinkResp {
+  string GrantLink = 1;
+}
