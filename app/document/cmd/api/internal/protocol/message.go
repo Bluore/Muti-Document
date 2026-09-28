@@ -5,8 +5,9 @@ import (
 )
 
 type ClientMessage struct {
-	Edit   *ClientEditMsg `json:"edit,omitempty"`
-	Cursor *ot.Cursor     `json:"cursor"`
+	Edit     *ClientEditMsg     `json:"edit,omitempty"`
+	Cursor   *ot.Cursor         `json:"cursor,omitempty"`
+	SetTitle *ClientSetTitleMsg `json:"set_title,omitempty"`
 }
 
 type ClientInitMessage struct {
@@ -18,11 +19,16 @@ type ClientEditMsg struct {
 	Operator  ot.Operator `json:"operator"`
 }
 
+type ClientSetTitleMsg struct {
+	Title string `json:"title"`
+}
+
 type ServerMessage struct {
-	Edit   *ServerEditMsg `json:"edit"`
-	Init   *ServerInitMsg `json:"init"`
-	User   *ServerUserMsg `json:"user"`
-	Cursor *[]ot.Cursor   `json:"cursor"`
+	Edit     *ServerEditMsg     `json:"edit"`
+	Init     *ServerInitMsg     `json:"init"`
+	User     *ServerUserMsg     `json:"user"`
+	Cursor   *[]ot.Cursor       `json:"cursor"`
+	SetTitle *ServerSetTitleMsg `json:"set_title"`
 }
 
 type ServerEditMsg struct {
@@ -32,6 +38,7 @@ type ServerEditMsg struct {
 
 type ServerInitMsg struct {
 	Reversion   uint32      `json:"reversion"`
+	Title       string      `json:"title"`
 	Content     string      `json:"content"`
 	UserID      string      `json:"user_id"`
 	Users       []User      `json:"users"`
@@ -42,4 +49,9 @@ type ServerInitMsg struct {
 type ServerUserMsg struct {
 	JoinUsers []User `json:"join_users"`
 	QuitUsers []User `json:"quit_users"`
+}
+
+type ServerSetTitleMsg struct {
+	UserID string `json:"user_id"`
+	Title  string `json:"title"`
 }

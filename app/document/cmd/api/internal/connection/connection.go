@@ -169,6 +169,9 @@ func (c *Connection) handlerMessage(message protocol.ClientMessage) {
 		message.Cursor.UserID = c.UserID
 		c.Ot.SetCursor(*message.Cursor)
 	}
+	if message.SetTitle != nil {
+		c.Ot.SetTitle(c.UserID, message.SetTitle.Title)
+	}
 }
 
 func (c *Connection) checkAndSendHistory() {
@@ -251,20 +254,14 @@ func (c *Connection) SendMassage(msg protocol.ServerMessage) error {
 }
 
 func (c *Connection) sendInitMassage() {
-	content, reversion := c.Ot.GetContent()
-	cursors, cursorIdx := c.Ot.GetNowCursor()
-	c.CursorIdx = cursorIdx
+	initMsg, cursorVersion := c.Ot.GetInitMessage()
+	initMsg.UserID = c.UserID
+	initMsg.CursorColor = c.UserDetail.CursorColor
+	c.Reversion = initMsg.Reversion
+	c.CursorIdx = cursorVersion
 	msg := protocol.ServerMessage{
-		Init: &protocol.ServerInitMsg{
-			Reversion:   reversion,
-			Content:     string(content),
-			UserID:      c.UserID,
-			Users:       c.Ot.GetUsers(),
-			CursorColor: c.UserDetail.CursorColor,
-			Cursor:      cursors,
-		},
+		Init: &initMsg,
 	}
-	c.Reversion = reversion
 
 	if err := c.SendMassage(msg); err != nil {
 		logx.WithContext(c.Ctx).Errorw("error to send init msg",
@@ -355,9 +352,12 @@ func (c *Connection) handleOutbox(message protocol.ServerMessage) {
 	}
 }
 
-// only merge ServerMessage.User Msg NOW.
+// mergeServerMessage folds two queued broadcast messages into one. User joins
+// and quits are de-duplicated by id (later wins, quit beats join) and a title
+// update is last-write-wins. Fields already carried by base are preserved, so a
+// title update is not dropped when it is coalesced with a user notification.
 func mergeServerMessage(base, next protocol.ServerMessage) protocol.ServerMessage {
-	var newMsg protocol.ServerMessage
+	newMsg := base
 	if next.User != nil {
 		joinMap := make(map[string]protocol.User, len(next.User.JoinUsers))
 		quitMap := make(map[string]protocol.User, len(next.User.QuitUsers))
@@ -396,6 +396,10 @@ func mergeServerMessage(base, next protocol.ServerMessage) protocol.ServerMessag
 			JoinUsers: joins,
 			QuitUsers: quits,
 		}
+	}
+
+	if next.SetTitle != nil {
+		newMsg.SetTitle = next.SetTitle
 	}
 
 	return newMsg

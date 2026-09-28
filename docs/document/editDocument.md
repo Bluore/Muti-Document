@@ -3,8 +3,8 @@
 文档实时协同编辑接口。客户端与服务端建立 WebSocket 长连接；同一文档的所有在线用户
 共享一份进程内的 OT 状态（`connection.DocumentClient`，按 `document_id` 隔离）。
 
-> 当前实现中，编辑内容与光标**只存在于内存**，不会回写 RPC / 数据库，服务重启即丢失；
-> 因此该接口暂不支持 document-api 横向扩容或多实例部署。
+> 当前实现中，编辑内容、光标与**文档标题**只存在于内存，不会回写 RPC / 数据库，服务重启
+> 即丢失；因此该接口暂不支持 document-api 横向扩容或多实例部署。
 
 ## 1. 接口
 
@@ -30,18 +30,19 @@
 1. 客户端发起 WebSocket 升级，`document_id` 放在 query。
 2. 客户端发送首条消息 `{"token":"..."}`。
 3. 服务端校验 JWT，经 user-rpc 查询用户信息，取出（或创建）该文档的 OT 状态。
-4. 服务端下发 `init` 消息（含当前全文、版本号、在线用户及其光标快照），并向房间内**其他**
-   用户广播 `user.join_users`（新用户本身不接收自己的 join）。
-5. 进入双向消息循环，服务端按需广播 `edit` / `cursor` / `user` 消息。
+4. 服务端在同一把锁下取出一致快照，下发 `init` 消息（含当前全文、版本号、标题、在线用户
+   及其光标快照），并向房间内**其他**用户广播 `user.join_users`（新用户本身不接收自己的
+   join）。
+5. 进入双向消息循环，服务端按需广播 `edit` / `cursor` / `user` / `set_title` 消息。
 6. 任一端关闭连接后，服务端向**剩余**用户广播 `user.quit_users`。
 
 ## 2. 消息总览
 
-- 客户端 → 服务端：`ClientMessage`（`edit` / `cursor`）
-- 服务端 → 客户端：`ServerMessage`（`init` / `edit` / `cursor` / `user`）
+- 客户端 → 服务端：`ClientMessage`（`edit` / `cursor` / `set_title`）
+- 服务端 → 客户端：`ServerMessage`（`init` / `edit` / `cursor` / `user` / `set_title`）
 
-`ServerMessage` 的四个字段**始终存在**，未携带的为 `null`；`ClientMessage` 的 `edit` 为空时
-会被省略（`omitempty`），`cursor` 始终存在。
+`ServerMessage` 的五个字段**始终存在**，未携带的为 `null`；`ClientMessage` 的三个字段均带
+`omitempty`，为空时会被省略。
 
 ## 3. 请求消息（客户端 → 服务端）
 
@@ -51,15 +52,16 @@
 | --- | --- | --- |
 | `edit` | ClientEditMsg \| null | 一次文本操作（可选） |
 | `cursor` | Cursor \| null | 光标 / 选区位置（可选） |
+| `set_title` | ClientSetTitleMsg \| null | 修改文档标题（可选） |
 
-`edit` 与 `cursor` 可在同一条消息中同时发送，也可只发其一。
+三个字段可任意组合：可同时发送，也可只发其一。
 
 ### 3.2 ClientEditMsg
 
 | 字段 | 类型 | 说明 |
 | --- | --- | --- |
 | `reversion` | uint32 | **必填**。本次操作所基于的版本号（取自上一次收到的 `init` / `edit`） |
-| `operator` | array | **必填**。操作序列，见 3.4 |
+| `operator` | array | **必填**。操作序列，见 3.5 |
 
 `operator` 是**裸数组**，不是对象。原因：服务端收到后会自行补上操作者 `id`（以及仅供内部
 OT 变换使用的 `reversion`），客户端无需（也无法）提供这些字段。
@@ -96,7 +98,23 @@ OT 变换使用的 `reversion`），客户端无需（也无法）提供这些�
 }
 ```
 
-### 3.4 operator 的编码
+### 3.4 ClientSetTitleMsg
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| `title` | string | **必填**（可为空串）。文档新标题 |
+
+- 设置者身份由服务端从当前连接取得，客户端**无需**（也无法）提供 `user_id`。
+- 标题没有版本号，不参与 OT；服务端直接覆盖为最新值并广播（见 4.5）。
+- 若新标题与当前标题相同，服务端视为空操作，不广播。
+
+```json
+{
+  "set_title": { "title": "2026 Q3 周报" }
+}
+```
+
+### 3.5 operator 的编码
 
 `operator` 数组按顺序描述“保留 / 插入 / 删除”，元素含义由 JSON 值的类型决定：
 
@@ -122,19 +140,26 @@ OT 变换使用的 `reversion`），客户端无需（也无法）提供这些�
 | `edit` | ServerEditMsg \| null | 一批已应用的操作 |
 | `cursor` | Cursor[] \| null | 一批光标更新（已按用户去重，取最新） |
 | `user` | ServerUserMsg \| null | 用户加入 / 离开通知，连接建立与断开时广播 |
+| `set_title` | ServerSetTitleMsg \| null | 文档标题变更通知 |
 
-一条 `ServerMessage` 可以**同时**携带 `edit` 与 `cursor`；`user` 通常单独出现。
+一条 `ServerMessage` 可以**同时**携带 `edit` 与 `cursor`；`user`、`set_title` 通常单独出现，
+但一小段时间内堆积的多条广播在写回 socket 前会被合并（见 4.4 / 4.5），因此也可能与其他
+字段共存。
 
 ### 4.2 ServerInitMsg
 
 | 字段 | 类型 | 说明 |
 | --- | --- | --- |
 | `reversion` | uint32 | 当前版本号（已应用操作数） |
+| `title` | string | 当前文档标题；从未设置过时为空串 `""` |
 | `content` | string | 当前文档全文 |
 | `user_id` | string | 当前连接用户 ID |
 | `users` | User[] | 当前在线用户（含自己），顺序不保证 |
 | `cursor` | Cursor[] | 当前在线用户的光标快照（含自己），顺序不保证 |
 | `cursor_color` | string | 服务端为当前用户随机分配的光标颜色 |
+
+> `reversion`、`title`、`content`、`users`、`cursor` 由服务端在**同一把锁**下一次性取出，
+> 是一份相互一致的快照。
 
 `User`：
 
@@ -182,6 +207,31 @@ OT 变换使用的 `reversion`），客户端无需（也无法）提供这些�
 成一条，按用户 `id` 去重（后到的覆盖先到的），且同一用户同时出现在 join 与 quit 时以
 quit 为准。
 
+### 4.5 ServerSetTitleMsg
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| `user_id` | string | 发起本次标题变更的用户 ID |
+| `title` | string | 变更后的文档标题 |
+
+触发时机与语义：
+
+- 任一客户端发送 `set_title` 后，服务端更新标题并向**所有**连接广播（**包括设置者自己**），
+  使所有客户端收敛到同一标题。
+- 若新标题与当前标题相同，不广播。
+- 标题变更不带版本号、不参与 OT，后到的变更直接覆盖先到的。
+- 与 `user` 一样，短时间堆积的多条 `set_title` 在写回 socket 前会合并，取**最后一条**。
+
+```json
+{
+  "init": null,
+  "edit": null,
+  "user": null,
+  "cursor": null,
+  "set_title": { "user_id": "u-1001", "title": "2026 Q3 周报" }
+}
+```
+
 ## 5. 心跳与控制帧
 
 除 JSON 文本帧外，服务端还会：
@@ -193,7 +243,7 @@ quit 为准。
 
 ## 6. 示例
 
-假设文档 `doc-1001` 初始内容为 `"helloworld"`，用户 Alice(`u-1001`) 与
+假设文档 `doc-1001` 初始内容为 `"helloworld"`、初始标题为空串，用户 Alice(`u-1001`) 与
 Bob(`u-1002`) 依次接入。`cursor_color` 为随机值，示例中假设 Alice 为 `#64B5F6`、
 Bob 为 `#FFB74D`。
 
@@ -211,6 +261,7 @@ Bob 为 `#FFB74D`。
 {
   "init": {
     "reversion": 0,
+    "title": "",
     "content": "helloworld",
     "user_id": "u-1001",
     "users": [
@@ -221,7 +272,8 @@ Bob 为 `#FFB74D`。
   },
   "edit": null,
   "cursor": null,
-  "user": null
+  "user": null,
+  "set_title": null
 }
 ```
 
@@ -249,18 +301,20 @@ Bob 为 `#FFB74D`。
   },
   "init": null,
   "cursor": null,
-  "user": null
+  "user": null,
+  "set_title": null
 }
 ```
 
 ### 6.3 Bob 接入并上报光标
 
-Bob 发送 `{"token":"<bob-jwt>"}`，收到 init（此时版本 1、内容 `hello world`）：
+Bob 发送 `{"token":"<bob-jwt>"}`，收到 init（此时版本 1、内容 `hello world`、标题仍为空）：
 
 ```json
 {
   "init": {
     "reversion": 1,
+    "title": "",
     "content": "hello world",
     "user_id": "u-1002",
     "users": [
@@ -272,7 +326,8 @@ Bob 发送 `{"token":"<bob-jwt>"}`，收到 init（此时版本 1、内容 `hell
   },
   "edit": null,
   "cursor": null,
-  "user": null
+  "user": null,
+  "set_title": null
 }
 ```
 
@@ -288,7 +343,8 @@ Bob 发送 `{"token":"<bob-jwt>"}`，收到 init（此时版本 1、内容 `hell
     ],
     "quit_users": null
   },
-  "cursor": null
+  "cursor": null,
+  "set_title": null
 }
 ```
 
@@ -319,7 +375,8 @@ Bob 把光标移到偏移 6（`hello ` 之后），发送：
       "anchor": { "offset": 6, "assoc": 1 },
       "head":   { "offset": 6, "assoc": 1 }
     }
-  ]
+  ],
+  "set_title": null
 }
 ```
 
@@ -354,14 +411,40 @@ Alice 在偏移 6 处插入 `big `（目标 `hello big world`）。发送：
       "anchor": { "offset": 10, "assoc": 1 },
       "head":   { "offset": 10, "assoc": 1 }
     }
-  ]
+  ],
+  "set_title": null
 }
 ```
 
 > `cursor.reversion` 表示该客户端**上报光标时**所处的版本；服务端在随后的编辑中只平移
 > 偏移、不改写 `reversion`，因此它可能小于当前文档版本。
 
-### 6.5 Bob 断开连接
+### 6.5 Alice 修改文档标题
+
+Alice 发送：
+
+```json
+{
+  "set_title": { "title": "2026 Q3 周报" }
+}
+```
+
+服务端记录标题后，向**所有**连接（含 Alice 自己）广播：
+
+```json
+{
+  "init": null,
+  "edit": null,
+  "user": null,
+  "cursor": null,
+  "set_title": { "user_id": "u-1001", "title": "2026 Q3 周报" }
+}
+```
+
+此后新接入的用户会在 `init.title` 中直接拿到 `"2026 Q3 周报"`。若 Alice 再发一次相同标题，
+服务端不会广播。
+
+### 6.6 Bob 断开连接
 
 Bob 关闭连接后，Alice（仍在房间内的用户）会收到离开通知：
 
@@ -375,7 +458,8 @@ Bob 关闭连接后，Alice（仍在房间内的用户）会收到离开通知�
       { "id": "u-1002", "name": "Bob", "cursor_color": "#FFB74D" }
     ]
   },
-  "cursor": null
+  "cursor": null,
+  "set_title": null
 }
 ```
 
@@ -389,3 +473,4 @@ Bob 关闭连接后，Alice（仍在房间内的用户）会收到离开通知�
 | 同一用户重复连接同一文档 | 关闭帧 `1008`，原因 `user already connected` |
 | 心跳超时（60s 无 Pong） | 关闭连接 |
 | 操作的 `reversion` 大于服务端当前版本 | 服务端忽略该操作并记日志，不广播 |
+| `set_title.title` 与当前标题相同 | 视为空操作，不广播、不报错 |

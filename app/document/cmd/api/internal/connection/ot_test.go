@@ -1,8 +1,11 @@
 package connection
 
 import (
+	"fmt"
+	"sync"
 	"testing"
 
+	"github.com/Bluore/mutidoc/app/document/cmd/api/internal/protocol"
 	"github.com/Bluore/mutidoc/pkg/ot"
 )
 
@@ -162,4 +165,106 @@ func TestSetCursorAheadReversionDoesNotPanic(t *testing.T) {
 	if dc.Cursors["u1"].Anchor.Offset != 2 {
 		t.Fatalf("offset = %d, want 2", dc.Cursors["u1"].Anchor.Offset)
 	}
+}
+
+func TestSetTitleBroadcasts(t *testing.T) {
+	dc := NewOt()
+
+	out := make(chan protocol.ServerMessage, 1)
+	dc.Subscribers["u1"] = out
+
+	dc.SetTitle("u1", "hello title")
+
+	select {
+	case msg := <-out:
+		if msg.SetTitle == nil {
+			t.Fatalf("expected set_title, got %+v", msg)
+		}
+		if msg.SetTitle.UserID != "u1" || msg.SetTitle.Title != "hello title" {
+			t.Fatalf("set_title = %+v", msg.SetTitle)
+		}
+	default:
+		t.Fatal("expected a broadcast title message")
+	}
+
+	// Setting the same title again must not broadcast.
+	dc.SetTitle("u1", "hello title")
+	select {
+	case msg := <-out:
+		t.Fatalf("unexpected second title broadcast: %+v", msg)
+	default:
+	}
+}
+
+func TestGetInitMessageSnapshot(t *testing.T) {
+	dc := NewOt()
+	dc.Content = []byte("abcde")
+	dc.Title = "doc"
+	dc.Users["u1"] = protocol.User{ID: "u1", Name: "Alice", CursorColor: "#fff"}
+	dc.SetCursor(namedCursor("u1", 2))
+
+	msg, cursorVersion := dc.GetInitMessage()
+
+	if msg.Reversion != 0 {
+		t.Fatalf("reversion = %d, want 0", msg.Reversion)
+	}
+	if msg.Title != "doc" {
+		t.Fatalf("title = %q, want doc", msg.Title)
+	}
+	if msg.Content != "abcde" {
+		t.Fatalf("content = %q, want abcde", msg.Content)
+	}
+	if len(msg.Users) != 1 || msg.Users[0].ID != "u1" {
+		t.Fatalf("users = %+v, want [u1]", msg.Users)
+	}
+	if len(msg.Cursor) != 1 || msg.Cursor[0].UserID != "u1" {
+		t.Fatalf("cursors = %+v, want [u1]", msg.Cursor)
+	}
+	if cursorVersion != uint32(len(dc.CursorLogs)) || cursorVersion != 1 {
+		t.Fatalf("cursorVersion = %d, want 1", cursorVersion)
+	}
+}
+
+// TestDocumentClientConcurrentAccess hammers the client from several goroutines
+// to make sure the lock order (ContentMu -> UserMu -> CursorMu) cannot deadlock.
+// It is most useful under -race.
+func TestDocumentClientConcurrentAccess(t *testing.T) {
+	dc := NewOt()
+	const workers = 8
+
+	var wg sync.WaitGroup
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		for i := 0; i < 50; i++ {
+			_, _ = dc.GetInitMessage()
+		}
+	}()
+
+	for w := 0; w < workers; w++ {
+		wg.Add(1)
+		go func(id int) {
+			defer wg.Done()
+
+			userID := fmt.Sprintf("u%d", id)
+			out := make(chan protocol.ServerMessage, 64)
+			if !dc.ConnectUser(userID, protocol.User{ID: userID}, out) {
+				return
+			}
+			defer dc.DisconnectUser(userID)
+
+			for i := 0; i < 20; i++ {
+				oper := ot.Operator{
+					Ops:    []ot.OperatorAtomic{ot.NewInsert("x")},
+					UserID: userID,
+				}
+				dc.applyEdit(&oper)
+				dc.SetCursor(namedCursor(userID, uint64(i%5)))
+				dc.SetTitle(userID, fmt.Sprintf("title-%d", i))
+			}
+		}(w)
+	}
+
+	wg.Wait()
 }

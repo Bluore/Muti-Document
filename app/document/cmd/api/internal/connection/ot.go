@@ -13,6 +13,7 @@ type DocumentClient struct {
 	Users       map[string]protocol.User                 `json:"users"`
 	Subscribers map[string]chan<- protocol.ServerMessage `json:"-"`
 
+	Title     string        `json:"title"`
 	Content   []byte        `json:"content"`
 	Ops       []ot.Operator `json:"ops"`
 	Notify    chan struct{} `json:"-"`
@@ -56,7 +57,7 @@ func (o *DocumentClient) ConnectUser(userID string, userInfo protocol.User, subs
 
 	// Notify the users already in the room that someone joined. The newcomer
 	// learns the full roster from its init message, so it is skipped here.
-	o.Broadcase(userID, protocol.ServerMessage{
+	o.Broadcast(userID, protocol.ServerMessage{
 		User: &protocol.ServerUserMsg{
 			JoinUsers: []protocol.User{userInfo},
 		},
@@ -83,17 +84,17 @@ func (o *DocumentClient) DisconnectUser(userID string) {
 
 	// Notify the users still in the room that someone left. The user is already
 	// gone from Subscribers, so it cannot receive its own quit message.
-	o.Broadcase(userID, protocol.ServerMessage{
+	o.Broadcast(userID, protocol.ServerMessage{
 		User: &protocol.ServerUserMsg{
 			QuitUsers: []protocol.User{userInfo},
 		},
 	})
 }
 
-// Broadcase delivers msg to every connected user except exceptUserID (pass an
+// Broadcast delivers msg to every connected user except exceptUserID (pass an
 // empty string to reach everyone). Delivery is best-effort: a full subscriber
 // channel is dropped instead of blocking the room.
-func (o *DocumentClient) Broadcase(exceptUserID string, msg protocol.ServerMessage) {
+func (o *DocumentClient) Broadcast(exceptUserID string, msg protocol.ServerMessage) {
 	o.UserMu.RLock()
 	defer o.UserMu.RUnlock()
 
@@ -305,4 +306,71 @@ func (o *DocumentClient) GetNowCursor() ([]ot.Cursor, uint32) {
 		cursors = append(cursors, cursor)
 	}
 	return cursors, uint32(len(o.CursorLogs))
+}
+
+// SetTitle records a new document title and broadcasts the change to every
+// connected client (including the one that set it, so all clients converge).
+// The title is guarded by ContentMu, which is released before broadcasting:
+// Broadcast takes UserMu, and keeping the two lock scopes separate preserves
+// the global ContentMu -> UserMu -> CursorMu order used everywhere in this file.
+func (o *DocumentClient) SetTitle(userID string, title string) {
+	o.ContentMu.Lock()
+	if o.Title == title {
+		o.ContentMu.Unlock()
+		return
+	}
+	o.Title = title
+	o.ContentMu.Unlock()
+
+	o.Broadcast("", protocol.ServerMessage{
+		SetTitle: &protocol.ServerSetTitleMsg{
+			UserID: userID,
+			Title:  title,
+		},
+	})
+}
+
+// GetInitMessage builds the snapshot a newly connected client receives. Content,
+// reversion, title, the online users and their cursors are read under one
+// overlapping lock scope so the snapshot is internally consistent; reading each
+// piece through separate helpers (as the caller used to) could observe an edit
+// or a join landing between the reads.
+//
+// It also returns the cursor log version the snapshot was taken at, so the
+// caller can start streaming cursor updates from there instead of replaying the
+// whole log (which still contains entries for users that have since left).
+//
+// UserID and CursorColor are connection-specific, so they are left for the
+// caller to fill in.
+//
+// Locks are taken in ContentMu -> UserMu -> CursorMu order, matching
+// DisconnectUser (UserMu -> CursorMu) and applyEdit/SetCursor (ContentMu ->
+// CursorMu), so the nesting cannot deadlock.
+func (o *DocumentClient) GetInitMessage() (msg protocol.ServerInitMsg, cursorVersion uint32) {
+	o.ContentMu.RLock()
+	defer o.ContentMu.RUnlock()
+
+	o.UserMu.RLock()
+	defer o.UserMu.RUnlock()
+
+	o.CursorMu.RLock()
+	defer o.CursorMu.RUnlock()
+
+	users := make([]protocol.User, 0, len(o.Users))
+	for _, user := range o.Users {
+		users = append(users, user)
+	}
+
+	cursors := make([]ot.Cursor, 0, len(o.Cursors))
+	for _, cursor := range o.Cursors {
+		cursors = append(cursors, cursor)
+	}
+
+	return protocol.ServerInitMsg{
+		Reversion: uint32(len(o.Ops)),
+		Title:     o.Title,
+		Content:   string(o.Content),
+		Users:     users,
+		Cursor:    cursors,
+	}, uint32(len(o.CursorLogs))
 }
