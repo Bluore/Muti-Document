@@ -328,6 +328,171 @@ func (aOp *Operator) Transform(bOp *Operator) (*Operator, *Operator, error) {
 	return aPrime, bPrime, nil
 }
 
+// Compose 把两个有先后顺序的操作压缩成一个等价操作：先执行 oper，再执行 bOper。
+// 返回的操作 cOper 满足 cOper.Apply(text) == bOper.Apply(oper.Apply(text))。
+// 结果携带 bOper 的版本信息，因为它代表两次编辑之后的最新状态。
+// 两个操作都应覆盖整篇文档（retain+delete 的总长度分别等于各自输入长度）。
+func (aOp *Operator) Compose(bOp *Operator) (*Operator, error) {
+	if bOp == nil {
+		return nil, fmt.Errorf("compose: nil operator")
+	}
+
+	ops := make([]OperatorAtomic, 0, len(aOp.Ops))
+
+	aIt := newOperatorIterator(aOp)
+	bIt := newOperatorIterator(bOp)
+
+	for {
+		if aIt.get() == nil && bIt.get() == nil {
+			break
+		}
+
+		if a, ok := aIt.getDelete(); ok {
+			ops = append(ops, a)
+			aIt.next()
+			continue
+		}
+
+		if b, ok := bIt.getInsert(); ok {
+			ops = append(ops, b)
+			bIt.next()
+			continue
+		}
+
+		if a, ok1 := aIt.getInsert(); ok1 {
+			if bIt.get() == nil {
+				ops = append(ops, a)
+				aIt.next()
+				continue
+			}
+			if b, ok2 := bIt.getDelete(); ok2 {
+				if a.len() == b.N {
+					aIt.next()
+					bIt.next()
+					continue
+				} else if a.len() > b.N {
+					aIt.refesh(NewInsert(a.Str[b.N:]))
+					bIt.next()
+					continue
+				} else {
+					bIt.refesh(NewDelete(b.N - a.len()))
+					aIt.next()
+					continue
+				}
+			}
+			if b, ok2 := bIt.getRetain(); ok2 {
+				if a.len() == b.N {
+					ops = append(ops, a)
+					aIt.next()
+					bIt.next()
+					continue
+				} else if a.len() > b.N {
+					ops = append(ops, NewInsert(a.Str[:b.N]))
+					aIt.refesh(NewInsert(a.Str[b.N:]))
+					bIt.next()
+					continue
+				} else {
+					ops = append(ops, a)
+					bIt.refesh(NewRetain(b.N - a.len()))
+					aIt.next()
+					continue
+				}
+			}
+		}
+
+		if a, ok1 := aIt.getRetain(); ok1 {
+			if bIt.get() == nil {
+				ops = append(ops, a)
+				aIt.next()
+				continue
+			}
+			if b, ok2 := bIt.getRetain(); ok2 {
+				if a.N == b.N {
+					ops = append(ops, a)
+					aIt.next()
+					bIt.next()
+					continue
+				} else if a.N > b.N {
+					ops = append(ops, b)
+					aIt.refesh(NewRetain(a.N - b.N))
+					bIt.next()
+					continue
+				} else {
+					ops = append(ops, a)
+					aIt.next()
+					bIt.refesh(NewRetain(b.N - a.N))
+					continue
+				}
+			}
+			if b, ok2 := bIt.getDelete(); ok2 {
+				if a.N == b.N {
+					ops = append(ops, NewDelete(a.N))
+					aIt.next()
+					bIt.next()
+					continue
+				} else if a.N > b.N {
+					ops = append(ops, b)
+					aIt.refesh(NewRetain(a.N - b.N))
+					bIt.next()
+					continue
+				} else {
+					ops = append(ops, NewDelete(a.N))
+					aIt.next()
+					bIt.refesh(NewDelete(b.N - a.N))
+					continue
+				}
+			}
+		}
+
+		if aIt.get() == nil {
+			ops = append(ops, bIt.get())
+			bIt.next()
+			continue
+		}
+	}
+
+	// 合并相邻的同类型操作，避免结果出现冗余分片。
+	composedOps := make([]OperatorAtomic, 0, len(ops))
+	var lastOp OperatorAtomic
+	for _, curOp := range ops {
+		if lastOp == nil {
+			lastOp = curOp
+			continue
+		}
+		if last, ok1 := lastOp.(Insert); ok1 {
+			if cur, ok2 := curOp.(Insert); ok2 {
+				lastOp = NewInsert(last.Str + cur.Str)
+				continue
+			}
+		}
+		if last, ok1 := lastOp.(Delete); ok1 {
+			if cur, ok2 := curOp.(Delete); ok2 {
+				lastOp = NewDelete(last.N + cur.N)
+				continue
+			}
+		}
+		if last, ok1 := lastOp.(Retain); ok1 {
+			if cur, ok2 := curOp.(Retain); ok2 {
+				lastOp = NewRetain(last.N + cur.N)
+				continue
+			}
+		}
+		composedOps = append(composedOps, lastOp)
+		lastOp = curOp
+	}
+	if lastOp != nil {
+		composedOps = append(composedOps, lastOp)
+	}
+
+	cOp := &Operator{
+		Ops:       composedOps,
+		Reversion: bOp.Reversion,
+		UserID:    bOp.UserID,
+	}
+
+	return cOp, nil
+}
+
 func (oper *Operator) Apply(text []byte) []byte {
 	newText := make([]byte, 0)
 	idx := 0
