@@ -4,17 +4,24 @@ import (
 	"sync"
 
 	"github.com/Bluore/mutidoc/app/document/cmd/api/internal/connection"
+	"github.com/Bluore/mutidoc/app/document/model"
+	"github.com/redis/go-redis/v9"
 )
 
 type DocumentMap struct {
 	docs map[string]*connection.DocumentClient
 	mu   *sync.RWMutex
+
+	redisClient   *redis.Client
+	documentModel model.DocumentsModel
 }
 
-func NewDocumentMap() *DocumentMap {
+func NewDocumentMap(redisClient *redis.Client, documentModel model.DocumentsModel) *DocumentMap {
 	return &DocumentMap{
-		docs: make(map[string]*connection.DocumentClient, 100),
-		mu:   &sync.RWMutex{},
+		docs:          make(map[string]*connection.DocumentClient, 100),
+		mu:            &sync.RWMutex{},
+		redisClient:   redisClient,
+		documentModel: documentModel,
 	}
 }
 
@@ -24,14 +31,18 @@ func (m DocumentMap) Get(key string) *connection.DocumentClient {
 	return m.docs[key]
 }
 
-func (m DocumentMap) GetOrCreate(key string) *connection.DocumentClient {
+// GetOrCreate 返回文档会话; 不存在或已关闭时用数据库快照重新创建。
+// 创建时会合并 redis 上未落库的变更。
+func (m DocumentMap) GetOrCreate(key string, detail model.Documents) *connection.DocumentClient {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	if doc, ok := m.docs[key]; ok {
+	if doc, ok := m.docs[key]; ok && !doc.IsClosed() {
 		return doc
 	}
 
-	document := connection.NewOt()
+	document := connection.NewOt(detail, m.redisClient, m.documentModel, func(client *connection.DocumentClient) {
+		m.CheckAndDelete(key, client)
+	})
 	m.docs[key] = document
 	return document
 }
@@ -42,10 +53,11 @@ func (m DocumentMap) Set(key string, value *connection.DocumentClient) {
 	m.docs[key] = value
 }
 
-func (m DocumentMap) CheckAndDelete(key string) {
+// CheckAndDelete 仅在当前会话仍是目标会话时删除, 避免误删重新创建的新会话
+func (m DocumentMap) CheckAndDelete(key string, target *connection.DocumentClient) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	if _, ok := m.docs[key]; ok {
+	if current, ok := m.docs[key]; ok && current == target {
 		delete(m.docs, key)
 	}
 }

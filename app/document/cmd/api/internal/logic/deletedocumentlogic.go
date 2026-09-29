@@ -62,9 +62,12 @@ func (l *DeleteDocumentLogic) DeleteDocument(req *types.DeleteDocumentReq) (resp
 		return nil, httperr.ErrDocumentNoPermission
 	}
 
-	// 文档正在被协作编辑时, 先移除内存中的编辑会话, 保证删除后不能被继续编辑
+	// 文档正在被协作编辑时, 先停止并移除内存中的编辑会话, 保证删除后不能被继续编辑
 	documentClient := l.svcCtx.Document.Get(req.DocumentId)
-	l.svcCtx.Document.CheckAndDelete(req.DocumentId)
+	if documentClient != nil {
+		documentClient.Close()
+		l.svcCtx.Document.CheckAndDelete(req.DocumentId, documentClient)
+	}
 
 	_, err = l.svcCtx.DocumentRpc.DeleteDocument(l.ctx, &document.DeleteDocumentReq{
 		DocumentId: req.DocumentId,

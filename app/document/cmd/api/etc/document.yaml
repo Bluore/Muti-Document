@@ -8,6 +8,14 @@ RedisConf:
   Password:
   DB: 0
 
+DB:
+  DataSource: mutidoc:123456@tcp(172.20.117.80:13306)/mutidoc?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai
+  DriverName: mysql
+
+Cache:
+  - Host: redis:6379
+    Pass:
+
 JwtAuth:
   AccessSecret: 123456-456789-123
   AccessExpire: 60

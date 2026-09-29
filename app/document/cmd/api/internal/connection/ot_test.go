@@ -6,8 +6,14 @@ import (
 	"testing"
 
 	"github.com/Bluore/mutidoc/app/document/cmd/api/internal/protocol"
+	"github.com/Bluore/mutidoc/app/document/model"
 	"github.com/Bluore/mutidoc/pkg/ot"
 )
+
+// newTestOt 创建一个不接持久化的文档会话
+func newTestOt() *DocumentClient {
+	return NewOt(model.Documents{}, nil, nil, nil)
+}
 
 func cursorAt(offset uint64) ot.Cursor {
 	var c ot.Cursor
@@ -33,7 +39,7 @@ func currentCursorMap(dc *DocumentClient) map[string]uint64 {
 }
 
 func TestApplyEditTransformsCursors(t *testing.T) {
-	dc := NewOt()
+	dc := newTestOt()
 	dc.Content = []byte("abcde")
 
 	dc.SetCursor(namedCursor("u1", 2))
@@ -96,7 +102,7 @@ func TestApplyEditTransformsCursors(t *testing.T) {
 }
 
 func TestGetCursorUpToDate(t *testing.T) {
-	dc := NewOt()
+	dc := newTestOt()
 
 	logs, newVersion := dc.GetHistoryCursor(0)
 	if len(logs) != 0 || newVersion != 0 {
@@ -112,7 +118,7 @@ func TestGetCursorUpToDate(t *testing.T) {
 }
 
 func TestSetCursorRebasesToCurrent(t *testing.T) {
-	dc := NewOt()
+	dc := newTestOt()
 	dc.Content = []byte("abcde")
 
 	// insert "X" at offset 2 -> reversion 1, content "abXcde"
@@ -141,7 +147,7 @@ func TestSetCursorRebasesToCurrent(t *testing.T) {
 }
 
 func TestSetCursorRecordsLog(t *testing.T) {
-	dc := NewOt()
+	dc := newTestOt()
 
 	dc.SetCursor(namedCursor("u1", 1))
 
@@ -155,7 +161,7 @@ func TestSetCursorRecordsLog(t *testing.T) {
 }
 
 func TestSetCursorAheadReversionDoesNotPanic(t *testing.T) {
-	dc := NewOt()
+	dc := newTestOt()
 	dc.Content = []byte("abcde")
 
 	c := namedCursor("u1", 2)
@@ -168,7 +174,7 @@ func TestSetCursorAheadReversionDoesNotPanic(t *testing.T) {
 }
 
 func TestSetTitleBroadcasts(t *testing.T) {
-	dc := NewOt()
+	dc := newTestOt()
 
 	out := make(chan protocol.ServerMessage, 1)
 	dc.Subscribers["u1"] = out
@@ -197,7 +203,7 @@ func TestSetTitleBroadcasts(t *testing.T) {
 }
 
 func TestGetInitMessageSnapshot(t *testing.T) {
-	dc := NewOt()
+	dc := newTestOt()
 	dc.Content = []byte("abcde")
 	dc.Title = "doc"
 	dc.Users["u1"] = protocol.User{ID: "u1", Name: "Alice", CursorColor: "#fff"}
@@ -229,7 +235,7 @@ func TestGetInitMessageSnapshot(t *testing.T) {
 // to make sure the lock order (ContentMu -> UserMu -> CursorMu) cannot deadlock.
 // It is most useful under -race.
 func TestDocumentClientConcurrentAccess(t *testing.T) {
-	dc := NewOt()
+	dc := newTestOt()
 	const workers = 8
 
 	var wg sync.WaitGroup
@@ -267,4 +273,68 @@ func TestDocumentClientConcurrentAccess(t *testing.T) {
 	}
 
 	wg.Wait()
+}
+
+func TestOperatorEncodeDecode(t *testing.T) {
+	oper := &ot.Operator{Ops: []ot.OperatorAtomic{
+		ot.NewRetain(2),
+		ot.NewInsert("X"),
+		ot.NewDelete(3),
+	}}
+
+	raw, err := encodeOperator(oper)
+	if err != nil {
+		t.Fatalf("encode operator: %v", err)
+	}
+	if got, want := string(raw), `[2,"X",-3]`; got != want {
+		t.Fatalf("encoded operator = %s, want %s", got, want)
+	}
+
+	decoded, err := decodeOperator(raw)
+	if err != nil {
+		t.Fatalf("decode operator: %v", err)
+	}
+
+	base := []byte("abcde")
+	if got, want := string(decoded.Apply(base)), string(oper.Apply(base)); got != want {
+		t.Fatalf("decoded apply = %q, want %q", got, want)
+	}
+}
+
+func TestComposeOperators(t *testing.T) {
+	// "abc" -> "aXbc" -> "aXc"
+	op1 := ot.Operator{Ops: []ot.OperatorAtomic{
+		ot.NewRetain(1),
+		ot.NewInsert("X"),
+		ot.NewRetain(2),
+	}}
+	op2 := ot.Operator{Ops: []ot.OperatorAtomic{
+		ot.NewRetain(2),
+		ot.NewDelete(1),
+		ot.NewRetain(1),
+	}}
+
+	composed, err := composeOperators([]ot.Operator{op1, op2})
+	if err != nil {
+		t.Fatalf("compose operators: %v", err)
+	}
+	if composed == nil {
+		t.Fatal("compose operators returned nil")
+	}
+
+	base := []byte("abc")
+	want := op2.Apply(op1.Apply(base))
+	if got := composed.Apply(base); string(got) != string(want) {
+		t.Fatalf("composed apply = %q, want %q", got, want)
+	}
+}
+
+func TestComposeOperatorsEmpty(t *testing.T) {
+	composed, err := composeOperators(nil)
+	if err != nil {
+		t.Fatalf("compose operators: %v", err)
+	}
+	if composed != nil {
+		t.Fatalf("compose operators = %+v, want nil", composed)
+	}
 }

@@ -9,4 +9,8 @@ const (
 
 	// 短链模块
 	RedisKeyShortLinkId = "key:link:short_link:id"
+
+	// 文档模块
+	// RedisKeyDocumentChange 文档尚未落库的变更, 格式为文档id
+	RedisKeyDocumentChange = "key:document:change:%s"
 )

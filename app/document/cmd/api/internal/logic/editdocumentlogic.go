@@ -15,6 +15,7 @@ import (
 	"github.com/Bluore/mutidoc/app/document/cmd/api/internal/protocol"
 	"github.com/Bluore/mutidoc/app/document/cmd/api/internal/svc"
 	"github.com/Bluore/mutidoc/app/document/cmd/api/internal/types"
+	"github.com/Bluore/mutidoc/app/document/model"
 	"github.com/Bluore/mutidoc/app/user/cmd/rpc/user"
 	"github.com/Bluore/mutidoc/pkg/ctxdata"
 	"github.com/Bluore/mutidoc/pkg/grpcerr"
@@ -113,7 +114,20 @@ func (l *EditDocumentLogic) EditDocument(w http.ResponseWriter, r *http.Request,
 
 	// todo but not now check grant
 
-	documentClient := l.svcCtx.Document.GetOrCreate(req.DocumentId)
+	// 读取数据库快照, 交给文档会话与 redis 上未落库的变更合并
+	documentDetail, err := l.svcCtx.DocumentModel.FindOne(ctx, req.DocumentId)
+	if err != nil {
+		if errors.Is(err, model.ErrNotFound) {
+			return httperr.ErrDocumentNotExist
+		}
+		l.Errorw("query document fail",
+			logx.Field("error", err),
+			logx.Field("document_id", req.DocumentId),
+		)
+		return response.ErrServer
+	}
+
+	documentClient := l.svcCtx.Document.GetOrCreate(req.DocumentId, *documentDetail)
 
 	connHandler := connection.NewConnection(
 		conn,
