@@ -1,0 +1,23 @@
+Name: agent.rpc
+ListenOn: 0.0.0.0:1204
+Mode: dev
+ServerID: 004
+Etcd:
+  Hosts:
+  - etcd:2379
+  Key: agent.rpc
+
+Log:
+  ServiceName: agent-rpc
+  Level: debug
+
+Prometheus:
+  Host: 0.0.0.0
+  Port: 4203
+  Path: /metrics
+
+Telemetry:
+  Name: agent-rpc
+  Endpoint: http://jaeger:14268/api/traces
+  Sampler: 1.0
+  Batcher: otlphttp

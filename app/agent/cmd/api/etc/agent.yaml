@@ -1,0 +1,30 @@
+Name: agent-api
+Host: 0.0.0.0
+Port: 1101
+Mode: dev
+
+JwtAuth:
+  AccessSecret: 123456-456789-123
+  AccessExpire: 60
+
+Log:
+  ServiceName: agent-api
+  Level: debug
+
+Prometheus:
+  Host: 0.0.0.0
+  Port: 4101
+  Path: /metrics
+
+Telemetry:
+  Name: agent-api
+  Endpoint: http://jaeger:14268/api/traces
+  Sampler: 1.0
+  Batcher: otlphttp
+
+AgentRpcConf:
+  Etcd:
+    Hosts:
+      - etcd:2379
+    Key: agent.rpc
+  Timeout: 2000

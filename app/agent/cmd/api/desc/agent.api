@@ -1,0 +1,40 @@
+syntax = "v1"
+
+info (
+	title:   "智能体服务"
+	desc:    "智能体服务"
+	author:  "Bluore"
+	email:   "a@bluore.top"
+	version: "v1"
+)
+
+import (
+	"agent/agent.api"
+)
+
+@server (
+	prefix: /api/agent/v1
+	jwt:    JwtAuth
+)
+service agent {
+	@doc "create session"
+	@handler createSession
+	post /session/create (CreateSessionReq) returns (CreateSessionResp)
+
+	@doc "resume session"
+	@handler resumeSession
+	post /session/resume (ResumeSessionReq) returns (ResumeSessionResp)
+
+	@doc "get session (SSE)"
+	@handler getSession
+	get /session/stream (GetSessionReq) returns (GetSessionResp)
+
+	@doc "human feedback"
+	@handler humanFeedback
+	post /session/feedback (HumanFeedbackReq) returns (HumanFeedbackResp)
+
+	@doc "list session"
+	@handler listSession
+	get /session/list (ListSessionReq) returns (ListSessionResp)
+}
+

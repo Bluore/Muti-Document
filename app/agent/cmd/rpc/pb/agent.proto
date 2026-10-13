@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+option go_package = "./pb";
+
+package agent;
+
+service agent {
+
+  // 创建会话
+  rpc CreateSession(CreateSessionReq) returns (CreateSessionResp);
+
+  // 获取会话
+  rpc GetSession(GetSessionReq) returns (GetSessionResp);
+
+  // 恢复会话
+  rpc ResumeSession(ResumeSessionReq) returns (ResumeSessionResp);
+}
+
+message Session {
+  string SessionId = 1;
+  string SessionTitle = 2;
+  string UserId = 3;
+}
+
+message CreateSessionReq {
+  string UserId = 1;
+}
+
+message CreateSessionResp {
+  Session Session = 1;
+}
+
+message GetSessionReq {
+  string SessionId = 1;
+}
+
+message GetSessionResp {
+  // todo
+}
+
+message ResumeSessionReq {
+  string SessionId = 1;
+  string UserId = 2;
+  string Query = 3;
+}
+
+message ResumeSessionResp {
+  Session Session = 1;
+}

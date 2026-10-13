@@ -1,0 +1,59 @@
+syntax = "v1"
+
+info (
+	title:   "智能体实例"
+	desc:    "智能体实例"
+	author:  "Bluore"
+	email:   "a@bluore.top"
+	version: "v1"
+)
+
+type Session {
+	SessionID    string `json:"session_id"`
+	SessionTitle string `json:"session_title"`
+	UserID       string `json:"user_id"`
+}
+
+type (
+	CreateSessionReq {
+		Query string `form:"query"`
+	}
+	CreateSessionResp {
+		SessionID string `json:"session_id"`
+	}
+)
+
+type (
+	ResumeSessionReq {
+		SessionID string `form:"session_id"`
+		Query string `form:"query"`
+	}
+	ResumeSessionResp {
+	}
+)
+
+type (
+	GetSessionReq {
+		SessionID string `form:"session_id"`
+	}
+	GetSessionResp {
+	}
+)
+
+type (
+    HumanFeedbackReq {
+		SessionID string `form:"session_id"`
+		Feedback string `form:"feedback"`
+    }
+    HumanFeedbackResp {
+    }
+)
+
+type (
+	ListSessionReq {
+	}
+	ListSessionResp {
+		Sessions   []Session `json:"sessions"`
+		SessionLen int       `json:"session_len"`
+	}
+)
