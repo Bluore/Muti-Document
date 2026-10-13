@@ -19,6 +19,7 @@ services:
     depends_on:
       - mutidoc-user-api
       - mutidoc-link-api
+      - mutidoc-agent-api
 
   mutidoc-user-api:
     build:
@@ -121,6 +122,40 @@ services:
       - .:/app
     ports:
       - 9999:1201
+    networks:
+      - mutidoc-net
+
+  mutidoc-agent-api:
+    build:
+      context: .
+      dockerfile: ./app/agent/cmd/api/Dockerfile
+    container_name: mutidoc-agent-api
+    command:
+      - go
+      - run
+      - /app/app/agent/cmd/api
+      - -f
+      - /app/deploy/config/agent-api.yml
+    volumes:
+      - .:/app
+    ports: []
+    networks:
+      - mutidoc-net
+
+  mutidoc-agent-rpc:
+    build:
+      context: .
+      dockerfile: ./app/agent/cmd/rpc/Dockerfile
+    container_name: mutidoc-agent-rpc
+    command:
+      - go
+      - run
+      - /app/app/agent/cmd/rpc
+      - -f
+      - /app/deploy/config/agent-rpc.yml
+    volumes:
+      - .:/app
+    ports: []
     networks:
       - mutidoc-net
 
