@@ -3,7 +3,7 @@ package types
 import (
 	"sync"
 
-	"github.com/Bluore/mutidoc/app/document/cmd/api/internal/connection"
+	"github.com/Bluore/mutidoc/app/document/cmd/edit/internal/connection"
 	"github.com/Bluore/mutidoc/app/document/model"
 	"github.com/redis/go-redis/v9"
 )

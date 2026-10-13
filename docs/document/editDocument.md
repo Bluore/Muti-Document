@@ -3,8 +3,12 @@
 文档实时协同编辑接口。客户端与服务端建立 WebSocket 长连接；同一文档的所有在线用户
 共享一份进程内的 OT 状态（`connection.DocumentClient`，按 `document_id` 隔离）。
 
-> 当前实现中，编辑内容、光标与**文档标题**只存在于内存，不会回写 RPC / 数据库，服务重启
-> 即丢失；因此该接口暂不支持 document-api 横向扩容或多实例部署。
+> 该接口由独立的 `edit-api` 服务提供（`app/document/cmd/edit`）。编辑内容、光标与**文档标题**
+> 的持久化仍以进程内 OT 状态为主（变更缓存于 redis 并异步落库），因此该服务暂不支持横向扩容
+> 或多实例部署。
+>
+> 该服务在同一进程内另提供 gRPC `edit.rpc`（`pb/edit.proto`）的 `StopDocumentSession`，
+> 供其他服务关闭某个文档的内存会话；`document-api` 删除文档时会调用它。
 
 ## 1. 接口
 
@@ -12,11 +16,11 @@
 | --- | --- |
 | 协议 | WebSocket（`ws://` / `wss://`），业务消息为 JSON 文本帧 |
 | 方法 | `GET`（HTTP 升级握手） |
-| 路径 | `/api/doc/v1/document/edit` |
+| 路径 | `/api/edit/v1/document` |
 | Query | `document_id`（必填，目标文档 ID） |
 
-- 直连文档服务：`ws://localhost:1101/api/doc/v1/document/edit?document_id=doc-1001`
-- 经 nginx 网关：`ws://localhost:8888/api/doc/v1/document/edit?document_id=doc-1001`
+- 直连编辑服务：`ws://localhost:1101/api/edit/v1/document?document_id=doc-1001`
+- 经 nginx 网关：`ws://localhost:8888/api/edit/v1/document?document_id=doc-1001`
 
 鉴权**不在 HTTP 层完成**（该路由未挂 `JwtAuth`）。连接建立后，客户端必须把 JWT 作为
 **第一条 WebSocket 文本消息**发送：

@@ -34,14 +34,6 @@ type (
 )
 
 type (
-    EditDocumentReq {
-        DocumentId string `form:"document_id"`
-    }
-    EditDocumentResp {
-    }
-)
-
-type (
     GetDocumentInfoReq {
         DocumentId string `form:"document_id"`
     }

@@ -1,0 +1,26 @@
+syntax = "v1"
+
+info (
+	title:   "文档协作编辑"
+	desc:    "文档协作编辑"
+	author:  "Bluore"
+	email:   "a@bluore.top"
+	version: "v1"
+)
+
+@server (
+	prefix: /api/edit/v1
+)
+service edit {
+	@doc "edit document"
+	@handler editDocument
+	get /document (EditDocumentReq) returns (EditDocumentResp)
+}
+
+type (
+	EditDocumentReq {
+		DocumentId string `form:"document_id"`
+	}
+	EditDocumentResp  {}
+)
+

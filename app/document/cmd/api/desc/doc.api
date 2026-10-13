@@ -38,12 +38,3 @@ service document {
 	get /document/grant (GetGrantLinkReq) returns (GetGrantLinkResp)
 }
 
-@server (
-	prefix: /api/doc/v1
-)
-service document {
-	@doc "edit document"
-	@handler editDocument
-	get /document/edit (EditDocumentReq) returns (EditDocumentResp)
-}
-

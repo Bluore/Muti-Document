@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Bluore/mutidoc/app/document/cmd/api/internal/protocol"
+	"github.com/Bluore/mutidoc/app/document/cmd/edit/internal/protocol"
 	"github.com/Bluore/mutidoc/pkg/ot"
 	"github.com/Bluore/mutidoc/pkg/utils"
 	"github.com/gorilla/websocket"
@@ -97,6 +97,13 @@ func (c *Connection) Handle() {
 	go c.listenOutbox()
 
 	for {
+		if c.Ot.IsClosed() {
+			logx.WithContext(c.Ctx).Infow("document session closed, kill conn",
+				logx.Field("user_id", c.UserID),
+			)
+			return
+		}
+
 		c.Notify = c.Ot.GetNotify()
 
 		c.checkAndSendHistory()

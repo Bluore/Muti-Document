@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Bluore/mutidoc/app/document/cmd/api/internal/protocol"
+	"github.com/Bluore/mutidoc/app/document/cmd/edit/internal/protocol"
 	"github.com/Bluore/mutidoc/app/document/model"
 	"github.com/Bluore/mutidoc/pkg/globalkey"
 	"github.com/Bluore/mutidoc/pkg/ot"
@@ -130,6 +130,8 @@ func (o *DocumentClient) Close() {
 			o.cancel()
 		}
 		close(o.stopCh)
+		// 唤醒所有连接, 让它们感知会话已关闭并结束
+		o.NotifyEdit()
 	})
 
 	if o.done != nil {

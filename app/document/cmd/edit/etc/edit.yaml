@@ -1,0 +1,52 @@
+Name: edit-api
+Host: 0.0.0.0
+Port: 1101
+Mode: dev
+
+Rpc:
+  Name: edit.rpc
+  ListenOn: 0.0.0.0:1205
+  Etcd:
+    Hosts:
+      - etcd:2379
+    Key: edit.rpc
+  Timeout: 5000
+
+RedisConf:
+  Addr: redis:6379
+  Password:
+  DB: 0
+
+DB:
+  DataSource: mutidoc:123456@tcp(172.20.117.80:13306)/mutidoc?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai
+  DriverName: mysql
+
+Cache:
+  - Host: redis:6379
+    Pass:
+
+JwtAuth:
+  AccessSecret: 123456-456789-123
+  AccessExpire: 60
+
+Log:
+  ServiceName: edit-api
+  Level: debug
+
+Prometheus:
+  Host: 0.0.0.0
+  Port: 4101
+  Path: /metrics
+
+Telemetry:
+  Name: edit-api
+  Endpoint: http://jaeger:14268/api/traces
+  Sampler: 1.0
+  Batcher: otlphttp
+
+UserRpcConf:
+  Etcd:
+    Hosts:
+      - etcd:2379
+    Key: user.rpc
+  Timeout: 2000

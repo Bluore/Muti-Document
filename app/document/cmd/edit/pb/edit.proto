@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+option go_package = "./pb";
+
+package edit;
+
+service edit {
+
+  // 停止文档的协作编辑会话(关闭并移除内存中的会话)
+  rpc StopDocumentSession(StopDocumentSessionReq) returns (StopDocumentSessionResp);
+}
+
+message StopDocumentSessionReq{
+  string DocumentId = 1;
+}
+
+message StopDocumentSessionResp{
+}

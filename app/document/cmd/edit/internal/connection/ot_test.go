@@ -5,7 +5,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/Bluore/mutidoc/app/document/cmd/api/internal/protocol"
+	"github.com/Bluore/mutidoc/app/document/cmd/edit/internal/protocol"
 	"github.com/Bluore/mutidoc/app/document/model"
 	"github.com/Bluore/mutidoc/pkg/ot"
 )

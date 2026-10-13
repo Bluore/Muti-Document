@@ -25,13 +25,6 @@ type Document struct {
 	UpdateAt int64  `json:"update_at"`
 }
 
-type EditDocumentReq struct {
-	DocumentId string `form:"document_id"`
-}
-
-type EditDocumentResp struct {
-}
-
 type GetDocumentInfoReq struct {
 	DocumentId string `form:"document_id"`
 }

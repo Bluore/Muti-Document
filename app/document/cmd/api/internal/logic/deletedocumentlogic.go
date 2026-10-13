@@ -9,6 +9,7 @@ import (
 	"github.com/Bluore/mutidoc/app/document/cmd/api/internal/httperr"
 	"github.com/Bluore/mutidoc/app/document/cmd/api/internal/svc"
 	"github.com/Bluore/mutidoc/app/document/cmd/api/internal/types"
+	"github.com/Bluore/mutidoc/app/document/cmd/edit/edit"
 	"github.com/Bluore/mutidoc/app/document/cmd/rpc/document"
 	"github.com/Bluore/mutidoc/pkg/ctxdata"
 	"github.com/Bluore/mutidoc/pkg/grpcerr"
@@ -62,13 +63,6 @@ func (l *DeleteDocumentLogic) DeleteDocument(req *types.DeleteDocumentReq) (resp
 		return nil, httperr.ErrDocumentNoPermission
 	}
 
-	// 文档正在被协作编辑时, 先停止并移除内存中的编辑会话, 保证删除后不能被继续编辑
-	documentClient := l.svcCtx.Document.Get(req.DocumentId)
-	if documentClient != nil {
-		documentClient.Close()
-		l.svcCtx.Document.CheckAndDelete(req.DocumentId, documentClient)
-	}
-
 	_, err = l.svcCtx.DocumentRpc.DeleteDocument(l.ctx, &document.DeleteDocumentReq{
 		DocumentId: req.DocumentId,
 	})
@@ -79,9 +73,19 @@ func (l *DeleteDocumentLogic) DeleteDocument(req *types.DeleteDocumentReq) (resp
 		logx.WithContext(l.ctx).Errorf("delete document fail: %v", err)
 		return nil, response.ErrServer
 	}
+
+	// 删除成功后结束该文档的内存编辑会话; edit 不可用时不阻断删除结果
+	if _, err = l.svcCtx.EditRpc.StopDocumentSession(l.ctx, &edit.StopDocumentSessionReq{
+		DocumentId: req.DocumentId,
+	}); err != nil {
+		logx.WithContext(l.ctx).Errorw("stop edit session fail",
+			logx.Field("error", err),
+			logx.Field("document_id", req.DocumentId),
+		)
+	}
+
 	logx.WithContext(l.ctx).Infow("delete document success",
 		logx.Field("document_id", req.DocumentId),
-		logx.Field("edit_session_exist", documentClient != nil),
 	)
 
 	return &types.DeleteDocumentResp{}, nil

@@ -6,9 +6,9 @@ package handler
 import (
 	"net/http"
 
-	"github.com/Bluore/mutidoc/app/document/cmd/api/internal/logic"
-	"github.com/Bluore/mutidoc/app/document/cmd/api/internal/svc"
-	"github.com/Bluore/mutidoc/app/document/cmd/api/internal/types"
+	"github.com/Bluore/mutidoc/app/document/cmd/edit/internal/logic"
+	"github.com/Bluore/mutidoc/app/document/cmd/edit/internal/svc"
+	"github.com/Bluore/mutidoc/app/document/cmd/edit/internal/types"
 	"github.com/Bluore/mutidoc/pkg/response"
 	"github.com/zeromicro/go-zero/rest/httpx"
 )

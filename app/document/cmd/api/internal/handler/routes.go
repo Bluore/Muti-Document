@@ -48,16 +48,4 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 		rest.WithJwt(serverCtx.Config.JwtAuth.AccessSecret),
 		rest.WithPrefix("/api/doc/v1"),
 	)
-
-	server.AddRoutes(
-		[]rest.Route{
-			{
-				// edit document
-				Method:  http.MethodGet,
-				Path:    "/document/edit",
-				Handler: editDocumentHandler(serverCtx),
-			},
-		},
-		rest.WithPrefix("/api/doc/v1"),
-	)
 }
