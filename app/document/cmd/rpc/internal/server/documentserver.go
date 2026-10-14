@@ -53,6 +53,12 @@ func (s *DocumentServer) GetDocumentList(ctx context.Context, in *pb.GetDocument
 	return l.GetDocumentList(in)
 }
 
+// 获取文档内容(整合数据库快照与 redis 上未落库的变更)
+func (s *DocumentServer) GetDocumentContent(ctx context.Context, in *pb.GetDocumentContentReq) (*pb.GetDocumentContentResp, error) {
+	l := logic.NewGetDocumentContentLogic(ctx, s.svcCtx)
+	return l.GetDocumentContent(in)
+}
+
 // 获取用户是否有授权
 func (s *DocumentServer) GetDocumentPermission(ctx context.Context, in *pb.GetDocumentPermissionReq) (*pb.GetDocumentPermissionResp, error) {
 	l := logic.NewGetDocumentPermissionLogic(ctx, s.svcCtx)

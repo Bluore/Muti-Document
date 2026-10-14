@@ -4,7 +4,7 @@
 package types
 
 type CreateSessionReq struct {
-	Query string `form:"query"`
+	Query string `json:"query"`
 }
 
 type CreateSessionResp struct {
@@ -12,15 +12,15 @@ type CreateSessionResp struct {
 }
 
 type GetSessionReq struct {
-	SessionID string `form:"session_id"`
+	SessionID string `path:"id"`
 }
 
 type GetSessionResp struct {
 }
 
 type HumanFeedbackReq struct {
-	SessionID string `form:"session_id"`
-	Feedback  string `form:"feedback"`
+	SessionID string `json:"session_id"`
+	Feedback  string `json:"feedback"`
 }
 
 type HumanFeedbackResp struct {
@@ -35,8 +35,8 @@ type ListSessionResp struct {
 }
 
 type ResumeSessionReq struct {
-	SessionID string `form:"session_id"`
-	Query     string `form:"query"`
+	SessionID string `json:"session_id"`
+	Query     string `json:"query"`
 }
 
 type ResumeSessionResp struct {

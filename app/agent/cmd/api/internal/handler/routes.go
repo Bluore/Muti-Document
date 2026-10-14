@@ -5,6 +5,7 @@ package handler
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/Bluore/mutidoc/app/agent/cmd/api/internal/svc"
 
@@ -38,14 +39,22 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Path:    "/session/resume",
 				Handler: resumeSessionHandler(serverCtx),
 			},
+		},
+		rest.WithJwt(serverCtx.Config.JwtAuth.AccessSecret),
+		rest.WithPrefix("/api/agent/v1"),
+	)
+
+	server.AddRoutes(
+		[]rest.Route{
 			{
 				// get session (SSE)
 				Method:  http.MethodGet,
-				Path:    "/session/stream",
+				Path:    "/session/stream/:id",
 				Handler: getSessionHandler(serverCtx),
 			},
 		},
 		rest.WithJwt(serverCtx.Config.JwtAuth.AccessSecret),
 		rest.WithPrefix("/api/agent/v1"),
+		rest.WithTimeout(0*time.Nanosecond),
 	)
 }

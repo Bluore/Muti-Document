@@ -19,6 +19,8 @@ type (
 	DeleteDocumentReq           = pb.DeleteDocumentReq
 	DeleteDocumentResp          = pb.DeleteDocumentResp
 	Document                    = pb.Document
+	GetDocumentContentReq       = pb.GetDocumentContentReq
+	GetDocumentContentResp      = pb.GetDocumentContentResp
 	GetDocumentInfoReq          = pb.GetDocumentInfoReq
 	GetDocumentInfoResp         = pb.GetDocumentInfoResp
 	GetDocumentListReq          = pb.GetDocumentListReq
@@ -41,6 +43,8 @@ type (
 		GetDocumentInfo(ctx context.Context, in *GetDocumentInfoReq, opts ...grpc.CallOption) (*GetDocumentInfoResp, error)
 		// 获取文档列表(仅元信息)
 		GetDocumentList(ctx context.Context, in *GetDocumentListReq, opts ...grpc.CallOption) (*GetDocumentListResp, error)
+		// 获取文档内容(整合数据库快照与 redis 上未落库的变更)
+		GetDocumentContent(ctx context.Context, in *GetDocumentContentReq, opts ...grpc.CallOption) (*GetDocumentContentResp, error)
 		// 获取用户是否有授权
 		GetDocumentPermission(ctx context.Context, in *GetDocumentPermissionReq, opts ...grpc.CallOption) (*GetDocumentPermissionResp, error)
 		// 授权用户文档权限
@@ -86,6 +90,12 @@ func (m *defaultDocumentZrpcClient) GetDocumentInfo(ctx context.Context, in *Get
 func (m *defaultDocumentZrpcClient) GetDocumentList(ctx context.Context, in *GetDocumentListReq, opts ...grpc.CallOption) (*GetDocumentListResp, error) {
 	client := pb.NewDocumentClient(m.cli.Conn())
 	return client.GetDocumentList(ctx, in, opts...)
+}
+
+// 获取文档内容(整合数据库快照与 redis 上未落库的变更)
+func (m *defaultDocumentZrpcClient) GetDocumentContent(ctx context.Context, in *GetDocumentContentReq, opts ...grpc.CallOption) (*GetDocumentContentResp, error) {
+	client := pb.NewDocumentClient(m.cli.Conn())
+	return client.GetDocumentContent(ctx, in, opts...)
 }
 
 // 获取用户是否有授权

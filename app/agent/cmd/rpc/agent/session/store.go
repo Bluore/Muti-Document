@@ -1,6 +1,9 @@
 package session
 
-import "sync"
+import (
+	"fmt"
+	"sync"
+)
 
 // 全局内存会话表
 var (
@@ -9,21 +12,45 @@ var (
 )
 
 // Store 写入全局内存会话表
-func Store(client *SessionClient) {
+func Store(client *SessionClient) error {
 	if client == nil {
-		return
+		return fmt.Errorf("session client is nil")
 	}
 	sessionsMu.Lock()
 	defer sessionsMu.Unlock()
+	if _, ok := sessions[client.SessionID]; ok {
+		return fmt.Errorf("session already exists")
+	}
 	sessions[client.SessionID] = client
+	return nil
 }
 
-// Get 从全局内存会话表读取会话
-func Get(sessionID string) (*SessionClient, bool) {
+// getClient 从全局内存会话表读取会话
+func getClient(sessionID string) (*SessionClient, bool) {
 	sessionsMu.RLock()
 	defer sessionsMu.RUnlock()
 	client, ok := sessions[sessionID]
 	return client, ok
+}
+
+// GetOrInit 读取内存会话, 不存在时用 build 构造并写入
+func GetOrInit(sessionID string, build func() (*SessionClient, error)) (*SessionClient, error) {
+	if client, ok := getClient(sessionID); ok {
+		return client, nil
+	}
+
+	client, err := build()
+	if err != nil {
+		return nil, err
+	}
+	if err = Store(client); err != nil {
+		// 并发下可能已被其他请求初始化
+		if existing, ok := getClient(sessionID); ok {
+			return existing, nil
+		}
+		return nil, err
+	}
+	return client, nil
 }
 
 // Delete 从全局内存会话表移除会话, 并关闭其生命周期

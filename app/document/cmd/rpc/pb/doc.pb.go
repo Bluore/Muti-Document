@@ -580,6 +580,113 @@ func (x *GetDocumentListResp) GetTotal() int64 {
 	return 0
 }
 
+type GetDocumentContentReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	DocumentId    string                 `protobuf:"bytes,1,opt,name=DocumentId,proto3" json:"DocumentId,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetDocumentContentReq) Reset() {
+	*x = GetDocumentContentReq{}
+	mi := &file_pb_doc_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetDocumentContentReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetDocumentContentReq) ProtoMessage() {}
+
+func (x *GetDocumentContentReq) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_doc_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetDocumentContentReq.ProtoReflect.Descriptor instead.
+func (*GetDocumentContentReq) Descriptor() ([]byte, []int) {
+	return file_pb_doc_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *GetDocumentContentReq) GetDocumentId() string {
+	if x != nil {
+		return x.DocumentId
+	}
+	return ""
+}
+
+type GetDocumentContentResp struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 整合后的文档正文
+	Content string `protobuf:"bytes,1,opt,name=Content,proto3" json:"Content,omitempty"`
+	// 整合后的文档标题
+	Summary string `protobuf:"bytes,2,opt,name=Summary,proto3" json:"Summary,omitempty"`
+	// 整合后的文档版本号
+	Version       int64 `protobuf:"varint,3,opt,name=Version,proto3" json:"Version,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetDocumentContentResp) Reset() {
+	*x = GetDocumentContentResp{}
+	mi := &file_pb_doc_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetDocumentContentResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetDocumentContentResp) ProtoMessage() {}
+
+func (x *GetDocumentContentResp) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_doc_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetDocumentContentResp.ProtoReflect.Descriptor instead.
+func (*GetDocumentContentResp) Descriptor() ([]byte, []int) {
+	return file_pb_doc_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *GetDocumentContentResp) GetContent() string {
+	if x != nil {
+		return x.Content
+	}
+	return ""
+}
+
+func (x *GetDocumentContentResp) GetSummary() string {
+	if x != nil {
+		return x.Summary
+	}
+	return ""
+}
+
+func (x *GetDocumentContentResp) GetVersion() int64 {
+	if x != nil {
+		return x.Version
+	}
+	return 0
+}
+
 type GetDocumentPermissionReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserId        string                 `protobuf:"bytes,1,opt,name=UserId,proto3" json:"UserId,omitempty"`
@@ -590,7 +697,7 @@ type GetDocumentPermissionReq struct {
 
 func (x *GetDocumentPermissionReq) Reset() {
 	*x = GetDocumentPermissionReq{}
-	mi := &file_pb_doc_proto_msgTypes[11]
+	mi := &file_pb_doc_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -602,7 +709,7 @@ func (x *GetDocumentPermissionReq) String() string {
 func (*GetDocumentPermissionReq) ProtoMessage() {}
 
 func (x *GetDocumentPermissionReq) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_doc_proto_msgTypes[11]
+	mi := &file_pb_doc_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -615,7 +722,7 @@ func (x *GetDocumentPermissionReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetDocumentPermissionReq.ProtoReflect.Descriptor instead.
 func (*GetDocumentPermissionReq) Descriptor() ([]byte, []int) {
-	return file_pb_doc_proto_rawDescGZIP(), []int{11}
+	return file_pb_doc_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *GetDocumentPermissionReq) GetUserId() string {
@@ -641,7 +748,7 @@ type GetDocumentPermissionResp struct {
 
 func (x *GetDocumentPermissionResp) Reset() {
 	*x = GetDocumentPermissionResp{}
-	mi := &file_pb_doc_proto_msgTypes[12]
+	mi := &file_pb_doc_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -653,7 +760,7 @@ func (x *GetDocumentPermissionResp) String() string {
 func (*GetDocumentPermissionResp) ProtoMessage() {}
 
 func (x *GetDocumentPermissionResp) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_doc_proto_msgTypes[12]
+	mi := &file_pb_doc_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -666,7 +773,7 @@ func (x *GetDocumentPermissionResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetDocumentPermissionResp.ProtoReflect.Descriptor instead.
 func (*GetDocumentPermissionResp) Descriptor() ([]byte, []int) {
-	return file_pb_doc_proto_rawDescGZIP(), []int{12}
+	return file_pb_doc_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *GetDocumentPermissionResp) GetHasPermission() bool {
@@ -686,7 +793,7 @@ type GrantDocumentPermissionReq struct {
 
 func (x *GrantDocumentPermissionReq) Reset() {
 	*x = GrantDocumentPermissionReq{}
-	mi := &file_pb_doc_proto_msgTypes[13]
+	mi := &file_pb_doc_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -698,7 +805,7 @@ func (x *GrantDocumentPermissionReq) String() string {
 func (*GrantDocumentPermissionReq) ProtoMessage() {}
 
 func (x *GrantDocumentPermissionReq) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_doc_proto_msgTypes[13]
+	mi := &file_pb_doc_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -711,7 +818,7 @@ func (x *GrantDocumentPermissionReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrantDocumentPermissionReq.ProtoReflect.Descriptor instead.
 func (*GrantDocumentPermissionReq) Descriptor() ([]byte, []int) {
-	return file_pb_doc_proto_rawDescGZIP(), []int{13}
+	return file_pb_doc_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *GrantDocumentPermissionReq) GetUserId() string {
@@ -736,7 +843,7 @@ type GrantDocumentPermissionResp struct {
 
 func (x *GrantDocumentPermissionResp) Reset() {
 	*x = GrantDocumentPermissionResp{}
-	mi := &file_pb_doc_proto_msgTypes[14]
+	mi := &file_pb_doc_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -748,7 +855,7 @@ func (x *GrantDocumentPermissionResp) String() string {
 func (*GrantDocumentPermissionResp) ProtoMessage() {}
 
 func (x *GrantDocumentPermissionResp) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_doc_proto_msgTypes[14]
+	mi := &file_pb_doc_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -761,7 +868,7 @@ func (x *GrantDocumentPermissionResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrantDocumentPermissionResp.ProtoReflect.Descriptor instead.
 func (*GrantDocumentPermissionResp) Descriptor() ([]byte, []int) {
-	return file_pb_doc_proto_rawDescGZIP(), []int{14}
+	return file_pb_doc_proto_rawDescGZIP(), []int{16}
 }
 
 var File_pb_doc_proto protoreflect.FileDescriptor
@@ -807,7 +914,15 @@ const file_pb_doc_proto_rawDesc = "" +
 	"\x04Size\x18\x03 \x01(\x03R\x04Size\"c\n" +
 	"\x13GetDocumentListResp\x126\n" +
 	"\fDocumentInfo\x18\x01 \x03(\v2\x12.document.DocumentR\fDocumentInfo\x12\x14\n" +
-	"\x05Total\x18\x02 \x01(\x03R\x05Total\"R\n" +
+	"\x05Total\x18\x02 \x01(\x03R\x05Total\"7\n" +
+	"\x15GetDocumentContentReq\x12\x1e\n" +
+	"\n" +
+	"DocumentId\x18\x01 \x01(\tR\n" +
+	"DocumentId\"f\n" +
+	"\x16GetDocumentContentResp\x12\x18\n" +
+	"\aContent\x18\x01 \x01(\tR\aContent\x12\x18\n" +
+	"\aSummary\x18\x02 \x01(\tR\aSummary\x12\x18\n" +
+	"\aVersion\x18\x03 \x01(\x03R\aVersion\"R\n" +
 	"\x18GetDocumentPermissionReq\x12\x16\n" +
 	"\x06UserId\x18\x01 \x01(\tR\x06UserId\x12\x1e\n" +
 	"\n" +
@@ -820,13 +935,14 @@ const file_pb_doc_proto_rawDesc = "" +
 	"\n" +
 	"DocumentId\x18\x02 \x01(\tR\n" +
 	"DocumentId\"\x1d\n" +
-	"\x1bGrantDocumentPermissionResp2\xdc\x04\n" +
+	"\x1bGrantDocumentPermissionResp2\xb5\x05\n" +
 	"\bdocument\x12K\n" +
 	"\x0eCreateDocument\x12\x1b.document.CreateDocumentReq\x1a\x1c.document.CreateDocumentResp\x12K\n" +
 	"\x0eDeleteDocument\x12\x1b.document.DeleteDocumentReq\x1a\x1c.document.DeleteDocumentResp\x12K\n" +
 	"\x0eUpdateDocument\x12\x1b.document.UpdateDocumentReq\x1a\x1c.document.UpdateDocumentResp\x12N\n" +
 	"\x0fGetDocumentInfo\x12\x1c.document.GetDocumentInfoReq\x1a\x1d.document.GetDocumentInfoResp\x12N\n" +
-	"\x0fGetDocumentList\x12\x1c.document.GetDocumentListReq\x1a\x1d.document.GetDocumentListResp\x12`\n" +
+	"\x0fGetDocumentList\x12\x1c.document.GetDocumentListReq\x1a\x1d.document.GetDocumentListResp\x12W\n" +
+	"\x12GetDocumentContent\x12\x1f.document.GetDocumentContentReq\x1a .document.GetDocumentContentResp\x12`\n" +
 	"\x15GetDocumentPermission\x12\".document.GetDocumentPermissionReq\x1a#.document.GetDocumentPermissionResp\x12g\n" +
 	"\x18GrantaDocumentPermission\x12$.document.GrantDocumentPermissionReq\x1a%.document.GrantDocumentPermissionRespB\x06Z\x04./pbb\x06proto3"
 
@@ -842,7 +958,7 @@ func file_pb_doc_proto_rawDescGZIP() []byte {
 	return file_pb_doc_proto_rawDescData
 }
 
-var file_pb_doc_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
+var file_pb_doc_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
 var file_pb_doc_proto_goTypes = []any{
 	(*Document)(nil),                    // 0: document.Document
 	(*CreateDocumentReq)(nil),           // 1: document.CreateDocumentReq
@@ -855,10 +971,12 @@ var file_pb_doc_proto_goTypes = []any{
 	(*GetDocumentInfoResp)(nil),         // 8: document.GetDocumentInfoResp
 	(*GetDocumentListReq)(nil),          // 9: document.GetDocumentListReq
 	(*GetDocumentListResp)(nil),         // 10: document.GetDocumentListResp
-	(*GetDocumentPermissionReq)(nil),    // 11: document.GetDocumentPermissionReq
-	(*GetDocumentPermissionResp)(nil),   // 12: document.GetDocumentPermissionResp
-	(*GrantDocumentPermissionReq)(nil),  // 13: document.GrantDocumentPermissionReq
-	(*GrantDocumentPermissionResp)(nil), // 14: document.GrantDocumentPermissionResp
+	(*GetDocumentContentReq)(nil),       // 11: document.GetDocumentContentReq
+	(*GetDocumentContentResp)(nil),      // 12: document.GetDocumentContentResp
+	(*GetDocumentPermissionReq)(nil),    // 13: document.GetDocumentPermissionReq
+	(*GetDocumentPermissionResp)(nil),   // 14: document.GetDocumentPermissionResp
+	(*GrantDocumentPermissionReq)(nil),  // 15: document.GrantDocumentPermissionReq
+	(*GrantDocumentPermissionResp)(nil), // 16: document.GrantDocumentPermissionResp
 }
 var file_pb_doc_proto_depIdxs = []int32{
 	0,  // 0: document.GetDocumentInfoResp.DocumentInfo:type_name -> document.Document
@@ -868,17 +986,19 @@ var file_pb_doc_proto_depIdxs = []int32{
 	5,  // 4: document.document.UpdateDocument:input_type -> document.UpdateDocumentReq
 	7,  // 5: document.document.GetDocumentInfo:input_type -> document.GetDocumentInfoReq
 	9,  // 6: document.document.GetDocumentList:input_type -> document.GetDocumentListReq
-	11, // 7: document.document.GetDocumentPermission:input_type -> document.GetDocumentPermissionReq
-	13, // 8: document.document.GrantaDocumentPermission:input_type -> document.GrantDocumentPermissionReq
-	2,  // 9: document.document.CreateDocument:output_type -> document.CreateDocumentResp
-	4,  // 10: document.document.DeleteDocument:output_type -> document.DeleteDocumentResp
-	6,  // 11: document.document.UpdateDocument:output_type -> document.UpdateDocumentResp
-	8,  // 12: document.document.GetDocumentInfo:output_type -> document.GetDocumentInfoResp
-	10, // 13: document.document.GetDocumentList:output_type -> document.GetDocumentListResp
-	12, // 14: document.document.GetDocumentPermission:output_type -> document.GetDocumentPermissionResp
-	14, // 15: document.document.GrantaDocumentPermission:output_type -> document.GrantDocumentPermissionResp
-	9,  // [9:16] is the sub-list for method output_type
-	2,  // [2:9] is the sub-list for method input_type
+	11, // 7: document.document.GetDocumentContent:input_type -> document.GetDocumentContentReq
+	13, // 8: document.document.GetDocumentPermission:input_type -> document.GetDocumentPermissionReq
+	15, // 9: document.document.GrantaDocumentPermission:input_type -> document.GrantDocumentPermissionReq
+	2,  // 10: document.document.CreateDocument:output_type -> document.CreateDocumentResp
+	4,  // 11: document.document.DeleteDocument:output_type -> document.DeleteDocumentResp
+	6,  // 12: document.document.UpdateDocument:output_type -> document.UpdateDocumentResp
+	8,  // 13: document.document.GetDocumentInfo:output_type -> document.GetDocumentInfoResp
+	10, // 14: document.document.GetDocumentList:output_type -> document.GetDocumentListResp
+	12, // 15: document.document.GetDocumentContent:output_type -> document.GetDocumentContentResp
+	14, // 16: document.document.GetDocumentPermission:output_type -> document.GetDocumentPermissionResp
+	16, // 17: document.document.GrantaDocumentPermission:output_type -> document.GrantDocumentPermissionResp
+	10, // [10:18] is the sub-list for method output_type
+	2,  // [2:10] is the sub-list for method input_type
 	2,  // [2:2] is the sub-list for extension type_name
 	2,  // [2:2] is the sub-list for extension extendee
 	0,  // [0:2] is the sub-list for field type_name
@@ -895,7 +1015,7 @@ func file_pb_doc_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_pb_doc_proto_rawDesc), len(file_pb_doc_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   15,
+			NumMessages:   17,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

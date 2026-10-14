@@ -18,6 +18,8 @@ type (
 	CreateSessionResp = pb.CreateSessionResp
 	GetSessionReq     = pb.GetSessionReq
 	GetSessionResp    = pb.GetSessionResp
+	ListSessionReq    = pb.ListSessionReq
+	ListSessionResp   = pb.ListSessionResp
 	ResumeSessionReq  = pb.ResumeSessionReq
 	ResumeSessionResp = pb.ResumeSessionResp
 	Session           = pb.Session
@@ -29,6 +31,8 @@ type (
 		GetSession(ctx context.Context, in *GetSessionReq, opts ...grpc.CallOption) (*GetSessionResp, error)
 		// 恢复会话
 		ResumeSession(ctx context.Context, in *ResumeSessionReq, opts ...grpc.CallOption) (*ResumeSessionResp, error)
+		// 会话列表
+		ListSession(ctx context.Context, in *ListSessionReq, opts ...grpc.CallOption) (*ListSessionResp, error)
 	}
 
 	defaultAgent struct {
@@ -58,4 +62,10 @@ func (m *defaultAgent) GetSession(ctx context.Context, in *GetSessionReq, opts .
 func (m *defaultAgent) ResumeSession(ctx context.Context, in *ResumeSessionReq, opts ...grpc.CallOption) (*ResumeSessionResp, error) {
 	client := pb.NewAgentClient(m.cli.Conn())
 	return client.ResumeSession(ctx, in, opts...)
+}
+
+// 会话列表
+func (m *defaultAgent) ListSession(ctx context.Context, in *ListSessionReq, opts ...grpc.CallOption) (*ListSessionResp, error) {
+	client := pb.NewAgentClient(m.cli.Conn())
+	return client.ListSession(ctx, in, opts...)
 }

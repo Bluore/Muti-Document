@@ -24,6 +24,7 @@ const (
 	Document_UpdateDocument_FullMethodName           = "/document.document/UpdateDocument"
 	Document_GetDocumentInfo_FullMethodName          = "/document.document/GetDocumentInfo"
 	Document_GetDocumentList_FullMethodName          = "/document.document/GetDocumentList"
+	Document_GetDocumentContent_FullMethodName       = "/document.document/GetDocumentContent"
 	Document_GetDocumentPermission_FullMethodName    = "/document.document/GetDocumentPermission"
 	Document_GrantaDocumentPermission_FullMethodName = "/document.document/GrantaDocumentPermission"
 )
@@ -42,6 +43,8 @@ type DocumentClient interface {
 	GetDocumentInfo(ctx context.Context, in *GetDocumentInfoReq, opts ...grpc.CallOption) (*GetDocumentInfoResp, error)
 	// 获取文档列表(仅元信息)
 	GetDocumentList(ctx context.Context, in *GetDocumentListReq, opts ...grpc.CallOption) (*GetDocumentListResp, error)
+	// 获取文档内容(整合数据库快照与 redis 上未落库的变更)
+	GetDocumentContent(ctx context.Context, in *GetDocumentContentReq, opts ...grpc.CallOption) (*GetDocumentContentResp, error)
 	// 获取用户是否有授权
 	GetDocumentPermission(ctx context.Context, in *GetDocumentPermissionReq, opts ...grpc.CallOption) (*GetDocumentPermissionResp, error)
 	// 授权用户文档权限
@@ -106,6 +109,16 @@ func (c *documentClient) GetDocumentList(ctx context.Context, in *GetDocumentLis
 	return out, nil
 }
 
+func (c *documentClient) GetDocumentContent(ctx context.Context, in *GetDocumentContentReq, opts ...grpc.CallOption) (*GetDocumentContentResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetDocumentContentResp)
+	err := c.cc.Invoke(ctx, Document_GetDocumentContent_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *documentClient) GetDocumentPermission(ctx context.Context, in *GetDocumentPermissionReq, opts ...grpc.CallOption) (*GetDocumentPermissionResp, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetDocumentPermissionResp)
@@ -140,6 +153,8 @@ type DocumentServer interface {
 	GetDocumentInfo(context.Context, *GetDocumentInfoReq) (*GetDocumentInfoResp, error)
 	// 获取文档列表(仅元信息)
 	GetDocumentList(context.Context, *GetDocumentListReq) (*GetDocumentListResp, error)
+	// 获取文档内容(整合数据库快照与 redis 上未落库的变更)
+	GetDocumentContent(context.Context, *GetDocumentContentReq) (*GetDocumentContentResp, error)
 	// 获取用户是否有授权
 	GetDocumentPermission(context.Context, *GetDocumentPermissionReq) (*GetDocumentPermissionResp, error)
 	// 授权用户文档权限
@@ -168,6 +183,9 @@ func (UnimplementedDocumentServer) GetDocumentInfo(context.Context, *GetDocument
 }
 func (UnimplementedDocumentServer) GetDocumentList(context.Context, *GetDocumentListReq) (*GetDocumentListResp, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetDocumentList not implemented")
+}
+func (UnimplementedDocumentServer) GetDocumentContent(context.Context, *GetDocumentContentReq) (*GetDocumentContentResp, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetDocumentContent not implemented")
 }
 func (UnimplementedDocumentServer) GetDocumentPermission(context.Context, *GetDocumentPermissionReq) (*GetDocumentPermissionResp, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetDocumentPermission not implemented")
@@ -286,6 +304,24 @@ func _Document_GetDocumentList_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Document_GetDocumentContent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetDocumentContentReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DocumentServer).GetDocumentContent(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Document_GetDocumentContent_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DocumentServer).GetDocumentContent(ctx, req.(*GetDocumentContentReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Document_GetDocumentPermission_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetDocumentPermissionReq)
 	if err := dec(in); err != nil {
@@ -348,6 +384,10 @@ var Document_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetDocumentList",
 			Handler:    _Document_GetDocumentList_Handler,
+		},
+		{
+			MethodName: "GetDocumentContent",
+			Handler:    _Document_GetDocumentContent_Handler,
 		},
 		{
 			MethodName: "GetDocumentPermission",

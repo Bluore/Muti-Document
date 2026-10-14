@@ -27,4 +27,8 @@ func init() {
 	codeMsg[LINK_NOT_EXIST_ERROR] = "link no exist"
 	codeMsg[LINK_EXPIRED_ERROR] = "link expired"
 	codeMsg[LINK_NO_PERMISSION_ERROR] = "link permission denied"
+
+	// agent模块
+	codeMsg[AGENT_SESSION_NOT_EXIST_ERROR] = "agent session no exist"
+	codeMsg[AGENT_SESSION_BUSY_ERROR] = "agent session is generating"
 }

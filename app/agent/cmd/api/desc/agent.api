@@ -25,10 +25,6 @@ service agent {
 	@handler resumeSession
 	post /session/resume (ResumeSessionReq) returns (ResumeSessionResp)
 
-	@doc "get session (SSE)"
-	@handler getSession
-	get /session/stream (GetSessionReq) returns (GetSessionResp)
-
 	@doc "human feedback"
 	@handler humanFeedback
 	post /session/feedback (HumanFeedbackReq) returns (HumanFeedbackResp)
@@ -38,3 +34,14 @@ service agent {
 	get /session/list (ListSessionReq) returns (ListSessionResp)
 }
 
+// SSE 长连接需要关闭 go-zero 默认的请求/网络写超时, 否则连接会在数秒后被截断
+@server (
+	prefix:  /api/agent/v1
+	jwt:     JwtAuth
+	timeout: 0
+)
+service agent {
+	@doc "get session (SSE)"
+	@handler getSession
+	get /session/stream/:id (GetSessionReq) returns (GetSessionResp)
+}

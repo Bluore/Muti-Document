@@ -16,7 +16,7 @@ type Session {
 
 type (
 	CreateSessionReq {
-		Query string `form:"query"`
+		Query string `json:"query"`
 	}
 	CreateSessionResp {
 		SessionID string `json:"session_id"`
@@ -25,8 +25,8 @@ type (
 
 type (
 	ResumeSessionReq {
-		SessionID string `form:"session_id"`
-		Query string `form:"query"`
+		SessionID string `json:"session_id"`
+		Query string `json:"query"`
 	}
 	ResumeSessionResp {
 	}
@@ -34,7 +34,7 @@ type (
 
 type (
 	GetSessionReq {
-		SessionID string `form:"session_id"`
+		SessionID string `path:"id"`
 	}
 	GetSessionResp {
 	}
@@ -42,8 +42,8 @@ type (
 
 type (
     HumanFeedbackReq {
-		SessionID string `form:"session_id"`
-		Feedback string `form:"feedback"`
+		SessionID string `json:"session_id"`
+		Feedback string `json:"feedback"`
     }
     HumanFeedbackResp {
     }

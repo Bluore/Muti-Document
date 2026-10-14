@@ -21,6 +21,9 @@ service document {
   // 获取文档列表(仅元信息)
   rpc GetDocumentList(GetDocumentListReq) returns (GetDocumentListResp);
 
+  // 获取文档内容(整合数据库快照与 redis 上未落库的变更)
+  rpc GetDocumentContent(GetDocumentContentReq) returns (GetDocumentContentResp);
+
   // 获取用户是否有授权
   rpc GetDocumentPermission(GetDocumentPermissionReq) returns (GetDocumentPermissionResp);
 
@@ -82,6 +85,19 @@ message GetDocumentListReq{
 message GetDocumentListResp{
   repeated Document DocumentInfo = 1;
   int64 Total = 2;
+}
+
+message GetDocumentContentReq{
+  string DocumentId = 1;
+}
+
+message GetDocumentContentResp{
+  // 整合后的文档正文
+  string Content = 1;
+  // 整合后的文档标题
+  string Summary = 2;
+  // 整合后的文档版本号
+  int64 Version = 3;
 }
 
 message GetDocumentPermissionReq{

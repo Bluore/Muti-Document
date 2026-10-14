@@ -30,6 +30,13 @@ scrape_configs:
       - targets:
           - "mutidoc-document-rpc:4201"
 
+  - job_name: "edit-api"
+    metrics_path: "/metrics"
+    scrape_interval: 5s
+    static_configs:
+      - targets:
+          - "mutidoc-edit-api:4101"
+
   - job_name: "link-api"
     metrics_path: "/metrics"
     scrape_interval: 5s

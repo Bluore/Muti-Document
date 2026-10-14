@@ -22,6 +22,7 @@ const (
 	Agent_CreateSession_FullMethodName = "/agent.agent/CreateSession"
 	Agent_GetSession_FullMethodName    = "/agent.agent/GetSession"
 	Agent_ResumeSession_FullMethodName = "/agent.agent/ResumeSession"
+	Agent_ListSession_FullMethodName   = "/agent.agent/ListSession"
 )
 
 // AgentClient is the client API for Agent service.
@@ -34,6 +35,8 @@ type AgentClient interface {
 	GetSession(ctx context.Context, in *GetSessionReq, opts ...grpc.CallOption) (*GetSessionResp, error)
 	// 恢复会话
 	ResumeSession(ctx context.Context, in *ResumeSessionReq, opts ...grpc.CallOption) (*ResumeSessionResp, error)
+	// 会话列表
+	ListSession(ctx context.Context, in *ListSessionReq, opts ...grpc.CallOption) (*ListSessionResp, error)
 }
 
 type agentClient struct {
@@ -74,6 +77,16 @@ func (c *agentClient) ResumeSession(ctx context.Context, in *ResumeSessionReq, o
 	return out, nil
 }
 
+func (c *agentClient) ListSession(ctx context.Context, in *ListSessionReq, opts ...grpc.CallOption) (*ListSessionResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListSessionResp)
+	err := c.cc.Invoke(ctx, Agent_ListSession_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AgentServer is the server API for Agent service.
 // All implementations must embed UnimplementedAgentServer
 // for forward compatibility.
@@ -84,6 +97,8 @@ type AgentServer interface {
 	GetSession(context.Context, *GetSessionReq) (*GetSessionResp, error)
 	// 恢复会话
 	ResumeSession(context.Context, *ResumeSessionReq) (*ResumeSessionResp, error)
+	// 会话列表
+	ListSession(context.Context, *ListSessionReq) (*ListSessionResp, error)
 	mustEmbedUnimplementedAgentServer()
 }
 
@@ -102,6 +117,9 @@ func (UnimplementedAgentServer) GetSession(context.Context, *GetSessionReq) (*Ge
 }
 func (UnimplementedAgentServer) ResumeSession(context.Context, *ResumeSessionReq) (*ResumeSessionResp, error) {
 	return nil, status.Error(codes.Unimplemented, "method ResumeSession not implemented")
+}
+func (UnimplementedAgentServer) ListSession(context.Context, *ListSessionReq) (*ListSessionResp, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListSession not implemented")
 }
 func (UnimplementedAgentServer) mustEmbedUnimplementedAgentServer() {}
 func (UnimplementedAgentServer) testEmbeddedByValue()               {}
@@ -178,6 +196,24 @@ func _Agent_ResumeSession_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Agent_ListSession_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListSessionReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AgentServer).ListSession(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Agent_ListSession_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AgentServer).ListSession(ctx, req.(*ListSessionReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Agent_ServiceDesc is the grpc.ServiceDesc for Agent service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -196,6 +232,10 @@ var Agent_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ResumeSession",
 			Handler:    _Agent_ResumeSession_Handler,
+		},
+		{
+			MethodName: "ListSession",
+			Handler:    _Agent_ListSession_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

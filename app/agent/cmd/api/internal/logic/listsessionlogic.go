@@ -8,6 +8,9 @@ import (
 
 	"github.com/Bluore/mutidoc/app/agent/cmd/api/internal/svc"
 	"github.com/Bluore/mutidoc/app/agent/cmd/api/internal/types"
+	"github.com/Bluore/mutidoc/app/agent/cmd/rpc/agent"
+	"github.com/Bluore/mutidoc/pkg/ctxdata"
+	"github.com/Bluore/mutidoc/pkg/response"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -28,7 +31,29 @@ func NewListSessionLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ListS
 }
 
 func (l *ListSessionLogic) ListSession(req *types.ListSessionReq) (resp *types.ListSessionResp, err error) {
-	// todo: add your logic here and delete this line
+	// 会话归属者从 jwt 中获取
+	userID := ctxdata.MustGetUserIdFromCtx(l.ctx)
 
-	return
+	result, err := l.svcCtx.AgentRpc.ListSession(l.ctx, &agent.ListSessionReq{UserId: userID})
+	if err != nil {
+		l.Errorf("list session fail: %v", err)
+		return nil, response.ErrServer
+	}
+
+	sessions := make([]types.Session, 0, len(result.GetSessions()))
+	for _, s := range result.GetSessions() {
+		if s == nil {
+			continue
+		}
+		sessions = append(sessions, types.Session{
+			SessionID:    s.GetSessionId(),
+			SessionTitle: s.GetSessionTitle(),
+			UserID:       s.GetUserId(),
+		})
+	}
+
+	return &types.ListSessionResp{
+		Sessions:   sessions,
+		SessionLen: len(sessions),
+	}, nil
 }

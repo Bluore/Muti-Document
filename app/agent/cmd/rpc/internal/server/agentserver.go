@@ -40,3 +40,9 @@ func (s *AgentServer) ResumeSession(ctx context.Context, in *pb.ResumeSessionReq
 	l := logic.NewResumeSessionLogic(ctx, s.svcCtx)
 	return l.ResumeSession(in)
 }
+
+// 会话列表
+func (s *AgentServer) ListSession(ctx context.Context, in *pb.ListSessionReq) (*pb.ListSessionResp, error) {
+	l := logic.NewListSessionLogic(ctx, s.svcCtx)
+	return l.ListSession(in)
+}

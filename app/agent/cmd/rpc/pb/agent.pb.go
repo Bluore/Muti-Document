@@ -84,7 +84,7 @@ func (x *Session) GetUserId() string {
 type CreateSessionReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserId        string                 `protobuf:"bytes,1,opt,name=UserId,proto3" json:"UserId,omitempty"`
-	SessionTitle  string                 `protobuf:"bytes,2,opt,name=SessionTitle,proto3" json:"SessionTitle,omitempty"`
+	Title         string                 `protobuf:"bytes,2,opt,name=Title,proto3" json:"Title,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -126,9 +126,9 @@ func (x *CreateSessionReq) GetUserId() string {
 	return ""
 }
 
-func (x *CreateSessionReq) GetSessionTitle() string {
+func (x *CreateSessionReq) GetTitle() string {
 	if x != nil {
-		return x.SessionTitle
+		return x.Title
 	}
 	return ""
 }
@@ -178,8 +178,10 @@ func (x *CreateSessionResp) GetSession() *Session {
 }
 
 type GetSessionReq struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	SessionId     string                 `protobuf:"bytes,1,opt,name=SessionId,proto3" json:"SessionId,omitempty"`
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	SessionId string                 `protobuf:"bytes,1,opt,name=SessionId,proto3" json:"SessionId,omitempty"`
+	// 从字符处开始获取
+	Offset        int64 `protobuf:"varint,2,opt,name=Offset,proto3" json:"Offset,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -221,9 +223,19 @@ func (x *GetSessionReq) GetSessionId() string {
 	return ""
 }
 
+func (x *GetSessionReq) GetOffset() int64 {
+	if x != nil {
+		return x.Offset
+	}
+	return 0
+}
+
 type GetSessionResp struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Session       *Session               `protobuf:"bytes,1,opt,name=Session,proto3" json:"Session,omitempty"`
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	Data      string                 `protobuf:"bytes,1,opt,name=data,proto3" json:"data,omitempty"`
+	NewOffset int64                  `protobuf:"varint,2,opt,name=NewOffset,proto3" json:"NewOffset,omitempty"`
+	// 会话状态, 取值见 globalkey.SessionStatus
+	Status        int32 `protobuf:"varint,3,opt,name=Status,proto3" json:"Status,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -258,17 +270,32 @@ func (*GetSessionResp) Descriptor() ([]byte, []int) {
 	return file_pb_agent_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *GetSessionResp) GetSession() *Session {
+func (x *GetSessionResp) GetData() string {
 	if x != nil {
-		return x.Session
+		return x.Data
 	}
-	return nil
+	return ""
+}
+
+func (x *GetSessionResp) GetNewOffset() int64 {
+	if x != nil {
+		return x.NewOffset
+	}
+	return 0
+}
+
+func (x *GetSessionResp) GetStatus() int32 {
+	if x != nil {
+		return x.Status
+	}
+	return 0
 }
 
 type ResumeSessionReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	SessionId     string                 `protobuf:"bytes,1,opt,name=SessionId,proto3" json:"SessionId,omitempty"`
 	UserId        string                 `protobuf:"bytes,2,opt,name=UserId,proto3" json:"UserId,omitempty"`
+	Query         string                 `protobuf:"bytes,3,opt,name=Query,proto3" json:"Query,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -317,6 +344,13 @@ func (x *ResumeSessionReq) GetUserId() string {
 	return ""
 }
 
+func (x *ResumeSessionReq) GetQuery() string {
+	if x != nil {
+		return x.Query
+	}
+	return ""
+}
+
 type ResumeSessionResp struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Session       *Session               `protobuf:"bytes,1,opt,name=Session,proto3" json:"Session,omitempty"`
@@ -361,6 +395,94 @@ func (x *ResumeSessionResp) GetSession() *Session {
 	return nil
 }
 
+type ListSessionReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=UserId,proto3" json:"UserId,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListSessionReq) Reset() {
+	*x = ListSessionReq{}
+	mi := &file_pb_agent_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListSessionReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListSessionReq) ProtoMessage() {}
+
+func (x *ListSessionReq) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_agent_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListSessionReq.ProtoReflect.Descriptor instead.
+func (*ListSessionReq) Descriptor() ([]byte, []int) {
+	return file_pb_agent_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *ListSessionReq) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+type ListSessionResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Sessions      []*Session             `protobuf:"bytes,1,rep,name=Sessions,proto3" json:"Sessions,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListSessionResp) Reset() {
+	*x = ListSessionResp{}
+	mi := &file_pb_agent_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListSessionResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListSessionResp) ProtoMessage() {}
+
+func (x *ListSessionResp) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_agent_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListSessionResp.ProtoReflect.Descriptor instead.
+func (*ListSessionResp) Descriptor() ([]byte, []int) {
+	return file_pb_agent_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *ListSessionResp) GetSessions() []*Session {
+	if x != nil {
+		return x.Sessions
+	}
+	return nil
+}
+
 var File_pb_agent_proto protoreflect.FileDescriptor
 
 const file_pb_agent_proto_rawDesc = "" +
@@ -369,26 +491,35 @@ const file_pb_agent_proto_rawDesc = "" +
 	"\aSession\x12\x1c\n" +
 	"\tSessionId\x18\x01 \x01(\tR\tSessionId\x12\"\n" +
 	"\fSessionTitle\x18\x02 \x01(\tR\fSessionTitle\x12\x16\n" +
-	"\x06UserId\x18\x03 \x01(\tR\x06UserId\"N\n" +
+	"\x06UserId\x18\x03 \x01(\tR\x06UserId\"@\n" +
 	"\x10CreateSessionReq\x12\x16\n" +
-	"\x06UserId\x18\x01 \x01(\tR\x06UserId\x12\"\n" +
-	"\fSessionTitle\x18\x02 \x01(\tR\fSessionTitle\"=\n" +
+	"\x06UserId\x18\x01 \x01(\tR\x06UserId\x12\x14\n" +
+	"\x05Title\x18\x02 \x01(\tR\x05Title\"=\n" +
 	"\x11CreateSessionResp\x12(\n" +
-	"\aSession\x18\x01 \x01(\v2\x0e.agent.SessionR\aSession\"-\n" +
+	"\aSession\x18\x01 \x01(\v2\x0e.agent.SessionR\aSession\"E\n" +
 	"\rGetSessionReq\x12\x1c\n" +
-	"\tSessionId\x18\x01 \x01(\tR\tSessionId\":\n" +
-	"\x0eGetSessionResp\x12(\n" +
-	"\aSession\x18\x01 \x01(\v2\x0e.agent.SessionR\aSession\"H\n" +
+	"\tSessionId\x18\x01 \x01(\tR\tSessionId\x12\x16\n" +
+	"\x06Offset\x18\x02 \x01(\x03R\x06Offset\"Z\n" +
+	"\x0eGetSessionResp\x12\x12\n" +
+	"\x04data\x18\x01 \x01(\tR\x04data\x12\x1c\n" +
+	"\tNewOffset\x18\x02 \x01(\x03R\tNewOffset\x12\x16\n" +
+	"\x06Status\x18\x03 \x01(\x05R\x06Status\"^\n" +
 	"\x10ResumeSessionReq\x12\x1c\n" +
 	"\tSessionId\x18\x01 \x01(\tR\tSessionId\x12\x16\n" +
-	"\x06UserId\x18\x02 \x01(\tR\x06UserId\"=\n" +
+	"\x06UserId\x18\x02 \x01(\tR\x06UserId\x12\x14\n" +
+	"\x05Query\x18\x03 \x01(\tR\x05Query\"=\n" +
 	"\x11ResumeSessionResp\x12(\n" +
-	"\aSession\x18\x01 \x01(\v2\x0e.agent.SessionR\aSession2\xca\x01\n" +
+	"\aSession\x18\x01 \x01(\v2\x0e.agent.SessionR\aSession\"(\n" +
+	"\x0eListSessionReq\x12\x16\n" +
+	"\x06UserId\x18\x01 \x01(\tR\x06UserId\"=\n" +
+	"\x0fListSessionResp\x12*\n" +
+	"\bSessions\x18\x01 \x03(\v2\x0e.agent.SessionR\bSessions2\x88\x02\n" +
 	"\x05agent\x12B\n" +
 	"\rCreateSession\x12\x17.agent.CreateSessionReq\x1a\x18.agent.CreateSessionResp\x129\n" +
 	"\n" +
 	"GetSession\x12\x14.agent.GetSessionReq\x1a\x15.agent.GetSessionResp\x12B\n" +
-	"\rResumeSession\x12\x17.agent.ResumeSessionReq\x1a\x18.agent.ResumeSessionRespB\x06Z\x04./pbb\x06proto3"
+	"\rResumeSession\x12\x17.agent.ResumeSessionReq\x1a\x18.agent.ResumeSessionResp\x12<\n" +
+	"\vListSession\x12\x15.agent.ListSessionReq\x1a\x16.agent.ListSessionRespB\x06Z\x04./pbb\x06proto3"
 
 var (
 	file_pb_agent_proto_rawDescOnce sync.Once
@@ -402,7 +533,7 @@ func file_pb_agent_proto_rawDescGZIP() []byte {
 	return file_pb_agent_proto_rawDescData
 }
 
-var file_pb_agent_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_pb_agent_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_pb_agent_proto_goTypes = []any{
 	(*Session)(nil),           // 0: agent.Session
 	(*CreateSessionReq)(nil),  // 1: agent.CreateSessionReq
@@ -411,19 +542,23 @@ var file_pb_agent_proto_goTypes = []any{
 	(*GetSessionResp)(nil),    // 4: agent.GetSessionResp
 	(*ResumeSessionReq)(nil),  // 5: agent.ResumeSessionReq
 	(*ResumeSessionResp)(nil), // 6: agent.ResumeSessionResp
+	(*ListSessionReq)(nil),    // 7: agent.ListSessionReq
+	(*ListSessionResp)(nil),   // 8: agent.ListSessionResp
 }
 var file_pb_agent_proto_depIdxs = []int32{
 	0, // 0: agent.CreateSessionResp.Session:type_name -> agent.Session
-	0, // 1: agent.GetSessionResp.Session:type_name -> agent.Session
-	0, // 2: agent.ResumeSessionResp.Session:type_name -> agent.Session
+	0, // 1: agent.ResumeSessionResp.Session:type_name -> agent.Session
+	0, // 2: agent.ListSessionResp.Sessions:type_name -> agent.Session
 	1, // 3: agent.agent.CreateSession:input_type -> agent.CreateSessionReq
 	3, // 4: agent.agent.GetSession:input_type -> agent.GetSessionReq
 	5, // 5: agent.agent.ResumeSession:input_type -> agent.ResumeSessionReq
-	2, // 6: agent.agent.CreateSession:output_type -> agent.CreateSessionResp
-	4, // 7: agent.agent.GetSession:output_type -> agent.GetSessionResp
-	6, // 8: agent.agent.ResumeSession:output_type -> agent.ResumeSessionResp
-	6, // [6:9] is the sub-list for method output_type
-	3, // [3:6] is the sub-list for method input_type
+	7, // 6: agent.agent.ListSession:input_type -> agent.ListSessionReq
+	2, // 7: agent.agent.CreateSession:output_type -> agent.CreateSessionResp
+	4, // 8: agent.agent.GetSession:output_type -> agent.GetSessionResp
+	6, // 9: agent.agent.ResumeSession:output_type -> agent.ResumeSessionResp
+	8, // 10: agent.agent.ListSession:output_type -> agent.ListSessionResp
+	7, // [7:11] is the sub-list for method output_type
+	3, // [3:7] is the sub-list for method input_type
 	3, // [3:3] is the sub-list for extension type_name
 	3, // [3:3] is the sub-list for extension extendee
 	0, // [0:3] is the sub-list for field type_name
@@ -440,7 +575,7 @@ func file_pb_agent_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_pb_agent_proto_rawDesc), len(file_pb_agent_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   7,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

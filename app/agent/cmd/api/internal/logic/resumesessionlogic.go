@@ -6,8 +6,13 @@ package logic
 import (
 	"context"
 
+	"github.com/Bluore/mutidoc/app/agent/cmd/api/internal/httperr"
 	"github.com/Bluore/mutidoc/app/agent/cmd/api/internal/svc"
 	"github.com/Bluore/mutidoc/app/agent/cmd/api/internal/types"
+	"github.com/Bluore/mutidoc/app/agent/cmd/rpc/agent"
+	"github.com/Bluore/mutidoc/pkg/ctxdata"
+	"github.com/Bluore/mutidoc/pkg/grpcerr"
+	"github.com/Bluore/mutidoc/pkg/response"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -28,6 +33,23 @@ func NewResumeSessionLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Res
 }
 
 func (l *ResumeSessionLogic) ResumeSession(req *types.ResumeSessionReq) (resp *types.ResumeSessionResp, err error) {
-	// todo: 调用 agent-rpc ResumeSession 恢复会话
-	return
+	userID := ctxdata.MustGetUserIdFromCtx(l.ctx)
+
+	_, err = l.svcCtx.AgentRpc.ResumeSession(l.ctx, &agent.ResumeSessionReq{
+		SessionId: req.SessionID,
+		UserId:    userID,
+		Query:     req.Query,
+	})
+	if err != nil {
+		if grpcerr.AGENT_SESSION_NOT_EXIST_ERROR.EqualError(err) {
+			return nil, httperr.ErrSessionNotExist
+		}
+		if grpcerr.AGENT_SESSION_BUSY_ERROR.EqualError(err) {
+			return nil, httperr.ErrSessionBusy
+		}
+		l.Errorf("resume session fail: %v", err)
+		return nil, response.ErrServer
+	}
+
+	return &types.ResumeSessionResp{}, nil
 }
