@@ -48,6 +48,13 @@ DocumentRpcConf:
     Key: document.rpc
   Timeout: 2000
 
+EditRpcConf:
+  Etcd:
+    Hosts:
+      - etcd:2379
+    Key: edit.rpc
+  Timeout: 5000
+
 DB:
   DataSource: mutidoc:123456@tcp(172.20.117.80:13306)/mutidoc?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai
   DriverName: mysql

@@ -14,12 +14,32 @@ import (
 )
 
 type (
+	CreateBotReq            = pb.CreateBotReq
+	CreateBotResp           = pb.CreateBotResp
+	GetReq                  = pb.GetReq
+	GetResp                 = pb.GetResp
+	InsertReq               = pb.InsertReq
+	InsertResp              = pb.InsertResp
+	QuitBotConnectionReq    = pb.QuitBotConnectionReq
+	QuitBotConnectionResp   = pb.QuitBotConnectionResp
+	ReplaceReq              = pb.ReplaceReq
+	ReplaceResp             = pb.ReplaceResp
 	StopDocumentSessionReq  = pb.StopDocumentSessionReq
 	StopDocumentSessionResp = pb.StopDocumentSessionResp
 
 	Edit interface {
 		// 停止文档的协作编辑会话(关闭并移除内存中的会话)
 		StopDocumentSession(ctx context.Context, in *StopDocumentSessionReq, opts ...grpc.CallOption) (*StopDocumentSessionResp, error)
+		// 创建一个机器人协作连接并加入指定文档
+		CreateBot(ctx context.Context, in *CreateBotReq, opts ...grpc.CallOption) (*CreateBotResp, error)
+		// 机器人主动退出文档协作连接
+		QuitBotConnection(ctx context.Context, in *QuitBotConnectionReq, opts ...grpc.CallOption) (*QuitBotConnectionResp, error)
+		// 替换机器人视角文档中的文本
+		Replace(ctx context.Context, in *ReplaceReq, opts ...grpc.CallOption) (*ReplaceResp, error)
+		// 在机器人视角文档的 anchor 文本后方插入内容
+		Insert(ctx context.Context, in *InsertReq, opts ...grpc.CallOption) (*InsertResp, error)
+		// 获取机器人视角的文档最新内容(首次全文, 之后为差异)
+		Get(ctx context.Context, in *GetReq, opts ...grpc.CallOption) (*GetResp, error)
 	}
 
 	defaultEdit struct {
@@ -37,4 +57,34 @@ func NewEdit(cli zrpc.Client) Edit {
 func (m *defaultEdit) StopDocumentSession(ctx context.Context, in *StopDocumentSessionReq, opts ...grpc.CallOption) (*StopDocumentSessionResp, error) {
 	client := pb.NewEditClient(m.cli.Conn())
 	return client.StopDocumentSession(ctx, in, opts...)
+}
+
+// 创建一个机器人协作连接并加入指定文档
+func (m *defaultEdit) CreateBot(ctx context.Context, in *CreateBotReq, opts ...grpc.CallOption) (*CreateBotResp, error) {
+	client := pb.NewEditClient(m.cli.Conn())
+	return client.CreateBot(ctx, in, opts...)
+}
+
+// 机器人主动退出文档协作连接
+func (m *defaultEdit) QuitBotConnection(ctx context.Context, in *QuitBotConnectionReq, opts ...grpc.CallOption) (*QuitBotConnectionResp, error) {
+	client := pb.NewEditClient(m.cli.Conn())
+	return client.QuitBotConnection(ctx, in, opts...)
+}
+
+// 替换机器人视角文档中的文本
+func (m *defaultEdit) Replace(ctx context.Context, in *ReplaceReq, opts ...grpc.CallOption) (*ReplaceResp, error) {
+	client := pb.NewEditClient(m.cli.Conn())
+	return client.Replace(ctx, in, opts...)
+}
+
+// 在机器人视角文档的 anchor 文本后方插入内容
+func (m *defaultEdit) Insert(ctx context.Context, in *InsertReq, opts ...grpc.CallOption) (*InsertResp, error) {
+	client := pb.NewEditClient(m.cli.Conn())
+	return client.Insert(ctx, in, opts...)
+}
+
+// 获取机器人视角的文档最新内容(首次全文, 之后为差异)
+func (m *defaultEdit) Get(ctx context.Context, in *GetReq, opts ...grpc.CallOption) (*GetResp, error) {
+	client := pb.NewEditClient(m.cli.Conn())
+	return client.Get(ctx, in, opts...)
 }

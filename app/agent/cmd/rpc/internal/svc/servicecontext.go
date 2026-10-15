@@ -12,6 +12,7 @@ import (
 	"github.com/Bluore/mutidoc/app/agent/cmd/rpc/agent/workflow"
 	"github.com/Bluore/mutidoc/app/agent/cmd/rpc/internal/config"
 	"github.com/Bluore/mutidoc/app/agent/model"
+	"github.com/Bluore/mutidoc/app/document/cmd/edit/edit"
 	"github.com/Bluore/mutidoc/app/document/cmd/rpc/document"
 
 	"github.com/redis/go-redis/v9"
@@ -45,6 +46,17 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	listDocumentTool, err := agenttool.NewListDocumentTool(documentRpc)
 	logx.Must(err)
 
+	// 文档编辑工具通过 edit-rpc 建立机器人连接并提交 OT 编辑
+	editRpc := edit.NewEdit(zrpc.MustNewClient(c.EditRpcConf))
+	createConnectionTool, err := agenttool.NewCreateDocumentConnectionTool(editRpc)
+	logx.Must(err)
+	getConnectionTool, err := agenttool.NewGetDocumentConnectionTool(editRpc)
+	logx.Must(err)
+	replaceConnectionTool, err := agenttool.NewReplaceDocumentConnectionTool(editRpc)
+	logx.Must(err)
+	insertConnectionTool, err := agenttool.NewInsertDocumentConnectionTool(editRpc)
+	logx.Must(err)
+
 	// 从配置读取模型密钥, 构建一次顶层智能体供所有会话复用
 	ag, err := agentcore.NewAgent(ctx, agentcore.Config{
 		Model: llmmodel.DeepSeekConf{
@@ -55,7 +67,13 @@ func NewServiceContext(c config.Config) *ServiceContext {
 			MaxTokens:   c.Model.MaxTokens,
 		},
 		DocumentTools: []tool.BaseTool{queryDocumentTool, listDocumentTool},
+		EditTools:     []tool.BaseTool{createConnectionTool, getConnectionTool, replaceConnectionTool, insertConnectionTool},
 		ExtraTools:    extraTools,
+		// EditAgent 结束后自动退出机器人编辑连接
+		QuitBotConnection: func(ctx context.Context, botID string) error {
+			_, err := editRpc.QuitBotConnection(ctx, &edit.QuitBotConnectionReq{BotId: botID})
+			return err
+		},
 	})
 	logx.Must(err)
 

@@ -9,6 +9,7 @@ import (
 	"github.com/cloudwego/eino/adk"
 	"github.com/cloudwego/eino/schema"
 
+	"github.com/Bluore/mutidoc/app/agent/cmd/rpc/agent/botconn"
 	"github.com/Bluore/mutidoc/pkg/ctxdata"
 	"github.com/Bluore/mutidoc/pkg/globalkey"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -57,6 +58,8 @@ func NewSessionClient(session Session) *SessionClient {
 	if session.UserID != "" {
 		ctx = context.WithValue(ctx, ctxdata.CtxKewJwtUserId, session.UserID)
 	}
+	// 挂载机器人连接追踪器, 供 EditAgent 结束后统一退出
+	ctx = botconn.WithTracker(ctx)
 	return &SessionClient{
 		Session:   session,
 		History:   NewHistory(),

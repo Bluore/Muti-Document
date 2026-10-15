@@ -26,6 +26,12 @@ const (
 	DOCUMENT_NO_PERMISSION_ERROR ErrCode = 102002
 )
 
+// edit模块 - 机器人协作编辑
+const (
+	BOT_NOT_EXIST_ERROR      ErrCode = 105001
+	BOT_TEXT_NOT_FOUND_ERROR ErrCode = 105002
+)
+
 // link模块
 const (
 	LINK_NOT_EXIST_ERROR     ErrCode = 103001

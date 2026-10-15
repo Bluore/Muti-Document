@@ -46,3 +46,21 @@ func formatTime(sec int64) string {
 	}
 	return time.Unix(sec, 0).Format("2006-01-02 15:04")
 }
+
+// DocumentConnectionCreated 建立文档编辑连接成功的自然语言响应
+func DocumentConnectionCreated(documentID, botID string) string {
+	return fmt.Sprintf("已建立与文档 %s 的编辑连接(bot_id: %s), 现在可以对其执行替换或插入。", documentID, botID)
+}
+
+// DocumentConnectionContent 机器人视角文档内容的自然语言响应
+func DocumentConnectionContent(content string) string {
+	if strings.TrimSpace(content) == "" {
+		return "文档当前没有可返回的内容或变化。"
+	}
+	return content
+}
+
+// DocumentConnectionApplied 一次编辑提交成功的自然语言响应
+func DocumentConnectionApplied(action string) string {
+	return fmt.Sprintf("已%s。", action)
+}

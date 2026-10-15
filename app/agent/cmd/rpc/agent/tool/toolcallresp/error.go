@@ -20,6 +20,14 @@ var (
 	ErrDocumentQueryFailed = errors.New("query document failed")
 	// ErrDocumentListFailed 查询文档列表失败
 	ErrDocumentListFailed = errors.New("list document failed")
+	// ErrEditTextRequired 缺少要编辑的原文或要插入的内容
+	ErrEditTextRequired = errors.New("edit text is required")
+	// ErrDocumentConnectionFailed 文档编辑连接操作失败
+	ErrDocumentConnectionFailed = errors.New("document connection failed")
+	// ErrBotConnectionNotExist 尚未建立文档编辑连接
+	ErrBotConnectionNotExist = errors.New("bot connection not exist")
+	// ErrBotTextNotFound 文档中找不到要匹配的文本
+	ErrBotTextNotFound = errors.New("bot match text not found")
 )
 
 // errorTexts 已知错误到自然语言说明的映射, 按注册顺序匹配
@@ -33,6 +41,10 @@ var errorTexts = []struct {
 	{ErrDocumentNotExist, "没有找到对应的文档，请确认文档 ID 是否正确。"},
 	{ErrDocumentQueryFailed, "查询文档时出了点问题，请稍后再试。"},
 	{ErrDocumentListFailed, "获取文档列表时出了点问题，请稍后再试。"},
+	{ErrEditTextRequired, "请提供要替换的原文或要插入的内容。"},
+	{ErrDocumentConnectionFailed, "操作文档编辑连接时出了点问题，请稍后再试。"},
+	{ErrBotConnectionNotExist, "尚未建立对该文档的编辑连接，请先调用 createDocumentConnection。"},
+	{ErrBotTextNotFound, "没有在文档中找到要匹配的文本，请先调用 getDocumentConnection 获取最新内容后再试。"},
 }
 
 // NewDocumentIDRequiredErr 缺少 document_id 参数
@@ -69,6 +81,29 @@ func NewDocumentListFailedErr(cause error) (string, error) {
 		return NewError(ErrDocumentListFailed)
 	}
 	return NewError(fmt.Errorf("%w: %v", ErrDocumentListFailed, cause))
+}
+
+// NewEditTextRequiredErr 缺少要编辑的原文或要插入的内容
+func NewEditTextRequiredErr() (string, error) {
+	return NewError(ErrEditTextRequired)
+}
+
+// NewDocumentConnectionFailedErr 文档编辑连接操作失败, cause 为底层原因
+func NewDocumentConnectionFailedErr(cause error) (string, error) {
+	if cause == nil {
+		return NewError(ErrDocumentConnectionFailed)
+	}
+	return NewError(fmt.Errorf("%w: %v", ErrDocumentConnectionFailed, cause))
+}
+
+// NewBotConnectionNotExistErr 尚未建立文档编辑连接
+func NewBotConnectionNotExistErr() (string, error) {
+	return NewError(ErrBotConnectionNotExist)
+}
+
+// NewBotTextNotFoundErr 文档中找不到要匹配的文本
+func NewBotTextNotFoundErr() (string, error) {
+	return NewError(ErrBotTextNotFound)
 }
 
 // NewError 把工具调用错误转成面向模型的自然语言说明, 并原样返回错误

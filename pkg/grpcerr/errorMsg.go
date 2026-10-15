@@ -23,6 +23,10 @@ func init() {
 	codeMsg[DOCUMENT_NOT_EXIST_ERROR] = "document no exist"
 	codeMsg[DOCUMENT_NO_PERMISSION_ERROR] = "document permission denied"
 
+	// edit模块 - 机器人协作编辑
+	codeMsg[BOT_NOT_EXIST_ERROR] = "bot connection no exist"
+	codeMsg[BOT_TEXT_NOT_FOUND_ERROR] = "bot match text not found"
+
 	// link模块
 	codeMsg[LINK_NOT_EXIST_ERROR] = "link no exist"
 	codeMsg[LINK_EXPIRED_ERROR] = "link expired"
