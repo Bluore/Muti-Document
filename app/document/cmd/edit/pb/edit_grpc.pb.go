@@ -20,6 +20,11 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	Edit_StopDocumentSession_FullMethodName = "/edit.edit/StopDocumentSession"
+	Edit_CreateBot_FullMethodName           = "/edit.edit/CreateBot"
+	Edit_QuitBotConnection_FullMethodName   = "/edit.edit/QuitBotConnection"
+	Edit_Replace_FullMethodName             = "/edit.edit/Replace"
+	Edit_Insert_FullMethodName              = "/edit.edit/Insert"
+	Edit_Get_FullMethodName                 = "/edit.edit/Get"
 )
 
 // EditClient is the client API for Edit service.
@@ -28,6 +33,16 @@ const (
 type EditClient interface {
 	// 停止文档的协作编辑会话(关闭并移除内存中的会话)
 	StopDocumentSession(ctx context.Context, in *StopDocumentSessionReq, opts ...grpc.CallOption) (*StopDocumentSessionResp, error)
+	// 创建一个机器人协作连接并加入指定文档
+	CreateBot(ctx context.Context, in *CreateBotReq, opts ...grpc.CallOption) (*CreateBotResp, error)
+	// 机器人主动退出文档协作连接
+	QuitBotConnection(ctx context.Context, in *QuitBotConnectionReq, opts ...grpc.CallOption) (*QuitBotConnectionResp, error)
+	// 替换机器人视角文档中的文本
+	Replace(ctx context.Context, in *ReplaceReq, opts ...grpc.CallOption) (*ReplaceResp, error)
+	// 在机器人视角文档的 anchor 文本后方插入内容
+	Insert(ctx context.Context, in *InsertReq, opts ...grpc.CallOption) (*InsertResp, error)
+	// 获取机器人视角的文档最新内容(首次全文, 之后为差异)
+	Get(ctx context.Context, in *GetReq, opts ...grpc.CallOption) (*GetResp, error)
 }
 
 type editClient struct {
@@ -48,12 +63,72 @@ func (c *editClient) StopDocumentSession(ctx context.Context, in *StopDocumentSe
 	return out, nil
 }
 
+func (c *editClient) CreateBot(ctx context.Context, in *CreateBotReq, opts ...grpc.CallOption) (*CreateBotResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateBotResp)
+	err := c.cc.Invoke(ctx, Edit_CreateBot_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *editClient) QuitBotConnection(ctx context.Context, in *QuitBotConnectionReq, opts ...grpc.CallOption) (*QuitBotConnectionResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(QuitBotConnectionResp)
+	err := c.cc.Invoke(ctx, Edit_QuitBotConnection_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *editClient) Replace(ctx context.Context, in *ReplaceReq, opts ...grpc.CallOption) (*ReplaceResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ReplaceResp)
+	err := c.cc.Invoke(ctx, Edit_Replace_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *editClient) Insert(ctx context.Context, in *InsertReq, opts ...grpc.CallOption) (*InsertResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(InsertResp)
+	err := c.cc.Invoke(ctx, Edit_Insert_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *editClient) Get(ctx context.Context, in *GetReq, opts ...grpc.CallOption) (*GetResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetResp)
+	err := c.cc.Invoke(ctx, Edit_Get_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // EditServer is the server API for Edit service.
 // All implementations must embed UnimplementedEditServer
 // for forward compatibility.
 type EditServer interface {
 	// 停止文档的协作编辑会话(关闭并移除内存中的会话)
 	StopDocumentSession(context.Context, *StopDocumentSessionReq) (*StopDocumentSessionResp, error)
+	// 创建一个机器人协作连接并加入指定文档
+	CreateBot(context.Context, *CreateBotReq) (*CreateBotResp, error)
+	// 机器人主动退出文档协作连接
+	QuitBotConnection(context.Context, *QuitBotConnectionReq) (*QuitBotConnectionResp, error)
+	// 替换机器人视角文档中的文本
+	Replace(context.Context, *ReplaceReq) (*ReplaceResp, error)
+	// 在机器人视角文档的 anchor 文本后方插入内容
+	Insert(context.Context, *InsertReq) (*InsertResp, error)
+	// 获取机器人视角的文档最新内容(首次全文, 之后为差异)
+	Get(context.Context, *GetReq) (*GetResp, error)
 	mustEmbedUnimplementedEditServer()
 }
 
@@ -66,6 +141,21 @@ type UnimplementedEditServer struct{}
 
 func (UnimplementedEditServer) StopDocumentSession(context.Context, *StopDocumentSessionReq) (*StopDocumentSessionResp, error) {
 	return nil, status.Error(codes.Unimplemented, "method StopDocumentSession not implemented")
+}
+func (UnimplementedEditServer) CreateBot(context.Context, *CreateBotReq) (*CreateBotResp, error) {
+	return nil, status.Error(codes.Unimplemented, "method CreateBot not implemented")
+}
+func (UnimplementedEditServer) QuitBotConnection(context.Context, *QuitBotConnectionReq) (*QuitBotConnectionResp, error) {
+	return nil, status.Error(codes.Unimplemented, "method QuitBotConnection not implemented")
+}
+func (UnimplementedEditServer) Replace(context.Context, *ReplaceReq) (*ReplaceResp, error) {
+	return nil, status.Error(codes.Unimplemented, "method Replace not implemented")
+}
+func (UnimplementedEditServer) Insert(context.Context, *InsertReq) (*InsertResp, error) {
+	return nil, status.Error(codes.Unimplemented, "method Insert not implemented")
+}
+func (UnimplementedEditServer) Get(context.Context, *GetReq) (*GetResp, error) {
+	return nil, status.Error(codes.Unimplemented, "method Get not implemented")
 }
 func (UnimplementedEditServer) mustEmbedUnimplementedEditServer() {}
 func (UnimplementedEditServer) testEmbeddedByValue()              {}
@@ -106,6 +196,96 @@ func _Edit_StopDocumentSession_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Edit_CreateBot_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateBotReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EditServer).CreateBot(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Edit_CreateBot_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EditServer).CreateBot(ctx, req.(*CreateBotReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Edit_QuitBotConnection_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QuitBotConnectionReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EditServer).QuitBotConnection(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Edit_QuitBotConnection_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EditServer).QuitBotConnection(ctx, req.(*QuitBotConnectionReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Edit_Replace_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ReplaceReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EditServer).Replace(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Edit_Replace_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EditServer).Replace(ctx, req.(*ReplaceReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Edit_Insert_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(InsertReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EditServer).Insert(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Edit_Insert_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EditServer).Insert(ctx, req.(*InsertReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Edit_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EditServer).Get(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Edit_Get_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EditServer).Get(ctx, req.(*GetReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Edit_ServiceDesc is the grpc.ServiceDesc for Edit service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -116,6 +296,26 @@ var Edit_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "StopDocumentSession",
 			Handler:    _Edit_StopDocumentSession_Handler,
+		},
+		{
+			MethodName: "CreateBot",
+			Handler:    _Edit_CreateBot_Handler,
+		},
+		{
+			MethodName: "QuitBotConnection",
+			Handler:    _Edit_QuitBotConnection_Handler,
+		},
+		{
+			MethodName: "Replace",
+			Handler:    _Edit_Replace_Handler,
+		},
+		{
+			MethodName: "Insert",
+			Handler:    _Edit_Insert_Handler,
+		},
+		{
+			MethodName: "Get",
+			Handler:    _Edit_Get_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

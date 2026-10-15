@@ -101,6 +101,470 @@ func (*StopDocumentSessionResp) Descriptor() ([]byte, []int) {
 	return file_pb_edit_proto_rawDescGZIP(), []int{1}
 }
 
+type CreateBotReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	DocumentId    string                 `protobuf:"bytes,1,opt,name=DocumentId,proto3" json:"DocumentId,omitempty"`
+	BotId         string                 `protobuf:"bytes,2,opt,name=BotId,proto3" json:"BotId,omitempty"`
+	BotName       string                 `protobuf:"bytes,3,opt,name=BotName,proto3" json:"BotName,omitempty"`
+	UserId        string                 `protobuf:"bytes,4,opt,name=UserId,proto3" json:"UserId,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateBotReq) Reset() {
+	*x = CreateBotReq{}
+	mi := &file_pb_edit_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateBotReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateBotReq) ProtoMessage() {}
+
+func (x *CreateBotReq) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_edit_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateBotReq.ProtoReflect.Descriptor instead.
+func (*CreateBotReq) Descriptor() ([]byte, []int) {
+	return file_pb_edit_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *CreateBotReq) GetDocumentId() string {
+	if x != nil {
+		return x.DocumentId
+	}
+	return ""
+}
+
+func (x *CreateBotReq) GetBotId() string {
+	if x != nil {
+		return x.BotId
+	}
+	return ""
+}
+
+func (x *CreateBotReq) GetBotName() string {
+	if x != nil {
+		return x.BotName
+	}
+	return ""
+}
+
+func (x *CreateBotReq) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+type CreateBotResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateBotResp) Reset() {
+	*x = CreateBotResp{}
+	mi := &file_pb_edit_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateBotResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateBotResp) ProtoMessage() {}
+
+func (x *CreateBotResp) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_edit_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateBotResp.ProtoReflect.Descriptor instead.
+func (*CreateBotResp) Descriptor() ([]byte, []int) {
+	return file_pb_edit_proto_rawDescGZIP(), []int{3}
+}
+
+type QuitBotConnectionReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	BotId         string                 `protobuf:"bytes,1,opt,name=BotId,proto3" json:"BotId,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *QuitBotConnectionReq) Reset() {
+	*x = QuitBotConnectionReq{}
+	mi := &file_pb_edit_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *QuitBotConnectionReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*QuitBotConnectionReq) ProtoMessage() {}
+
+func (x *QuitBotConnectionReq) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_edit_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use QuitBotConnectionReq.ProtoReflect.Descriptor instead.
+func (*QuitBotConnectionReq) Descriptor() ([]byte, []int) {
+	return file_pb_edit_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *QuitBotConnectionReq) GetBotId() string {
+	if x != nil {
+		return x.BotId
+	}
+	return ""
+}
+
+type QuitBotConnectionResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *QuitBotConnectionResp) Reset() {
+	*x = QuitBotConnectionResp{}
+	mi := &file_pb_edit_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *QuitBotConnectionResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*QuitBotConnectionResp) ProtoMessage() {}
+
+func (x *QuitBotConnectionResp) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_edit_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use QuitBotConnectionResp.ProtoReflect.Descriptor instead.
+func (*QuitBotConnectionResp) Descriptor() ([]byte, []int) {
+	return file_pb_edit_proto_rawDescGZIP(), []int{5}
+}
+
+type ReplaceReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	BotId         string                 `protobuf:"bytes,1,opt,name=BotId,proto3" json:"BotId,omitempty"`
+	Original      string                 `protobuf:"bytes,2,opt,name=Original,proto3" json:"Original,omitempty"`
+	Replacement   string                 `protobuf:"bytes,3,opt,name=Replacement,proto3" json:"Replacement,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ReplaceReq) Reset() {
+	*x = ReplaceReq{}
+	mi := &file_pb_edit_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReplaceReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReplaceReq) ProtoMessage() {}
+
+func (x *ReplaceReq) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_edit_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReplaceReq.ProtoReflect.Descriptor instead.
+func (*ReplaceReq) Descriptor() ([]byte, []int) {
+	return file_pb_edit_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *ReplaceReq) GetBotId() string {
+	if x != nil {
+		return x.BotId
+	}
+	return ""
+}
+
+func (x *ReplaceReq) GetOriginal() string {
+	if x != nil {
+		return x.Original
+	}
+	return ""
+}
+
+func (x *ReplaceReq) GetReplacement() string {
+	if x != nil {
+		return x.Replacement
+	}
+	return ""
+}
+
+type ReplaceResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ReplaceResp) Reset() {
+	*x = ReplaceResp{}
+	mi := &file_pb_edit_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReplaceResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReplaceResp) ProtoMessage() {}
+
+func (x *ReplaceResp) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_edit_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReplaceResp.ProtoReflect.Descriptor instead.
+func (*ReplaceResp) Descriptor() ([]byte, []int) {
+	return file_pb_edit_proto_rawDescGZIP(), []int{7}
+}
+
+type InsertReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	BotId         string                 `protobuf:"bytes,1,opt,name=BotId,proto3" json:"BotId,omitempty"`
+	Anchor        string                 `protobuf:"bytes,2,opt,name=Anchor,proto3" json:"Anchor,omitempty"`
+	Insertion     string                 `protobuf:"bytes,3,opt,name=Insertion,proto3" json:"Insertion,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *InsertReq) Reset() {
+	*x = InsertReq{}
+	mi := &file_pb_edit_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *InsertReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*InsertReq) ProtoMessage() {}
+
+func (x *InsertReq) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_edit_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use InsertReq.ProtoReflect.Descriptor instead.
+func (*InsertReq) Descriptor() ([]byte, []int) {
+	return file_pb_edit_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *InsertReq) GetBotId() string {
+	if x != nil {
+		return x.BotId
+	}
+	return ""
+}
+
+func (x *InsertReq) GetAnchor() string {
+	if x != nil {
+		return x.Anchor
+	}
+	return ""
+}
+
+func (x *InsertReq) GetInsertion() string {
+	if x != nil {
+		return x.Insertion
+	}
+	return ""
+}
+
+type InsertResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *InsertResp) Reset() {
+	*x = InsertResp{}
+	mi := &file_pb_edit_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *InsertResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*InsertResp) ProtoMessage() {}
+
+func (x *InsertResp) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_edit_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use InsertResp.ProtoReflect.Descriptor instead.
+func (*InsertResp) Descriptor() ([]byte, []int) {
+	return file_pb_edit_proto_rawDescGZIP(), []int{9}
+}
+
+type GetReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	BotId         string                 `protobuf:"bytes,1,opt,name=BotId,proto3" json:"BotId,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetReq) Reset() {
+	*x = GetReq{}
+	mi := &file_pb_edit_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetReq) ProtoMessage() {}
+
+func (x *GetReq) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_edit_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetReq.ProtoReflect.Descriptor instead.
+func (*GetReq) Descriptor() ([]byte, []int) {
+	return file_pb_edit_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *GetReq) GetBotId() string {
+	if x != nil {
+		return x.BotId
+	}
+	return ""
+}
+
+type GetResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Content       string                 `protobuf:"bytes,1,opt,name=Content,proto3" json:"Content,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetResp) Reset() {
+	*x = GetResp{}
+	mi := &file_pb_edit_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetResp) ProtoMessage() {}
+
+func (x *GetResp) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_edit_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetResp.ProtoReflect.Descriptor instead.
+func (*GetResp) Descriptor() ([]byte, []int) {
+	return file_pb_edit_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *GetResp) GetContent() string {
+	if x != nil {
+		return x.Content
+	}
+	return ""
+}
+
 var File_pb_edit_proto protoreflect.FileDescriptor
 
 const file_pb_edit_proto_rawDesc = "" +
@@ -110,9 +574,41 @@ const file_pb_edit_proto_rawDesc = "" +
 	"\n" +
 	"DocumentId\x18\x01 \x01(\tR\n" +
 	"DocumentId\"\x19\n" +
-	"\x17StopDocumentSessionResp2Z\n" +
+	"\x17StopDocumentSessionResp\"v\n" +
+	"\fCreateBotReq\x12\x1e\n" +
+	"\n" +
+	"DocumentId\x18\x01 \x01(\tR\n" +
+	"DocumentId\x12\x14\n" +
+	"\x05BotId\x18\x02 \x01(\tR\x05BotId\x12\x18\n" +
+	"\aBotName\x18\x03 \x01(\tR\aBotName\x12\x16\n" +
+	"\x06UserId\x18\x04 \x01(\tR\x06UserId\"\x0f\n" +
+	"\rCreateBotResp\",\n" +
+	"\x14QuitBotConnectionReq\x12\x14\n" +
+	"\x05BotId\x18\x01 \x01(\tR\x05BotId\"\x17\n" +
+	"\x15QuitBotConnectionResp\"`\n" +
+	"\n" +
+	"ReplaceReq\x12\x14\n" +
+	"\x05BotId\x18\x01 \x01(\tR\x05BotId\x12\x1a\n" +
+	"\bOriginal\x18\x02 \x01(\tR\bOriginal\x12 \n" +
+	"\vReplacement\x18\x03 \x01(\tR\vReplacement\"\r\n" +
+	"\vReplaceResp\"W\n" +
+	"\tInsertReq\x12\x14\n" +
+	"\x05BotId\x18\x01 \x01(\tR\x05BotId\x12\x16\n" +
+	"\x06Anchor\x18\x02 \x01(\tR\x06Anchor\x12\x1c\n" +
+	"\tInsertion\x18\x03 \x01(\tR\tInsertion\"\f\n" +
+	"\n" +
+	"InsertResp\"\x1e\n" +
+	"\x06GetReq\x12\x14\n" +
+	"\x05BotId\x18\x01 \x01(\tR\x05BotId\"#\n" +
+	"\aGetResp\x12\x18\n" +
+	"\aContent\x18\x01 \x01(\tR\aContent2\xdf\x02\n" +
 	"\x04edit\x12R\n" +
-	"\x13StopDocumentSession\x12\x1c.edit.StopDocumentSessionReq\x1a\x1d.edit.StopDocumentSessionRespB\x06Z\x04./pbb\x06proto3"
+	"\x13StopDocumentSession\x12\x1c.edit.StopDocumentSessionReq\x1a\x1d.edit.StopDocumentSessionResp\x124\n" +
+	"\tCreateBot\x12\x12.edit.CreateBotReq\x1a\x13.edit.CreateBotResp\x12L\n" +
+	"\x11QuitBotConnection\x12\x1a.edit.QuitBotConnectionReq\x1a\x1b.edit.QuitBotConnectionResp\x12.\n" +
+	"\aReplace\x12\x10.edit.ReplaceReq\x1a\x11.edit.ReplaceResp\x12+\n" +
+	"\x06Insert\x12\x0f.edit.InsertReq\x1a\x10.edit.InsertResp\x12\"\n" +
+	"\x03Get\x12\f.edit.GetReq\x1a\r.edit.GetRespB\x06Z\x04./pbb\x06proto3"
 
 var (
 	file_pb_edit_proto_rawDescOnce sync.Once
@@ -126,19 +622,39 @@ func file_pb_edit_proto_rawDescGZIP() []byte {
 	return file_pb_edit_proto_rawDescData
 }
 
-var file_pb_edit_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_pb_edit_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_pb_edit_proto_goTypes = []any{
 	(*StopDocumentSessionReq)(nil),  // 0: edit.StopDocumentSessionReq
 	(*StopDocumentSessionResp)(nil), // 1: edit.StopDocumentSessionResp
+	(*CreateBotReq)(nil),            // 2: edit.CreateBotReq
+	(*CreateBotResp)(nil),           // 3: edit.CreateBotResp
+	(*QuitBotConnectionReq)(nil),    // 4: edit.QuitBotConnectionReq
+	(*QuitBotConnectionResp)(nil),   // 5: edit.QuitBotConnectionResp
+	(*ReplaceReq)(nil),              // 6: edit.ReplaceReq
+	(*ReplaceResp)(nil),             // 7: edit.ReplaceResp
+	(*InsertReq)(nil),               // 8: edit.InsertReq
+	(*InsertResp)(nil),              // 9: edit.InsertResp
+	(*GetReq)(nil),                  // 10: edit.GetReq
+	(*GetResp)(nil),                 // 11: edit.GetResp
 }
 var file_pb_edit_proto_depIdxs = []int32{
-	0, // 0: edit.edit.StopDocumentSession:input_type -> edit.StopDocumentSessionReq
-	1, // 1: edit.edit.StopDocumentSession:output_type -> edit.StopDocumentSessionResp
-	1, // [1:2] is the sub-list for method output_type
-	0, // [0:1] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	0,  // 0: edit.edit.StopDocumentSession:input_type -> edit.StopDocumentSessionReq
+	2,  // 1: edit.edit.CreateBot:input_type -> edit.CreateBotReq
+	4,  // 2: edit.edit.QuitBotConnection:input_type -> edit.QuitBotConnectionReq
+	6,  // 3: edit.edit.Replace:input_type -> edit.ReplaceReq
+	8,  // 4: edit.edit.Insert:input_type -> edit.InsertReq
+	10, // 5: edit.edit.Get:input_type -> edit.GetReq
+	1,  // 6: edit.edit.StopDocumentSession:output_type -> edit.StopDocumentSessionResp
+	3,  // 7: edit.edit.CreateBot:output_type -> edit.CreateBotResp
+	5,  // 8: edit.edit.QuitBotConnection:output_type -> edit.QuitBotConnectionResp
+	7,  // 9: edit.edit.Replace:output_type -> edit.ReplaceResp
+	9,  // 10: edit.edit.Insert:output_type -> edit.InsertResp
+	11, // 11: edit.edit.Get:output_type -> edit.GetResp
+	6,  // [6:12] is the sub-list for method output_type
+	0,  // [0:6] is the sub-list for method input_type
+	0,  // [0:0] is the sub-list for extension type_name
+	0,  // [0:0] is the sub-list for extension extendee
+	0,  // [0:0] is the sub-list for field type_name
 }
 
 func init() { file_pb_edit_proto_init() }
@@ -152,7 +668,7 @@ func file_pb_edit_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_pb_edit_proto_rawDesc), len(file_pb_edit_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

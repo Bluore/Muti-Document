@@ -8,6 +8,21 @@ service edit {
 
   // 停止文档的协作编辑会话(关闭并移除内存中的会话)
   rpc StopDocumentSession(StopDocumentSessionReq) returns (StopDocumentSessionResp);
+
+  // 创建一个机器人协作连接并加入指定文档
+  rpc CreateBot(CreateBotReq) returns (CreateBotResp);
+
+  // 机器人主动退出文档协作连接
+  rpc QuitBotConnection(QuitBotConnectionReq) returns (QuitBotConnectionResp);
+
+  // 替换机器人视角文档中的文本
+  rpc Replace(ReplaceReq) returns (ReplaceResp);
+
+  // 在机器人视角文档的 anchor 文本后方插入内容
+  rpc Insert(InsertReq) returns (InsertResp);
+
+  // 获取机器人视角的文档最新内容(首次全文, 之后为差异)
+  rpc Get(GetReq) returns (GetResp);
 }
 
 message StopDocumentSessionReq{
@@ -15,4 +30,47 @@ message StopDocumentSessionReq{
 }
 
 message StopDocumentSessionResp{
+}
+
+message CreateBotReq{
+  string DocumentId = 1;
+  string BotId = 2;
+  string BotName = 3;
+  string UserId = 4;
+}
+
+message CreateBotResp{
+}
+
+message QuitBotConnectionReq{
+  string BotId = 1;
+}
+
+message QuitBotConnectionResp{
+}
+
+message ReplaceReq{
+  string BotId = 1;
+  string Original = 2;
+  string Replacement = 3;
+}
+
+message ReplaceResp{
+}
+
+message InsertReq{
+  string BotId = 1;
+  string Anchor = 2;
+  string Insertion = 3;
+}
+
+message InsertResp{
+}
+
+message GetReq{
+  string BotId = 1;
+}
+
+message GetResp{
+  string Content = 1;
 }

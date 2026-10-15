@@ -28,3 +28,33 @@ func (s *EditServer) StopDocumentSession(ctx context.Context, in *pb.StopDocumen
 	l := logic.NewStopDocumentSessionLogic(ctx, s.svcCtx)
 	return l.StopDocumentSession(in)
 }
+
+// 创建一个机器人协作连接并加入指定文档
+func (s *EditServer) CreateBot(ctx context.Context, in *pb.CreateBotReq) (*pb.CreateBotResp, error) {
+	l := logic.NewCreateBotLogic(ctx, s.svcCtx)
+	return l.CreateBot(in)
+}
+
+// 机器人主动退出文档协作连接
+func (s *EditServer) QuitBotConnection(ctx context.Context, in *pb.QuitBotConnectionReq) (*pb.QuitBotConnectionResp, error) {
+	l := logic.NewQuitBotConnectionLogic(ctx, s.svcCtx)
+	return l.QuitBotConnection(in)
+}
+
+// 替换机器人视角文档中的文本
+func (s *EditServer) Replace(ctx context.Context, in *pb.ReplaceReq) (*pb.ReplaceResp, error) {
+	l := logic.NewReplaceLogic(ctx, s.svcCtx)
+	return l.Replace(in)
+}
+
+// 在机器人视角文档的 anchor 文本后方插入内容
+func (s *EditServer) Insert(ctx context.Context, in *pb.InsertReq) (*pb.InsertResp, error) {
+	l := logic.NewInsertLogic(ctx, s.svcCtx)
+	return l.Insert(in)
+}
+
+// 获取机器人视角的文档最新内容(首次全文, 之后为差异)
+func (s *EditServer) Get(ctx context.Context, in *pb.GetReq) (*pb.GetResp, error) {
+	l := logic.NewGetLogic(ctx, s.svcCtx)
+	return l.Get(in)
+}

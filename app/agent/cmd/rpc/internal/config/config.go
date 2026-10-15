@@ -23,6 +23,8 @@ type Config struct {
 
 	// DocumentRpcConf document-rpc 客户端配置, 供文档工具查询内容与校验权限
 	DocumentRpcConf zrpc.RpcClientConf
+	// EditRpcConf edit-rpc 客户端配置, 供文档编辑工具建立机器人连接并提交 OT 编辑
+	EditRpcConf zrpc.RpcClientConf
 }
 
 // ModelConf 对话模型配置
