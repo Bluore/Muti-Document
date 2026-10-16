@@ -17,6 +17,8 @@ type Session {
 type (
 	CreateSessionReq {
 		Query string `json:"query"`
+		// 前端传入的环境上下文(JSON 字符串), user_ip 由后端补充
+		Condition string `json:"condition,optional"`
 	}
 	CreateSessionResp {
 		SessionID string `json:"session_id"`
@@ -27,6 +29,8 @@ type (
 	ResumeSessionReq {
 		SessionID string `json:"session_id"`
 		Query string `json:"query"`
+		// 前端传入的环境上下文(JSON 字符串), user_ip 由后端补充
+		Condition string `json:"condition,optional"`
 	}
 	ResumeSessionResp {
 	}

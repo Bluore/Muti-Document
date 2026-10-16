@@ -45,3 +45,4 @@ service agent {
 	@handler getSession
 	get /session/stream/:id (GetSessionReq) returns (GetSessionResp)
 }
+

@@ -4,7 +4,8 @@
 package types
 
 type CreateSessionReq struct {
-	Query string `json:"query"`
+	Query     string `json:"query"`
+	Condition string `json:"condition,optional"`
 }
 
 type CreateSessionResp struct {
@@ -37,6 +38,7 @@ type ListSessionResp struct {
 type ResumeSessionReq struct {
 	SessionID string `json:"session_id"`
 	Query     string `json:"query"`
+	Condition string `json:"condition,optional"`
 }
 
 type ResumeSessionResp struct {

@@ -35,10 +35,16 @@ func NewResumeSessionLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Res
 func (l *ResumeSessionLogic) ResumeSession(req *types.ResumeSessionReq) (resp *types.ResumeSessionResp, err error) {
 	userID := ctxdata.MustGetUserIdFromCtx(l.ctx)
 
+	condition, err := buildCondition(l.ctx, req.Condition)
+	if err != nil {
+		return nil, err
+	}
+
 	_, err = l.svcCtx.AgentRpc.ResumeSession(l.ctx, &agent.ResumeSessionReq{
 		SessionId: req.SessionID,
 		UserId:    userID,
 		Query:     req.Query,
+		Condition: condition,
 	})
 	if err != nil {
 		if grpcerr.AGENT_SESSION_NOT_EXIST_ERROR.EqualError(err) {

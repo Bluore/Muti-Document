@@ -296,6 +296,7 @@ type ResumeSessionReq struct {
 	SessionId     string                 `protobuf:"bytes,1,opt,name=SessionId,proto3" json:"SessionId,omitempty"`
 	UserId        string                 `protobuf:"bytes,2,opt,name=UserId,proto3" json:"UserId,omitempty"`
 	Query         string                 `protobuf:"bytes,3,opt,name=Query,proto3" json:"Query,omitempty"`
+	Condition     string                 `protobuf:"bytes,4,opt,name=Condition,proto3" json:"Condition,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -347,6 +348,13 @@ func (x *ResumeSessionReq) GetUserId() string {
 func (x *ResumeSessionReq) GetQuery() string {
 	if x != nil {
 		return x.Query
+	}
+	return ""
+}
+
+func (x *ResumeSessionReq) GetCondition() string {
+	if x != nil {
+		return x.Condition
 	}
 	return ""
 }
@@ -503,11 +511,12 @@ const file_pb_agent_proto_rawDesc = "" +
 	"\x0eGetSessionResp\x12\x12\n" +
 	"\x04data\x18\x01 \x01(\tR\x04data\x12\x1c\n" +
 	"\tNewOffset\x18\x02 \x01(\x03R\tNewOffset\x12\x16\n" +
-	"\x06Status\x18\x03 \x01(\x05R\x06Status\"^\n" +
+	"\x06Status\x18\x03 \x01(\x05R\x06Status\"|\n" +
 	"\x10ResumeSessionReq\x12\x1c\n" +
 	"\tSessionId\x18\x01 \x01(\tR\tSessionId\x12\x16\n" +
 	"\x06UserId\x18\x02 \x01(\tR\x06UserId\x12\x14\n" +
-	"\x05Query\x18\x03 \x01(\tR\x05Query\"=\n" +
+	"\x05Query\x18\x03 \x01(\tR\x05Query\x12\x1c\n" +
+	"\tCondition\x18\x04 \x01(\tR\tCondition\"=\n" +
 	"\x11ResumeSessionResp\x12(\n" +
 	"\aSession\x18\x01 \x01(\v2\x0e.agent.SessionR\aSession\"(\n" +
 	"\x0eListSessionReq\x12\x16\n" +

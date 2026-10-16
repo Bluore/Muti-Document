@@ -9,6 +9,7 @@ import (
 
 	"github.com/Bluore/mutidoc/app/agent/cmd/api/internal/config"
 	"github.com/Bluore/mutidoc/app/agent/cmd/api/internal/handler"
+	"github.com/Bluore/mutidoc/app/agent/cmd/api/internal/middleware"
 	"github.com/Bluore/mutidoc/app/agent/cmd/api/internal/svc"
 	"github.com/Bluore/mutidoc/pkg/response"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -30,6 +31,8 @@ func main() {
 		rest.WithUnauthorizedCallback(response.AuthHook),
 	)
 	defer server.Stop()
+
+	server.Use(middleware.ClientIPMiddleware)
 
 	ctx := svc.NewServiceContext(c)
 	handler.RegisterHandlers(server, ctx)

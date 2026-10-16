@@ -51,6 +51,7 @@ message ResumeSessionReq {
   string SessionId = 1;
   string UserId = 2;
   string Query = 3;
+  string Condition = 4;
 }
 
 message ResumeSessionResp {

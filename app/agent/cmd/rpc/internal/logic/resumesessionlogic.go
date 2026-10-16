@@ -2,7 +2,9 @@ package logic
 
 import (
 	"context"
+	"encoding/json"
 
+	"github.com/Bluore/mutidoc/app/agent/cmd/rpc/agent"
 	"github.com/Bluore/mutidoc/app/agent/cmd/rpc/agent/session"
 	"github.com/Bluore/mutidoc/app/agent/cmd/rpc/internal/svc"
 	"github.com/Bluore/mutidoc/app/agent/cmd/rpc/pb"
@@ -45,8 +47,16 @@ func (l *ResumeSessionLogic) ResumeSession(in *pb.ResumeSessionReq) (*pb.ResumeS
 		return nil, grpcerr.AGENT_SESSION_NOT_EXIST_ERROR
 	}
 
+	// 将前端上下文转为自然语言, 前置到本轮提问送入模型
+	query := in.Query
+	if cond := parseCondition(in.Condition); cond != nil {
+		if natural := cond.ToNatural(); len(natural) > 0 {
+			query = string(natural) + "\n\n" + in.Query
+		}
+	}
+
 	// 提交一轮对话给会话客户端, 后台生成并落库
-	if err = client.Resume(in.Query); err != nil {
+	if err = client.Resume(query); err != nil {
 		if errors.Is(err, session.ErrGenerating) {
 			return nil, grpcerr.AGENT_SESSION_BUSY_ERROR
 		}
@@ -55,4 +65,17 @@ func (l *ResumeSessionLogic) ResumeSession(in *pb.ResumeSessionReq) (*pb.ResumeS
 	}
 
 	return &pb.ResumeSessionResp{Session: toPbSession(client)}, nil
+}
+
+// parseCondition 解析前端传入的上下文条件, 格式非法时忽略
+func parseCondition(raw string) *agent.ResumeCondition {
+	if raw == "" {
+		return nil
+	}
+	cond := &agent.ResumeCondition{}
+	if err := json.Unmarshal([]byte(raw), cond); err != nil {
+		logx.Errorf("parse resume condition fail: %v", err)
+		return nil
+	}
+	return cond
 }

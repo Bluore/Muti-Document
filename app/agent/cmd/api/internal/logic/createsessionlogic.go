@@ -36,6 +36,11 @@ func (l *CreateSessionLogic) CreateSession(req *types.CreateSessionReq) (resp *t
 	// 会话归属者从 jwt 中获取
 	userID := ctxdata.MustGetUserIdFromCtx(l.ctx)
 
+	condition, err := buildCondition(l.ctx, req.Condition)
+	if err != nil {
+		return nil, err
+	}
+
 	result, err := l.svcCtx.AgentRpc.CreateSession(l.ctx, &agent.CreateSessionReq{
 		UserId: userID,
 		Title:  req.Query,
@@ -51,6 +56,7 @@ func (l *CreateSessionLogic) CreateSession(req *types.CreateSessionReq) (resp *t
 		SessionId: sessionID,
 		UserId:    userID,
 		Query:     req.Query,
+		Condition: condition,
 	}); err != nil {
 		if grpcerr.AGENT_SESSION_BUSY_ERROR.EqualError(err) {
 			return nil, httperr.ErrSessionBusy
