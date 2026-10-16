@@ -29,6 +29,9 @@ service document {
 
   // 授权用户文档权限
   rpc GrantaDocumentPermission(GrantDocumentPermissionReq) returns (GrantDocumentPermissionResp);
+
+  // 向量检索文档内容(返回相似度最高的前 K 条分块)
+  rpc SearchDocument(SearchDocumentReq) returns (SearchDocumentResp);
 }
 
 message Document{
@@ -115,4 +118,20 @@ message GrantDocumentPermissionReq{
 }
 
 message GrantDocumentPermissionResp{
+}
+
+message SearchDocumentReq{
+  // 待检索文本, 服务端向量化后查询相似分块
+  string Text = 1;
+  // 返回条数, <=0 时默认 3
+  int64 TopK = 2;
+  // 可选, 只在该文档内检索
+  string DocumentId = 3;
+  // 可选, 只在该用户归属的文档内检索
+  string OwnerId = 4;
+}
+
+message SearchDocumentResp{
+  // 命中分块的 JSON 数组, 每项含 doc_id/owner_id/chunk_index/text/create_at/score
+  string Result = 1;
 }

@@ -1,0 +1,26 @@
+{
+  "vectors": {
+    "chunk": {
+      "size": 1024,
+      "distance": "Cosine",
+      "on_disk": false
+    }
+  },
+  "shard_number": 1,
+  "replication_factor": 1,
+  "write_consistency_factor": 1,
+  "on_disk_payload": true,
+  "hnsw_config": {
+    "m": 16,
+    "ef_construct": 100,
+    "full_scan_threshold": 10000
+  },
+  "optimizers_config": {
+    "default_segment_number": 2,
+    "indexing_threshold": 20000
+  },
+  "wal_config": {
+    "wal_capacity_mb": 32,
+    "wal_segments_ahead": 0
+  }
+}

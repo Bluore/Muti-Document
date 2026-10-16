@@ -25,6 +25,30 @@ Cache:
   - Host: redis:6379
     Pass:
 
+# 文档向量库: 正文落库后按块重建索引
+Qdrant:
+  Host: qdrant
+  Port: 6334
+  APIKey:
+  UseTLS: false
+  Collection: document_chunks
+  # BAAI/bge-m3 输出 1024 维; 改动后要重建集合
+  VectorSize: 1024
+
+# 文本向量化: 硅基流动 OpenAI 兼容的 /embeddings 接口
+Embedding:
+  BaseURL: https://api.siliconflow.cn/v1
+  APIKey:
+  Model: BAAI/bge-m3
+  # 期望维度, 0 表示用模型默认维度
+  Dimensions: 0
+  Timeout: 30s
+
+# 文档切块: 每块 Size 个字符, 向前多带 Overlap 个字符保留上下文
+Chunk:
+  Size: 500
+  Overlap: 100
+
 JwtAuth:
   AccessSecret: 123456-456789-123
   AccessExpire: 60

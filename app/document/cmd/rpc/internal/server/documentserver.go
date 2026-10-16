@@ -70,3 +70,9 @@ func (s *DocumentServer) GrantaDocumentPermission(ctx context.Context, in *pb.Gr
 	l := logic.NewGrantaDocumentPermissionLogic(ctx, s.svcCtx)
 	return l.GrantaDocumentPermission(in)
 }
+
+// 向量检索文档内容(返回相似度最高的前 K 条分块)
+func (s *DocumentServer) SearchDocument(ctx context.Context, in *pb.SearchDocumentReq) (*pb.SearchDocumentResp, error) {
+	l := logic.NewSearchDocumentLogic(ctx, s.svcCtx)
+	return l.SearchDocument(in)
+}

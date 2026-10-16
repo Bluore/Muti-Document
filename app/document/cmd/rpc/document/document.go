@@ -29,6 +29,8 @@ type (
 	GetDocumentPermissionResp   = pb.GetDocumentPermissionResp
 	GrantDocumentPermissionReq  = pb.GrantDocumentPermissionReq
 	GrantDocumentPermissionResp = pb.GrantDocumentPermissionResp
+	SearchDocumentReq           = pb.SearchDocumentReq
+	SearchDocumentResp          = pb.SearchDocumentResp
 	UpdateDocumentReq           = pb.UpdateDocumentReq
 	UpdateDocumentResp          = pb.UpdateDocumentResp
 
@@ -49,6 +51,8 @@ type (
 		GetDocumentPermission(ctx context.Context, in *GetDocumentPermissionReq, opts ...grpc.CallOption) (*GetDocumentPermissionResp, error)
 		// 授权用户文档权限
 		GrantaDocumentPermission(ctx context.Context, in *GrantDocumentPermissionReq, opts ...grpc.CallOption) (*GrantDocumentPermissionResp, error)
+		// 向量检索文档内容(返回相似度最高的前 K 条分块)
+		SearchDocument(ctx context.Context, in *SearchDocumentReq, opts ...grpc.CallOption) (*SearchDocumentResp, error)
 	}
 
 	defaultDocumentZrpcClient struct {
@@ -108,4 +112,10 @@ func (m *defaultDocumentZrpcClient) GetDocumentPermission(ctx context.Context, i
 func (m *defaultDocumentZrpcClient) GrantaDocumentPermission(ctx context.Context, in *GrantDocumentPermissionReq, opts ...grpc.CallOption) (*GrantDocumentPermissionResp, error) {
 	client := pb.NewDocumentClient(m.cli.Conn())
 	return client.GrantaDocumentPermission(ctx, in, opts...)
+}
+
+// 向量检索文档内容(返回相似度最高的前 K 条分块)
+func (m *defaultDocumentZrpcClient) SearchDocument(ctx context.Context, in *SearchDocumentReq, opts ...grpc.CallOption) (*SearchDocumentResp, error) {
+	client := pb.NewDocumentClient(m.cli.Conn())
+	return client.SearchDocument(ctx, in, opts...)
 }

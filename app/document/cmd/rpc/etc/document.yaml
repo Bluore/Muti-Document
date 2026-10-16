@@ -34,3 +34,20 @@ RedisConf:
   Addr: redis:6379
   Password:
   DB: 0
+
+# 文档向量库: 相似内容检索
+Qdrant:
+  Host: qdrant
+  Port: 6334
+  APIKey:
+  UseTLS: false
+  Collection: document_chunks
+  VectorSize: 1024
+
+# 检索文本向量化: 硅基流动 OpenAI 兼容的 /embeddings 接口, 需与 edit 服务一致
+Embedding:
+  BaseURL: https://api.siliconflow.cn/v1
+  APIKey:
+  Model: BAAI/bge-m3
+  Dimensions: 0
+  Timeout: 30s

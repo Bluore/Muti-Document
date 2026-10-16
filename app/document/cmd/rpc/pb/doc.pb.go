@@ -871,6 +871,123 @@ func (*GrantDocumentPermissionResp) Descriptor() ([]byte, []int) {
 	return file_pb_doc_proto_rawDescGZIP(), []int{16}
 }
 
+type SearchDocumentReq struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 待检索文本, 服务端向量化后查询相似分块
+	Text string `protobuf:"bytes,1,opt,name=Text,proto3" json:"Text,omitempty"`
+	// 返回条数, <=0 时默认 3
+	TopK int64 `protobuf:"varint,2,opt,name=TopK,proto3" json:"TopK,omitempty"`
+	// 可选, 只在该文档内检索
+	DocumentId string `protobuf:"bytes,3,opt,name=DocumentId,proto3" json:"DocumentId,omitempty"`
+	// 可选, 只在该用户归属的文档内检索
+	OwnerId       string `protobuf:"bytes,4,opt,name=OwnerId,proto3" json:"OwnerId,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SearchDocumentReq) Reset() {
+	*x = SearchDocumentReq{}
+	mi := &file_pb_doc_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SearchDocumentReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SearchDocumentReq) ProtoMessage() {}
+
+func (x *SearchDocumentReq) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_doc_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SearchDocumentReq.ProtoReflect.Descriptor instead.
+func (*SearchDocumentReq) Descriptor() ([]byte, []int) {
+	return file_pb_doc_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *SearchDocumentReq) GetText() string {
+	if x != nil {
+		return x.Text
+	}
+	return ""
+}
+
+func (x *SearchDocumentReq) GetTopK() int64 {
+	if x != nil {
+		return x.TopK
+	}
+	return 0
+}
+
+func (x *SearchDocumentReq) GetDocumentId() string {
+	if x != nil {
+		return x.DocumentId
+	}
+	return ""
+}
+
+func (x *SearchDocumentReq) GetOwnerId() string {
+	if x != nil {
+		return x.OwnerId
+	}
+	return ""
+}
+
+type SearchDocumentResp struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 命中分块的 JSON 数组, 每项含 doc_id/owner_id/chunk_index/text/create_at/score
+	Result        string `protobuf:"bytes,1,opt,name=Result,proto3" json:"Result,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SearchDocumentResp) Reset() {
+	*x = SearchDocumentResp{}
+	mi := &file_pb_doc_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SearchDocumentResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SearchDocumentResp) ProtoMessage() {}
+
+func (x *SearchDocumentResp) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_doc_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SearchDocumentResp.ProtoReflect.Descriptor instead.
+func (*SearchDocumentResp) Descriptor() ([]byte, []int) {
+	return file_pb_doc_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *SearchDocumentResp) GetResult() string {
+	if x != nil {
+		return x.Result
+	}
+	return ""
+}
+
 var File_pb_doc_proto protoreflect.FileDescriptor
 
 const file_pb_doc_proto_rawDesc = "" +
@@ -935,7 +1052,16 @@ const file_pb_doc_proto_rawDesc = "" +
 	"\n" +
 	"DocumentId\x18\x02 \x01(\tR\n" +
 	"DocumentId\"\x1d\n" +
-	"\x1bGrantDocumentPermissionResp2\xb5\x05\n" +
+	"\x1bGrantDocumentPermissionResp\"u\n" +
+	"\x11SearchDocumentReq\x12\x12\n" +
+	"\x04Text\x18\x01 \x01(\tR\x04Text\x12\x12\n" +
+	"\x04TopK\x18\x02 \x01(\x03R\x04TopK\x12\x1e\n" +
+	"\n" +
+	"DocumentId\x18\x03 \x01(\tR\n" +
+	"DocumentId\x12\x18\n" +
+	"\aOwnerId\x18\x04 \x01(\tR\aOwnerId\",\n" +
+	"\x12SearchDocumentResp\x12\x16\n" +
+	"\x06Result\x18\x01 \x01(\tR\x06Result2\x82\x06\n" +
 	"\bdocument\x12K\n" +
 	"\x0eCreateDocument\x12\x1b.document.CreateDocumentReq\x1a\x1c.document.CreateDocumentResp\x12K\n" +
 	"\x0eDeleteDocument\x12\x1b.document.DeleteDocumentReq\x1a\x1c.document.DeleteDocumentResp\x12K\n" +
@@ -944,7 +1070,8 @@ const file_pb_doc_proto_rawDesc = "" +
 	"\x0fGetDocumentList\x12\x1c.document.GetDocumentListReq\x1a\x1d.document.GetDocumentListResp\x12W\n" +
 	"\x12GetDocumentContent\x12\x1f.document.GetDocumentContentReq\x1a .document.GetDocumentContentResp\x12`\n" +
 	"\x15GetDocumentPermission\x12\".document.GetDocumentPermissionReq\x1a#.document.GetDocumentPermissionResp\x12g\n" +
-	"\x18GrantaDocumentPermission\x12$.document.GrantDocumentPermissionReq\x1a%.document.GrantDocumentPermissionRespB\x06Z\x04./pbb\x06proto3"
+	"\x18GrantaDocumentPermission\x12$.document.GrantDocumentPermissionReq\x1a%.document.GrantDocumentPermissionResp\x12K\n" +
+	"\x0eSearchDocument\x12\x1b.document.SearchDocumentReq\x1a\x1c.document.SearchDocumentRespB\x06Z\x04./pbb\x06proto3"
 
 var (
 	file_pb_doc_proto_rawDescOnce sync.Once
@@ -958,7 +1085,7 @@ func file_pb_doc_proto_rawDescGZIP() []byte {
 	return file_pb_doc_proto_rawDescData
 }
 
-var file_pb_doc_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
+var file_pb_doc_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
 var file_pb_doc_proto_goTypes = []any{
 	(*Document)(nil),                    // 0: document.Document
 	(*CreateDocumentReq)(nil),           // 1: document.CreateDocumentReq
@@ -977,6 +1104,8 @@ var file_pb_doc_proto_goTypes = []any{
 	(*GetDocumentPermissionResp)(nil),   // 14: document.GetDocumentPermissionResp
 	(*GrantDocumentPermissionReq)(nil),  // 15: document.GrantDocumentPermissionReq
 	(*GrantDocumentPermissionResp)(nil), // 16: document.GrantDocumentPermissionResp
+	(*SearchDocumentReq)(nil),           // 17: document.SearchDocumentReq
+	(*SearchDocumentResp)(nil),          // 18: document.SearchDocumentResp
 }
 var file_pb_doc_proto_depIdxs = []int32{
 	0,  // 0: document.GetDocumentInfoResp.DocumentInfo:type_name -> document.Document
@@ -989,16 +1118,18 @@ var file_pb_doc_proto_depIdxs = []int32{
 	11, // 7: document.document.GetDocumentContent:input_type -> document.GetDocumentContentReq
 	13, // 8: document.document.GetDocumentPermission:input_type -> document.GetDocumentPermissionReq
 	15, // 9: document.document.GrantaDocumentPermission:input_type -> document.GrantDocumentPermissionReq
-	2,  // 10: document.document.CreateDocument:output_type -> document.CreateDocumentResp
-	4,  // 11: document.document.DeleteDocument:output_type -> document.DeleteDocumentResp
-	6,  // 12: document.document.UpdateDocument:output_type -> document.UpdateDocumentResp
-	8,  // 13: document.document.GetDocumentInfo:output_type -> document.GetDocumentInfoResp
-	10, // 14: document.document.GetDocumentList:output_type -> document.GetDocumentListResp
-	12, // 15: document.document.GetDocumentContent:output_type -> document.GetDocumentContentResp
-	14, // 16: document.document.GetDocumentPermission:output_type -> document.GetDocumentPermissionResp
-	16, // 17: document.document.GrantaDocumentPermission:output_type -> document.GrantDocumentPermissionResp
-	10, // [10:18] is the sub-list for method output_type
-	2,  // [2:10] is the sub-list for method input_type
+	17, // 10: document.document.SearchDocument:input_type -> document.SearchDocumentReq
+	2,  // 11: document.document.CreateDocument:output_type -> document.CreateDocumentResp
+	4,  // 12: document.document.DeleteDocument:output_type -> document.DeleteDocumentResp
+	6,  // 13: document.document.UpdateDocument:output_type -> document.UpdateDocumentResp
+	8,  // 14: document.document.GetDocumentInfo:output_type -> document.GetDocumentInfoResp
+	10, // 15: document.document.GetDocumentList:output_type -> document.GetDocumentListResp
+	12, // 16: document.document.GetDocumentContent:output_type -> document.GetDocumentContentResp
+	14, // 17: document.document.GetDocumentPermission:output_type -> document.GetDocumentPermissionResp
+	16, // 18: document.document.GrantaDocumentPermission:output_type -> document.GrantDocumentPermissionResp
+	18, // 19: document.document.SearchDocument:output_type -> document.SearchDocumentResp
+	11, // [11:20] is the sub-list for method output_type
+	2,  // [2:11] is the sub-list for method input_type
 	2,  // [2:2] is the sub-list for extension type_name
 	2,  // [2:2] is the sub-list for extension extendee
 	0,  // [0:2] is the sub-list for field type_name
@@ -1015,7 +1146,7 @@ func file_pb_doc_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_pb_doc_proto_rawDesc), len(file_pb_doc_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   17,
+			NumMessages:   19,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -69,6 +69,8 @@ type DocumentClient struct {
 	stopCh   chan struct{}
 	stopOnce sync.Once
 	onClose  func(*DocumentClient)
+	// onFlushed 在正文成功落库后回调, 用于触发向量索引重建; 可为 nil
+	onFlushed func(docID string)
 
 	// ctx 取消后, 进行中的 redis / 落库操作会立即中断; done 在保存协程退出后关闭
 	ctx    context.Context
@@ -77,13 +79,15 @@ type DocumentClient struct {
 }
 
 // NewOt 创建文档会话。documentDetail 是数据库快照, redisClient / documentModel
-// 用于持久化, onClose 在会话空闲关闭后回调(用于从文档表移除), 均可为 nil。
+// 用于持久化, onClose 在会话空闲关闭后回调(用于从文档表移除), onFlushed 在正文
+// 成功落库后回调(用于重建向量索引), 均可为 nil。
 // 创建时会先合并 redis 上未落库的变更, 再启动自动保存协程。
 func NewOt(
 	documentDetail model.Documents,
 	redisClient *redis.Client,
 	documentModel model.DocumentsModel,
 	onClose func(*DocumentClient),
+	onFlushed func(docID string),
 ) *DocumentClient {
 	client := &DocumentClient{
 		Users:          make(map[string]protocol.User, 100),
@@ -98,6 +102,7 @@ func NewOt(
 		DocumentModel:  documentModel,
 		RedisClient:    redisClient,
 		onClose:        onClose,
+		onFlushed:      onFlushed,
 		stopCh:         make(chan struct{}),
 	}
 
@@ -702,6 +707,7 @@ func (o *DocumentClient) flushToDatabase(content []byte, title string) error {
 	detail := o.DocumentDetail
 	detail.Content = string(content)
 	detail.Summary = title
+	contentChanged := o.DocumentDetail.Content != detail.Content
 
 	version := detail.Version
 	var lastErr error
@@ -720,6 +726,10 @@ func (o *DocumentClient) flushToDatabase(content []byte, title string) error {
 				logx.Field("document_id", detail.Id),
 				logx.Field("version", detail.Version),
 			)
+			// 正文变化时重建向量索引; 仅标题变化无需重跑
+			if contentChanged {
+				o.notifyFlushed(detail.Id)
+			}
 			return nil
 		}
 		lastErr = err
@@ -798,6 +808,14 @@ func (o *DocumentClient) deleteCache() {
 
 func (o *DocumentClient) changeKey() string {
 	return fmt.Sprintf(globalkey.RedisKeyDocumentChange, o.DocumentDetail.Id)
+}
+
+// notifyFlushed 通知正文已落库。回调只负责调度, 需自行异步化并容错。
+func (o *DocumentClient) notifyFlushed(docID string) {
+	if o.onFlushed == nil {
+		return
+	}
+	o.onFlushed(docID)
 }
 
 // opContext 基于会话上下文创建带超时的操作上下文, 会话未启动协程时退化为后台上下文

@@ -14,14 +14,21 @@ type DocumentMap struct {
 
 	redisClient   *redis.Client
 	documentModel model.DocumentsModel
+	// onFlushed 在文档正文落库后回调, 用于重建向量索引
+	onFlushed func(docID string)
 }
 
-func NewDocumentMap(redisClient *redis.Client, documentModel model.DocumentsModel) *DocumentMap {
+func NewDocumentMap(
+	redisClient *redis.Client,
+	documentModel model.DocumentsModel,
+	onFlushed func(docID string),
+) *DocumentMap {
 	return &DocumentMap{
 		docs:          make(map[string]*connection.DocumentClient, 100),
 		mu:            &sync.RWMutex{},
 		redisClient:   redisClient,
 		documentModel: documentModel,
+		onFlushed:     onFlushed,
 	}
 }
 
@@ -42,7 +49,7 @@ func (m DocumentMap) GetOrCreate(key string, detail model.Documents) *connection
 
 	document := connection.NewOt(detail, m.redisClient, m.documentModel, func(client *connection.DocumentClient) {
 		m.CheckAndDelete(key, client)
-	})
+	}, m.onFlushed)
 	m.docs[key] = document
 	return document
 }

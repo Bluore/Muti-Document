@@ -12,7 +12,7 @@ import (
 
 // newTestOt 创建一个不接持久化的文档会话
 func newTestOt() *DocumentClient {
-	return NewOt(model.Documents{}, nil, nil, nil)
+	return NewOt(model.Documents{}, nil, nil, nil, nil)
 }
 
 func cursorAt(offset uint64) ot.Cursor {

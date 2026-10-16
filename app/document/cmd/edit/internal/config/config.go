@@ -4,6 +4,8 @@
 package config
 
 import (
+	"github.com/Bluore/mutidoc/app/document/model"
+	"github.com/Bluore/mutidoc/pkg/embedding"
 	"github.com/zeromicro/go-zero/core/stores/cache"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"github.com/zeromicro/go-zero/rest"
@@ -30,6 +32,13 @@ type Config struct {
 	Cache cache.CacheConf
 
 	UserRpcConf zrpc.RpcClientConf
+
+	// Qdrant 文档向量库, 正文落库后重建分块索引使用
+	Qdrant model.QdrantConf
+	// Embedding 文本向量化(OpenAI 兼容 /embeddings 接口)
+	Embedding embedding.Config
+	// Chunk 文档切块
+	Chunk model.ChunkConf
 }
 
 type RedisConfig struct {

@@ -48,5 +48,15 @@ func (l *DeleteDocumentLogic) DeleteDocument(in *pb.DeleteDocumentReq) (*pb.Dele
 	}
 	logx.WithContext(l.ctx).Infow("delete document success", logx.Field("document_id", in.DocumentId))
 
+	// 清理向量库里的分块, 失败不影响已完成的删除
+	if l.svcCtx.DocumentChunks != nil {
+		if err := l.svcCtx.DocumentChunks.DeleteByDocID(l.ctx, in.DocumentId); err != nil {
+			logx.WithContext(l.ctx).Errorw("delete document chunks fail",
+				logx.Field("error", err),
+				logx.Field("document_id", in.DocumentId),
+			)
+		}
+	}
+
 	return &pb.DeleteDocumentResp{}, nil
 }

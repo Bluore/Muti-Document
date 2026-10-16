@@ -27,6 +27,7 @@ const (
 	Document_GetDocumentContent_FullMethodName       = "/document.document/GetDocumentContent"
 	Document_GetDocumentPermission_FullMethodName    = "/document.document/GetDocumentPermission"
 	Document_GrantaDocumentPermission_FullMethodName = "/document.document/GrantaDocumentPermission"
+	Document_SearchDocument_FullMethodName           = "/document.document/SearchDocument"
 )
 
 // DocumentClient is the client API for Document service.
@@ -49,6 +50,8 @@ type DocumentClient interface {
 	GetDocumentPermission(ctx context.Context, in *GetDocumentPermissionReq, opts ...grpc.CallOption) (*GetDocumentPermissionResp, error)
 	// 授权用户文档权限
 	GrantaDocumentPermission(ctx context.Context, in *GrantDocumentPermissionReq, opts ...grpc.CallOption) (*GrantDocumentPermissionResp, error)
+	// 向量检索文档内容(返回相似度最高的前 K 条分块)
+	SearchDocument(ctx context.Context, in *SearchDocumentReq, opts ...grpc.CallOption) (*SearchDocumentResp, error)
 }
 
 type documentClient struct {
@@ -139,6 +142,16 @@ func (c *documentClient) GrantaDocumentPermission(ctx context.Context, in *Grant
 	return out, nil
 }
 
+func (c *documentClient) SearchDocument(ctx context.Context, in *SearchDocumentReq, opts ...grpc.CallOption) (*SearchDocumentResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SearchDocumentResp)
+	err := c.cc.Invoke(ctx, Document_SearchDocument_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // DocumentServer is the server API for Document service.
 // All implementations must embed UnimplementedDocumentServer
 // for forward compatibility.
@@ -159,6 +172,8 @@ type DocumentServer interface {
 	GetDocumentPermission(context.Context, *GetDocumentPermissionReq) (*GetDocumentPermissionResp, error)
 	// 授权用户文档权限
 	GrantaDocumentPermission(context.Context, *GrantDocumentPermissionReq) (*GrantDocumentPermissionResp, error)
+	// 向量检索文档内容(返回相似度最高的前 K 条分块)
+	SearchDocument(context.Context, *SearchDocumentReq) (*SearchDocumentResp, error)
 	mustEmbedUnimplementedDocumentServer()
 }
 
@@ -192,6 +207,9 @@ func (UnimplementedDocumentServer) GetDocumentPermission(context.Context, *GetDo
 }
 func (UnimplementedDocumentServer) GrantaDocumentPermission(context.Context, *GrantDocumentPermissionReq) (*GrantDocumentPermissionResp, error) {
 	return nil, status.Error(codes.Unimplemented, "method GrantaDocumentPermission not implemented")
+}
+func (UnimplementedDocumentServer) SearchDocument(context.Context, *SearchDocumentReq) (*SearchDocumentResp, error) {
+	return nil, status.Error(codes.Unimplemented, "method SearchDocument not implemented")
 }
 func (UnimplementedDocumentServer) mustEmbedUnimplementedDocumentServer() {}
 func (UnimplementedDocumentServer) testEmbeddedByValue()                  {}
@@ -358,6 +376,24 @@ func _Document_GrantaDocumentPermission_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Document_SearchDocument_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SearchDocumentReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DocumentServer).SearchDocument(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Document_SearchDocument_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DocumentServer).SearchDocument(ctx, req.(*SearchDocumentReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Document_ServiceDesc is the grpc.ServiceDesc for Document service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -396,6 +432,10 @@ var Document_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GrantaDocumentPermission",
 			Handler:    _Document_GrantaDocumentPermission_Handler,
+		},
+		{
+			MethodName: "SearchDocument",
+			Handler:    _Document_SearchDocument_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
