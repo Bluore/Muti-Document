@@ -68,10 +68,10 @@ func NewServiceContext(c config.Config) *ServiceContext {
 			Temperature: c.Model.Temperature,
 			MaxTokens:   c.Model.MaxTokens,
 		},
-		// SearchAgent 负责文档检索; 向量检索同时直达 MainAgent, 入口可直接查内容
+		// SearchAgent 只处理复杂长任务; 普通检索与读全文直达 MainAgent
 		DocumentTools: []tool.BaseTool{queryDocumentTool, listDocumentTool, searchDocumentTool},
 		EditTools:     []tool.BaseTool{createConnectionTool, getConnectionTool, replaceConnectionTool, insertConnectionTool},
-		ExtraTools:    append([]tool.BaseTool{searchDocumentTool}, extraTools...),
+		ExtraTools:    append([]tool.BaseTool{searchDocumentTool, queryDocumentTool}, extraTools...),
 		// EditAgent 结束后自动退出机器人编辑连接
 		QuitBotConnection: func(ctx context.Context, botID string) error {
 			_, err := editRpc.QuitBotConnection(ctx, &edit.QuitBotConnectionReq{BotId: botID})

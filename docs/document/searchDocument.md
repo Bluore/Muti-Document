@@ -81,6 +81,14 @@
 - 工具同时挂载到 `SearchAgent`（`DocumentTools`）与 `MainAgent`（`ExtraTools`）；
   错误经 `toolcallresp` 转成自然语言，不中断整轮对话。
 
+## 4.1 工具在各智能体上的分工
+
+| 智能体 | 挂载的工具 | 定位 |
+| --- | --- | --- |
+| `MainAgent`（入口） | `searchDocument`、`queryDocument`（`ExtraTools`）+ MCP 工具 | 单次、目标明确的普通检索与读全文，自己直接调用 |
+| `SearchAgent`（子智能体） | `searchDocument`、`queryDocument`、`listDocument`（`DocumentTools`） | 跨文档检索比对、总结、逐篇遍历及其他需多轮调用的长任务 |
+| `EditAgent`（子智能体） | `createDocumentConnection`、`getDocumentConnection`、`replaceDocumentConnection`、`insertDocumentConnection`（`EditTools`） | 通过机器人编辑连接改写文档 |
+
 ## 5. 相关配置
 
 `app/document/cmd/rpc/etc/document.yaml` 与 `app/document/cmd/edit/etc/edit.yaml`
