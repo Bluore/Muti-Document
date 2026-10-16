@@ -21,6 +21,29 @@ func DocumentContent(summary, content string, version int64) string {
 	return fmt.Sprintf("已找到文档《%s》(版本 %d)，正文如下：\n\n%s", summary, version, content)
 }
 
+// DocumentChunkItem 向量检索命中的一条文档分块, 供检索响应组装自然语言
+type DocumentChunkItem struct {
+	DocID      string
+	ChunkIndex int64
+	Text       string
+	Score      float32
+}
+
+// DocumentSearchHits 向量检索成功的自然语言响应
+func DocumentSearchHits(items []DocumentChunkItem) string {
+	if len(items) == 0 {
+		return "没有检索到相关内容。"
+	}
+
+	var b strings.Builder
+	fmt.Fprintf(&b, "检索到 %d 条相关内容：\n", len(items))
+	for i, it := range items {
+		fmt.Fprintf(&b, "\n%d. (文档 ID: %s, 分块序号: %d, 相似度: %.4f)\n%s\n",
+			i+1, it.DocID, it.ChunkIndex, it.Score, it.Text)
+	}
+	return strings.TrimRight(b.String(), "\n")
+}
+
 // DocumentList 文档列表查询成功的自然语言响应
 func DocumentList(items []DocumentItem) string {
 	if len(items) == 0 {

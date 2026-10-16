@@ -20,6 +20,10 @@ var (
 	ErrDocumentQueryFailed = errors.New("query document failed")
 	// ErrDocumentListFailed 查询文档列表失败
 	ErrDocumentListFailed = errors.New("list document failed")
+	// ErrSearchQueryRequired 缺少要检索的内容
+	ErrSearchQueryRequired = errors.New("search query is required")
+	// ErrDocumentSearchFailed 向量检索文档内容失败
+	ErrDocumentSearchFailed = errors.New("search document failed")
 	// ErrEditTextRequired 缺少要编辑的原文或要插入的内容
 	ErrEditTextRequired = errors.New("edit text is required")
 	// ErrDocumentConnectionFailed 文档编辑连接操作失败
@@ -41,6 +45,8 @@ var errorTexts = []struct {
 	{ErrDocumentNotExist, "没有找到对应的文档，请确认文档 ID 是否正确。"},
 	{ErrDocumentQueryFailed, "查询文档时出了点问题，请稍后再试。"},
 	{ErrDocumentListFailed, "获取文档列表时出了点问题，请稍后再试。"},
+	{ErrSearchQueryRequired, "请提供要检索的内容。"},
+	{ErrDocumentSearchFailed, "检索文档内容时出了点问题，请稍后再试。"},
 	{ErrEditTextRequired, "请提供要替换的原文或要插入的内容。"},
 	{ErrDocumentConnectionFailed, "操作文档编辑连接时出了点问题，请稍后再试。"},
 	{ErrBotConnectionNotExist, "尚未建立对该文档的编辑连接，请先调用 createDocumentConnection。"},
@@ -81,6 +87,19 @@ func NewDocumentListFailedErr(cause error) (string, error) {
 		return NewError(ErrDocumentListFailed)
 	}
 	return NewError(fmt.Errorf("%w: %v", ErrDocumentListFailed, cause))
+}
+
+// NewSearchQueryRequiredErr 缺少要检索的内容
+func NewSearchQueryRequiredErr() (string, error) {
+	return NewError(ErrSearchQueryRequired)
+}
+
+// NewDocumentSearchFailedErr 向量检索文档失败, cause 为底层原因
+func NewDocumentSearchFailedErr(cause error) (string, error) {
+	if cause == nil {
+		return NewError(ErrDocumentSearchFailed)
+	}
+	return NewError(fmt.Errorf("%w: %v", ErrDocumentSearchFailed, cause))
 }
 
 // NewEditTextRequiredErr 缺少要编辑的原文或要插入的内容

@@ -17,7 +17,7 @@ import (
 const mainAgentInstruction = `你是智能体 MainAgent，是本站的唯一入口智能体。
 职责:
 - 先理解用户意图, 再决定直接回答还是调用工具, 完成后整合结果回复用户。
-- 文档任务: 需要检索文档内容时调用 searchAgent; 需要编辑某篇文档时调用 editAgent, 并在任务中说明文档 ID 与编辑要求。
+- 文档任务: 需要按语义查找相关内容时可直接调用 searchDocument 做向量检索(可用 document_id 限定文档), 拿到文档 ID 后需要浏览或读取整篇文档时调用 searchAgent; 需要编辑某篇文档时调用 editAgent, 并在任务中说明文档 ID 与编辑要求。
 - 网站支持: 回答关于本站功能、使用方式与常见问题的咨询; 作答前先调用 loadSupportSkill 加载网站文档, 并严格依据文档内容回答。
 - 已挂载的外部工具(如高德地图相关工具)按各自描述在合适场景下调用。
 - 一次只调用一个子智能体, 不要并行调用。
@@ -30,7 +30,7 @@ type Config struct {
 	DocumentTools []tool.BaseTool
 	// EditTools 挂载到 EditAgent 的文档编辑工具(建立连接/替换/插入/读取)
 	EditTools []tool.BaseTool
-	// ExtraTools 额外挂载到 MainAgent 的工具(如 MCP 工具)
+	// ExtraTools 额外挂载到 MainAgent 的工具(如 MCP 工具、向量检索)
 	ExtraTools []tool.BaseTool
 	// QuitBotConnection 退出机器人编辑连接, EditAgent 结束后由程序自动调用
 	QuitBotConnection QuitBotConnectionFunc

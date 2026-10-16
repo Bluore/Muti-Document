@@ -39,11 +39,13 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	}
 	logx.Infof("agent: loaded %d extra tools from %d mcp servers", len(extraTools), len(c.MCP.Servers))
 
-	// 文档工具依赖 document-rpc 校验权限并读取内容
+	// 文档工具依赖 document-rpc 校验权限、读取内容与向量检索
 	documentRpc := document.NewDocumentZrpcClient(zrpc.MustNewClient(c.DocumentRpcConf))
 	queryDocumentTool, err := agenttool.NewQueryDocumentTool(documentRpc)
 	logx.Must(err)
 	listDocumentTool, err := agenttool.NewListDocumentTool(documentRpc)
+	logx.Must(err)
+	searchDocumentTool, err := agenttool.NewSearchDocumentTool(documentRpc)
 	logx.Must(err)
 
 	// 文档编辑工具通过 edit-rpc 建立机器人连接并提交 OT 编辑
@@ -66,9 +68,10 @@ func NewServiceContext(c config.Config) *ServiceContext {
 			Temperature: c.Model.Temperature,
 			MaxTokens:   c.Model.MaxTokens,
 		},
-		DocumentTools: []tool.BaseTool{queryDocumentTool, listDocumentTool},
+		// SearchAgent 负责文档检索; 向量检索同时直达 MainAgent, 入口可直接查内容
+		DocumentTools: []tool.BaseTool{queryDocumentTool, listDocumentTool, searchDocumentTool},
 		EditTools:     []tool.BaseTool{createConnectionTool, getConnectionTool, replaceConnectionTool, insertConnectionTool},
-		ExtraTools:    extraTools,
+		ExtraTools:    append([]tool.BaseTool{searchDocumentTool}, extraTools...),
 		// EditAgent 结束后自动退出机器人编辑连接
 		QuitBotConnection: func(ctx context.Context, botID string) error {
 			_, err := editRpc.QuitBotConnection(ctx, &edit.QuitBotConnectionReq{BotId: botID})

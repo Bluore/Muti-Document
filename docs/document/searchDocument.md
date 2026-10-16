@@ -65,7 +65,23 @@
 ]
 ```
 
-## 4. 相关配置
+## 4. Agent 工具
+
+`agent` 服务的 `searchDocument` 工具封装了本接口
+（`app/agent/cmd/rpc/agent/tool/searchDocumentTool.go`）：
+
+| 入参 | 说明 |
+| --- | --- |
+| `query` | 必填，待检索内容，空白则报错 |
+| `document_id` | 可选，只在该文档内检索；留空则检索当前用户的全部文档 |
+| `top_k` | 可选，返回条数，默认 **3**、最多 **20** |
+
+- 用户身份取自会话上下文，不采用模型传入的值；未限定文档时以 `OwnerId` 过滤，只检索该用户自己的文档。
+- 限定 `document_id` 时先调 `GetDocumentPermission` 校验权限，通过后不再按归属过滤，兼容他人共享给该用户的文档。
+- 工具同时挂载到 `SearchAgent`（`DocumentTools`）与 `MainAgent`（`ExtraTools`）；
+  错误经 `toolcallresp` 转成自然语言，不中断整轮对话。
+
+## 5. 相关配置
 
 `app/document/cmd/rpc/etc/document.yaml` 与 `app/document/cmd/edit/etc/edit.yaml`
 （docker 下为 `deploy/config/*.yml`）：
