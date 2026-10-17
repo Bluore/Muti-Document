@@ -403,6 +403,120 @@ func (x *ResumeSessionResp) GetSession() *Session {
 	return nil
 }
 
+type HumanFeedbackReq struct {
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	SessionId string                 `protobuf:"bytes,1,opt,name=SessionId,proto3" json:"SessionId,omitempty"`
+	UserId    string                 `protobuf:"bytes,2,opt,name=UserId,proto3" json:"UserId,omitempty"`
+	// 是否批准本次敏感操作
+	Approved bool `protobuf:"varint,3,opt,name=Approved,proto3" json:"Approved,omitempty"`
+	// 用户补充说明
+	Feedback      string `protobuf:"bytes,4,opt,name=Feedback,proto3" json:"Feedback,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *HumanFeedbackReq) Reset() {
+	*x = HumanFeedbackReq{}
+	mi := &file_pb_agent_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *HumanFeedbackReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*HumanFeedbackReq) ProtoMessage() {}
+
+func (x *HumanFeedbackReq) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_agent_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use HumanFeedbackReq.ProtoReflect.Descriptor instead.
+func (*HumanFeedbackReq) Descriptor() ([]byte, []int) {
+	return file_pb_agent_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *HumanFeedbackReq) GetSessionId() string {
+	if x != nil {
+		return x.SessionId
+	}
+	return ""
+}
+
+func (x *HumanFeedbackReq) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *HumanFeedbackReq) GetApproved() bool {
+	if x != nil {
+		return x.Approved
+	}
+	return false
+}
+
+func (x *HumanFeedbackReq) GetFeedback() string {
+	if x != nil {
+		return x.Feedback
+	}
+	return ""
+}
+
+type HumanFeedbackResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Session       *Session               `protobuf:"bytes,1,opt,name=Session,proto3" json:"Session,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *HumanFeedbackResp) Reset() {
+	*x = HumanFeedbackResp{}
+	mi := &file_pb_agent_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *HumanFeedbackResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*HumanFeedbackResp) ProtoMessage() {}
+
+func (x *HumanFeedbackResp) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_agent_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use HumanFeedbackResp.ProtoReflect.Descriptor instead.
+func (*HumanFeedbackResp) Descriptor() ([]byte, []int) {
+	return file_pb_agent_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *HumanFeedbackResp) GetSession() *Session {
+	if x != nil {
+		return x.Session
+	}
+	return nil
+}
+
 type ListSessionReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserId        string                 `protobuf:"bytes,1,opt,name=UserId,proto3" json:"UserId,omitempty"`
@@ -412,7 +526,7 @@ type ListSessionReq struct {
 
 func (x *ListSessionReq) Reset() {
 	*x = ListSessionReq{}
-	mi := &file_pb_agent_proto_msgTypes[7]
+	mi := &file_pb_agent_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -424,7 +538,7 @@ func (x *ListSessionReq) String() string {
 func (*ListSessionReq) ProtoMessage() {}
 
 func (x *ListSessionReq) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_agent_proto_msgTypes[7]
+	mi := &file_pb_agent_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -437,7 +551,7 @@ func (x *ListSessionReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSessionReq.ProtoReflect.Descriptor instead.
 func (*ListSessionReq) Descriptor() ([]byte, []int) {
-	return file_pb_agent_proto_rawDescGZIP(), []int{7}
+	return file_pb_agent_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *ListSessionReq) GetUserId() string {
@@ -456,7 +570,7 @@ type ListSessionResp struct {
 
 func (x *ListSessionResp) Reset() {
 	*x = ListSessionResp{}
-	mi := &file_pb_agent_proto_msgTypes[8]
+	mi := &file_pb_agent_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -468,7 +582,7 @@ func (x *ListSessionResp) String() string {
 func (*ListSessionResp) ProtoMessage() {}
 
 func (x *ListSessionResp) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_agent_proto_msgTypes[8]
+	mi := &file_pb_agent_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -481,7 +595,7 @@ func (x *ListSessionResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSessionResp.ProtoReflect.Descriptor instead.
 func (*ListSessionResp) Descriptor() ([]byte, []int) {
-	return file_pb_agent_proto_rawDescGZIP(), []int{8}
+	return file_pb_agent_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *ListSessionResp) GetSessions() []*Session {
@@ -518,16 +632,24 @@ const file_pb_agent_proto_rawDesc = "" +
 	"\x05Query\x18\x03 \x01(\tR\x05Query\x12\x1c\n" +
 	"\tCondition\x18\x04 \x01(\tR\tCondition\"=\n" +
 	"\x11ResumeSessionResp\x12(\n" +
+	"\aSession\x18\x01 \x01(\v2\x0e.agent.SessionR\aSession\"\x80\x01\n" +
+	"\x10HumanFeedbackReq\x12\x1c\n" +
+	"\tSessionId\x18\x01 \x01(\tR\tSessionId\x12\x16\n" +
+	"\x06UserId\x18\x02 \x01(\tR\x06UserId\x12\x1a\n" +
+	"\bApproved\x18\x03 \x01(\bR\bApproved\x12\x1a\n" +
+	"\bFeedback\x18\x04 \x01(\tR\bFeedback\"=\n" +
+	"\x11HumanFeedbackResp\x12(\n" +
 	"\aSession\x18\x01 \x01(\v2\x0e.agent.SessionR\aSession\"(\n" +
 	"\x0eListSessionReq\x12\x16\n" +
 	"\x06UserId\x18\x01 \x01(\tR\x06UserId\"=\n" +
 	"\x0fListSessionResp\x12*\n" +
-	"\bSessions\x18\x01 \x03(\v2\x0e.agent.SessionR\bSessions2\x88\x02\n" +
+	"\bSessions\x18\x01 \x03(\v2\x0e.agent.SessionR\bSessions2\xcc\x02\n" +
 	"\x05agent\x12B\n" +
 	"\rCreateSession\x12\x17.agent.CreateSessionReq\x1a\x18.agent.CreateSessionResp\x129\n" +
 	"\n" +
 	"GetSession\x12\x14.agent.GetSessionReq\x1a\x15.agent.GetSessionResp\x12B\n" +
-	"\rResumeSession\x12\x17.agent.ResumeSessionReq\x1a\x18.agent.ResumeSessionResp\x12<\n" +
+	"\rResumeSession\x12\x17.agent.ResumeSessionReq\x1a\x18.agent.ResumeSessionResp\x12B\n" +
+	"\rHumanFeedback\x12\x17.agent.HumanFeedbackReq\x1a\x18.agent.HumanFeedbackResp\x12<\n" +
 	"\vListSession\x12\x15.agent.ListSessionReq\x1a\x16.agent.ListSessionRespB\x06Z\x04./pbb\x06proto3"
 
 var (
@@ -542,7 +664,7 @@ func file_pb_agent_proto_rawDescGZIP() []byte {
 	return file_pb_agent_proto_rawDescData
 }
 
-var file_pb_agent_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_pb_agent_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_pb_agent_proto_goTypes = []any{
 	(*Session)(nil),           // 0: agent.Session
 	(*CreateSessionReq)(nil),  // 1: agent.CreateSessionReq
@@ -551,26 +673,31 @@ var file_pb_agent_proto_goTypes = []any{
 	(*GetSessionResp)(nil),    // 4: agent.GetSessionResp
 	(*ResumeSessionReq)(nil),  // 5: agent.ResumeSessionReq
 	(*ResumeSessionResp)(nil), // 6: agent.ResumeSessionResp
-	(*ListSessionReq)(nil),    // 7: agent.ListSessionReq
-	(*ListSessionResp)(nil),   // 8: agent.ListSessionResp
+	(*HumanFeedbackReq)(nil),  // 7: agent.HumanFeedbackReq
+	(*HumanFeedbackResp)(nil), // 8: agent.HumanFeedbackResp
+	(*ListSessionReq)(nil),    // 9: agent.ListSessionReq
+	(*ListSessionResp)(nil),   // 10: agent.ListSessionResp
 }
 var file_pb_agent_proto_depIdxs = []int32{
-	0, // 0: agent.CreateSessionResp.Session:type_name -> agent.Session
-	0, // 1: agent.ResumeSessionResp.Session:type_name -> agent.Session
-	0, // 2: agent.ListSessionResp.Sessions:type_name -> agent.Session
-	1, // 3: agent.agent.CreateSession:input_type -> agent.CreateSessionReq
-	3, // 4: agent.agent.GetSession:input_type -> agent.GetSessionReq
-	5, // 5: agent.agent.ResumeSession:input_type -> agent.ResumeSessionReq
-	7, // 6: agent.agent.ListSession:input_type -> agent.ListSessionReq
-	2, // 7: agent.agent.CreateSession:output_type -> agent.CreateSessionResp
-	4, // 8: agent.agent.GetSession:output_type -> agent.GetSessionResp
-	6, // 9: agent.agent.ResumeSession:output_type -> agent.ResumeSessionResp
-	8, // 10: agent.agent.ListSession:output_type -> agent.ListSessionResp
-	7, // [7:11] is the sub-list for method output_type
-	3, // [3:7] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	0,  // 0: agent.CreateSessionResp.Session:type_name -> agent.Session
+	0,  // 1: agent.ResumeSessionResp.Session:type_name -> agent.Session
+	0,  // 2: agent.HumanFeedbackResp.Session:type_name -> agent.Session
+	0,  // 3: agent.ListSessionResp.Sessions:type_name -> agent.Session
+	1,  // 4: agent.agent.CreateSession:input_type -> agent.CreateSessionReq
+	3,  // 5: agent.agent.GetSession:input_type -> agent.GetSessionReq
+	5,  // 6: agent.agent.ResumeSession:input_type -> agent.ResumeSessionReq
+	7,  // 7: agent.agent.HumanFeedback:input_type -> agent.HumanFeedbackReq
+	9,  // 8: agent.agent.ListSession:input_type -> agent.ListSessionReq
+	2,  // 9: agent.agent.CreateSession:output_type -> agent.CreateSessionResp
+	4,  // 10: agent.agent.GetSession:output_type -> agent.GetSessionResp
+	6,  // 11: agent.agent.ResumeSession:output_type -> agent.ResumeSessionResp
+	8,  // 12: agent.agent.HumanFeedback:output_type -> agent.HumanFeedbackResp
+	10, // 13: agent.agent.ListSession:output_type -> agent.ListSessionResp
+	9,  // [9:14] is the sub-list for method output_type
+	4,  // [4:9] is the sub-list for method input_type
+	4,  // [4:4] is the sub-list for extension type_name
+	4,  // [4:4] is the sub-list for extension extendee
+	0,  // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_pb_agent_proto_init() }
@@ -584,7 +711,7 @@ func file_pb_agent_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_pb_agent_proto_rawDesc), len(file_pb_agent_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   9,
+			NumMessages:   11,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -21,7 +21,8 @@ type GetSessionResp struct {
 
 type HumanFeedbackReq struct {
 	SessionID string `json:"session_id"`
-	Feedback  string `json:"feedback"`
+	Approved  bool   `json:"approved,optional"`
+	Feedback  string `json:"feedback,optional"`
 }
 
 type HumanFeedbackResp struct {

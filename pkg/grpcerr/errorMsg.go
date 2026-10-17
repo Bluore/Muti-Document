@@ -35,4 +35,5 @@ func init() {
 	// agent模块
 	codeMsg[AGENT_SESSION_NOT_EXIST_ERROR] = "agent session no exist"
 	codeMsg[AGENT_SESSION_BUSY_ERROR] = "agent session is generating"
+	codeMsg[AGENT_SESSION_NOT_INTERRUPTED] = "agent session is not interrupted"
 }

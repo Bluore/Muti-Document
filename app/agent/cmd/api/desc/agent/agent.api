@@ -47,7 +47,10 @@ type (
 type (
     HumanFeedbackReq {
 		SessionID string `json:"session_id"`
-		Feedback string `json:"feedback"`
+		// 是否批准本次敏感操作
+		Approved bool `json:"approved,optional"`
+		// 用户补充说明, 可省略
+		Feedback string `json:"feedback,optional"`
     }
     HumanFeedbackResp {
     }

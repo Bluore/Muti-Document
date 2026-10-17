@@ -15,6 +15,9 @@ service agent {
   // 恢复会话
   rpc ResumeSession(ResumeSessionReq) returns (ResumeSessionResp);
 
+  // 人工反馈, 恢复被打断的会话
+  rpc HumanFeedback(HumanFeedbackReq) returns (HumanFeedbackResp);
+
   // 会话列表
   rpc ListSession(ListSessionReq) returns (ListSessionResp);
 }
@@ -55,6 +58,19 @@ message ResumeSessionReq {
 }
 
 message ResumeSessionResp {
+  Session Session = 1;
+}
+
+message HumanFeedbackReq {
+  string SessionId = 1;
+  string UserId = 2;
+  // 是否批准本次敏感操作
+  bool Approved = 3;
+  // 用户补充说明
+  string Feedback = 4;
+}
+
+message HumanFeedbackResp {
   Session Session = 1;
 }
 

@@ -22,6 +22,7 @@ const (
 	Agent_CreateSession_FullMethodName = "/agent.agent/CreateSession"
 	Agent_GetSession_FullMethodName    = "/agent.agent/GetSession"
 	Agent_ResumeSession_FullMethodName = "/agent.agent/ResumeSession"
+	Agent_HumanFeedback_FullMethodName = "/agent.agent/HumanFeedback"
 	Agent_ListSession_FullMethodName   = "/agent.agent/ListSession"
 )
 
@@ -35,6 +36,8 @@ type AgentClient interface {
 	GetSession(ctx context.Context, in *GetSessionReq, opts ...grpc.CallOption) (*GetSessionResp, error)
 	// 恢复会话
 	ResumeSession(ctx context.Context, in *ResumeSessionReq, opts ...grpc.CallOption) (*ResumeSessionResp, error)
+	// 人工反馈, 恢复被打断的会话
+	HumanFeedback(ctx context.Context, in *HumanFeedbackReq, opts ...grpc.CallOption) (*HumanFeedbackResp, error)
 	// 会话列表
 	ListSession(ctx context.Context, in *ListSessionReq, opts ...grpc.CallOption) (*ListSessionResp, error)
 }
@@ -77,6 +80,16 @@ func (c *agentClient) ResumeSession(ctx context.Context, in *ResumeSessionReq, o
 	return out, nil
 }
 
+func (c *agentClient) HumanFeedback(ctx context.Context, in *HumanFeedbackReq, opts ...grpc.CallOption) (*HumanFeedbackResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(HumanFeedbackResp)
+	err := c.cc.Invoke(ctx, Agent_HumanFeedback_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *agentClient) ListSession(ctx context.Context, in *ListSessionReq, opts ...grpc.CallOption) (*ListSessionResp, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListSessionResp)
@@ -97,6 +110,8 @@ type AgentServer interface {
 	GetSession(context.Context, *GetSessionReq) (*GetSessionResp, error)
 	// 恢复会话
 	ResumeSession(context.Context, *ResumeSessionReq) (*ResumeSessionResp, error)
+	// 人工反馈, 恢复被打断的会话
+	HumanFeedback(context.Context, *HumanFeedbackReq) (*HumanFeedbackResp, error)
 	// 会话列表
 	ListSession(context.Context, *ListSessionReq) (*ListSessionResp, error)
 	mustEmbedUnimplementedAgentServer()
@@ -117,6 +132,9 @@ func (UnimplementedAgentServer) GetSession(context.Context, *GetSessionReq) (*Ge
 }
 func (UnimplementedAgentServer) ResumeSession(context.Context, *ResumeSessionReq) (*ResumeSessionResp, error) {
 	return nil, status.Error(codes.Unimplemented, "method ResumeSession not implemented")
+}
+func (UnimplementedAgentServer) HumanFeedback(context.Context, *HumanFeedbackReq) (*HumanFeedbackResp, error) {
+	return nil, status.Error(codes.Unimplemented, "method HumanFeedback not implemented")
 }
 func (UnimplementedAgentServer) ListSession(context.Context, *ListSessionReq) (*ListSessionResp, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListSession not implemented")
@@ -196,6 +214,24 @@ func _Agent_ResumeSession_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Agent_HumanFeedback_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(HumanFeedbackReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AgentServer).HumanFeedback(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Agent_HumanFeedback_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AgentServer).HumanFeedback(ctx, req.(*HumanFeedbackReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Agent_ListSession_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListSessionReq)
 	if err := dec(in); err != nil {
@@ -232,6 +268,10 @@ var Agent_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ResumeSession",
 			Handler:    _Agent_ResumeSession_Handler,
+		},
+		{
+			MethodName: "HumanFeedback",
+			Handler:    _Agent_HumanFeedback_Handler,
 		},
 		{
 			MethodName: "ListSession",

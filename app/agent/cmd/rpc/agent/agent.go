@@ -18,6 +18,8 @@ type (
 	CreateSessionResp = pb.CreateSessionResp
 	GetSessionReq     = pb.GetSessionReq
 	GetSessionResp    = pb.GetSessionResp
+	HumanFeedbackReq  = pb.HumanFeedbackReq
+	HumanFeedbackResp = pb.HumanFeedbackResp
 	ListSessionReq    = pb.ListSessionReq
 	ListSessionResp   = pb.ListSessionResp
 	ResumeSessionReq  = pb.ResumeSessionReq
@@ -31,6 +33,8 @@ type (
 		GetSession(ctx context.Context, in *GetSessionReq, opts ...grpc.CallOption) (*GetSessionResp, error)
 		// 恢复会话
 		ResumeSession(ctx context.Context, in *ResumeSessionReq, opts ...grpc.CallOption) (*ResumeSessionResp, error)
+		// 人工反馈, 恢复被打断的会话
+		HumanFeedback(ctx context.Context, in *HumanFeedbackReq, opts ...grpc.CallOption) (*HumanFeedbackResp, error)
 		// 会话列表
 		ListSession(ctx context.Context, in *ListSessionReq, opts ...grpc.CallOption) (*ListSessionResp, error)
 	}
@@ -62,6 +66,12 @@ func (m *defaultAgent) GetSession(ctx context.Context, in *GetSessionReq, opts .
 func (m *defaultAgent) ResumeSession(ctx context.Context, in *ResumeSessionReq, opts ...grpc.CallOption) (*ResumeSessionResp, error) {
 	client := pb.NewAgentClient(m.cli.Conn())
 	return client.ResumeSession(ctx, in, opts...)
+}
+
+// 人工反馈, 恢复被打断的会话
+func (m *defaultAgent) HumanFeedback(ctx context.Context, in *HumanFeedbackReq, opts ...grpc.CallOption) (*HumanFeedbackResp, error) {
+	client := pb.NewAgentClient(m.cli.Conn())
+	return client.HumanFeedback(ctx, in, opts...)
 }
 
 // 会话列表
