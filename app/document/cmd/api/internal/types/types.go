@@ -25,6 +25,16 @@ type Document struct {
 	UpdateAt int64  `json:"update_at"`
 }
 
+type GetDocumentContentReq struct {
+	DocumentId string `form:"document_id"`
+}
+
+type GetDocumentContentResp struct {
+	Content string `json:"content"`
+	Summary string `json:"summary"`
+	Version int64  `json:"version"`
+}
+
 type GetDocumentInfoReq struct {
 	DocumentId string `form:"document_id"`
 }

@@ -43,6 +43,17 @@ type (
 )
 
 type (
+    GetDocumentContentReq {
+        DocumentId string `form:"document_id"`
+    }
+    GetDocumentContentResp {
+        Content string `json:"content"`
+        Summary string `json:"summary"`
+        Version int64  `json:"version"`
+    }
+)
+
+type (
     GetDocumentListReq {
         Page int `form:"page"`
         Size int `form:"size"`

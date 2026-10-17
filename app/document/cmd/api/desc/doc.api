@@ -29,6 +29,10 @@ service document {
 	@handler infoDocument
 	get /document/info (GetDocumentInfoReq) returns (GetDocumentInfoResp)
 
+	@doc "get document content"
+	@handler getDocumentContent
+	get /document/content (GetDocumentContentReq) returns (GetDocumentContentResp)
+
 	@doc "list document"
 	@handler listDocument
 	get /document/list (GetDocumentListReq) returns (GetDocumentListResp)
