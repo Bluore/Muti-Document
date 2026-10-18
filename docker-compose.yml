@@ -166,22 +166,14 @@ services:
       dockerfile: ./app/agent/cmd/rpc/Dockerfile
     container_name: mutidoc-agent-rpc
     command:
-      - dlv
-      - debug
+      - go
+      - run
       - /app/app/agent/cmd/rpc
-      - --log
-      - --headless
-      - --listen=:18888
-      - --api-version=2
-      - --accept-multiclient
-      - --output=/app/data/server/agent-rpc
-      - --build-flags=-buildvcs=false
-      - --
       - -f
       - /app/deploy/config/agent-rpc.yml
     volumes:
       - .:/app
-    ports: [ "18888:18888" ]
+    ports: []
     networks:
       - mutidoc-net
 
