@@ -1,10 +1,12 @@
 # GetGrantLink 生成文档授权链接（HTTP）
 
 文档归属者为自己的文档生成（或复用）一条**授权链接**。本接口只负责“拿链接”，不替
-任何人授权；被授权用户打开链接时，才由 link 服务完成授权并跳转到编辑页。
+任何人授权；被授权用户打开链接时，才由 link 服务完成授权并返回编辑页地址。
 
 > 授权链接与 `(document_id, 归属者)` 绑定，同一文档重复调用会复用已有链接。
 > 链接数据落在 `grant_document_links` 表，默认有效期由 link-rpc 维护。
+>
+> 打开授权链接的完整流程与 link-api 接口见 [`docs/link/linkApi.md`](../link/linkApi.md)。
 
 ## 1. 接口
 
@@ -51,7 +53,7 @@ curl -X GET "http://localhost:8888/api/doc/v1/document/grant?document_id=doc-100
 
 ### 3.1 成功
 
-`data.link` 是完整授权链接，形态为 `<BaseUrl>/grant/<grantId>`：
+`data.link` 是**授权中间页**链接（前端路由），形态为 `<BaseUrl>/grant/<grantId>`：
 
 ```json
 {
@@ -88,18 +90,18 @@ curl -X GET "http://localhost:8888/api/doc/v1/document/grant?document_id=doc-100
 - **归属校验**：document-api 先调 document-rpc 取文档元信息，`owner_id` 必须等于 JWT 用户。
 - **复用**：link-rpc 按 `(document_id, user_id)` 查 `grant_document_links`，命中即复用，否则新建。
 - **有效期**：本接口不传过期时间，link-rpc 使用默认有效期 **7 天**（自创建时刻起）。
-- **链接形态**：`<BaseUrl>/grant/<grantId>`，其中 `BaseUrl` 由 link-rpc 配置提供
-  （`link-rpc/etc/link.yaml` 的 `BaseUrl`）。
+- **链接形态**：`<BaseUrl>/grant/<grantId>`（前端授权中间页，由 `globalkey.UrlGrant` 拼接），
+  其中 `BaseUrl` 由 link-rpc 配置提供（`link-rpc/etc/link.yaml` 的 `BaseUrl`）。
 
 ## 5. 使用流程
 
 1. 归属者登录，带 JWT 调本接口拿到 `link`。
 2. 把 `link` 分享给被授权用户。
-3. 被授权用户登录后打开 `link`（即 `GET /grant/:id`，需带 JWT）。
-4. link-api 解析链接；若该用户尚无权限，则为其授予文档权限，随后 **302** 跳转到
-   `<BaseUrl>/documents/<document_id>/edit`。
-5. 打开失败时 link-api 统一跳转：`/login`（未登录 / 解析失败）或 `/err/404`
-   （链接不存在 / 已过期 / 无权限）。
+3. 被授权用户登录后打开 `link`，进入前端授权中间页 `/grant/:id`。
+4. 中间页调用 `GET /api/link/v1/grant/:id`（需带 JWT）；link-api 解析授权链接，
+   若该用户尚无权限则先授予文档权限，随后返回文档编辑页地址（`data.link`）。
+5. 中间页拿到 `data.link` 后跳转到编辑页；失败时按返回的 `code` 自行处理
+   （如跳转登录页或错误页）。
 
 > 本接口不会替归属者做任何授权动作，只返回链接；真正的授权发生在步骤 4。
 
@@ -133,11 +135,20 @@ Authorization: Bearer <alice-jwt>
 
 ### 6.4 分享给 Bob
 
-Bob(`u-1002`) 登录后打开该 `link`，link-api 为其授予 `doc-1001` 的编辑权限，并 302 跳转到：
+Bob(`u-1002`) 登录后打开该 `link`，进入前端授权中间页；中间页调用
+`GET /api/link/v1/grant/8b1c2d3e4f5a`，link-api 为其授予 `doc-1001` 的编辑权限并返回：
 
+```json
+{
+  "code": 0,
+  "msg": "",
+  "data": {
+    "link": "http://localhost:8888/documents/doc-1001/edit"
+  }
+}
 ```
-http://localhost:8888/documents/doc-1001/edit
-```
+
+前端拿到 `data.link` 后自行跳转到编辑页。
 
 ## 7. 错误场景
 
@@ -148,6 +159,7 @@ http://localhost:8888/documents/doc-1001/edit
 | 文档不存在 | 200 `{"code":1024002,"msg":"文档不存在"}` |
 | 非归属者调用 | 200 `{"code":1024003,"msg":"没有权限操作该文档"}` |
 | link-rpc 不可用 | 500 `{"code":1005001,"msg":"服务器内部出错"}` |
+| 打开授权链接失败 | 200 `{"code":1034001,"msg":"链接不存在"}` / `1034002` 链接已过期 / `1034003` 没有权限访问该链接 |
 
 > 注意：复用已有链接时**不校验其过期时间**。若旧链接已过期，本接口仍会原样返回，
-> 但用户打开时会被 link-api 判定为过期并跳转到 `/err/404`。
+> 但用户打开时会被 link-api 判定为过期并返回 `1034002`。

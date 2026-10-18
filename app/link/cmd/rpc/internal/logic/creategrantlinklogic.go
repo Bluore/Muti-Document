@@ -7,6 +7,7 @@ import (
 	"github.com/Bluore/mutidoc/app/link/cmd/rpc/internal/svc"
 	"github.com/Bluore/mutidoc/app/link/cmd/rpc/pb"
 	"github.com/Bluore/mutidoc/app/link/model"
+	"github.com/Bluore/mutidoc/pkg/globalkey"
 	"github.com/Bluore/mutidoc/pkg/grpcerr"
 	"github.com/Bluore/mutidoc/pkg/idgenerate"
 	"github.com/pkg/errors"
@@ -15,8 +16,6 @@ import (
 )
 
 const (
-	// grantLinkPathPrefix 授权链接访问路径, 与 link-api 路由保持一致
-	grantLinkPathPrefix = "/grant/"
 	// defaultGrantLinkExpire 未指定过期时间时的默认有效期
 	defaultGrantLinkExpire = 7 * 24 * time.Hour
 )
@@ -77,9 +76,9 @@ func (l *CreateGrantLinkLogic) CreateGrantLink(in *pb.CreateGrantLinkReq) (*pb.C
 	return l.buildResp(grantId), nil
 }
 
-// buildResp 拼接授权链接访问地址
+// buildResp 拼接授权中间页地址, 由前端跳转至该页后再换取文档地址
 func (l *CreateGrantLinkLogic) buildResp(grantId string) *pb.CreateGrantLinkResp {
 	return &pb.CreateGrantLinkResp{
-		GrantLink: l.svcCtx.Config.BaseUrl + grantLinkPathPrefix + grantId,
+		GrantLink: l.svcCtx.Config.BaseUrl + globalkey.UrlGrant(grantId),
 	}
 }

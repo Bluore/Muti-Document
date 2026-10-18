@@ -23,7 +23,7 @@ service link {
 }
 
 @server (
-	prefix: /grant
+	prefix: /api/link/v1/grant
 	group:  grantLink
 	jwt:    JwtAuth
 )

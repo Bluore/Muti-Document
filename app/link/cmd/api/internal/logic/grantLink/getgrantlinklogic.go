@@ -56,7 +56,7 @@ func (l *GetGrantLinkLogic) GetGrantLink(req *types.GetGrantDocumentReq) (resp *
 		return nil, response.ErrServer
 	}
 
-	// 已授权直接跳转, 未授权则先为用户授予文档权限
+	// 已授权直接返回, 未授权则先为用户授予文档权限
 	permission, err := l.svcCtx.DocumentRpc.GetDocumentPermission(l.ctx, &document.GetDocumentPermissionReq{
 		UserId:     userID,
 		DocumentId: grant.Document,
@@ -86,7 +86,7 @@ func (l *GetGrantLinkLogic) GetGrantLink(req *types.GetGrantDocumentReq) (resp *
 		)
 	}
 
-	// 授权成功, 跳转到文档编辑页
+	// 授权成功, 返回文档编辑页地址, 由前端自行跳转
 	return &types.GetGrantDocumentResp{
 		Link: l.svcCtx.Config.BaseUrl + globalkey.UrlDocument(grant.Document),
 	}, nil
