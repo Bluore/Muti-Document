@@ -51,3 +51,11 @@ Embedding:
   Model: BAAI/bge-m3
   Dimensions: 0
   Timeout: 30s
+
+# 发布文档快照时创建短链
+LinkRpcConf:
+  Etcd:
+    Hosts:
+      - etcd:2379
+    Key: link.rpc
+  Timeout: 2000

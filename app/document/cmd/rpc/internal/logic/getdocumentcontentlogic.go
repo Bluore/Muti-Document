@@ -46,7 +46,7 @@ func (l *GetDocumentContentLogic) GetDocumentContent(in *pb.GetDocumentContentRe
 		return nil, grpcerr.DOCUMENT_NOT_EXIST_ERROR
 	}
 
-	content, summary, version := l.mergeCache(documentModel)
+	content, summary, version := mergeDocumentCache(l.ctx, l.svcCtx, documentModel)
 
 	return &pb.GetDocumentContentResp{
 		Content: content,
@@ -64,20 +64,20 @@ type documentCache struct {
 	Ops     json.RawMessage `json:"ops"`
 }
 
-// mergeCache 把 redis 上未落库的变更合并进数据库快照, 返回正文、标题与版本。
+// mergeDocumentCache 把 redis 上未落库的变更合并进数据库快照, 返回正文、标题与版本。
 // 缓存缺失、过期或损坏时退化为数据库快照, 不影响查询。
-func (l *GetDocumentContentLogic) mergeCache(detail *model.Documents) (content, summary string, version int64) {
+func mergeDocumentCache(ctx context.Context, svcCtx *svc.ServiceContext, detail *model.Documents) (content, summary string, version int64) {
 	content = detail.Content
 	summary = detail.Summary
 	version = detail.Version
 
 	key := fmt.Sprintf(globalkey.RedisKeyDocumentChange, detail.Id)
-	raw, err := l.svcCtx.RedisClient.Get(l.ctx, key).Bytes()
+	raw, err := svcCtx.RedisClient.Get(ctx, key).Bytes()
 	if err == redis.Nil {
 		return
 	}
 	if err != nil {
-		l.Errorw("load document cache fail",
+		logx.WithContext(ctx).Errorw("load document cache fail",
 			logx.Field("error", err),
 			logx.Field("document_id", detail.Id),
 		)
@@ -86,7 +86,7 @@ func (l *GetDocumentContentLogic) mergeCache(detail *model.Documents) (content, 
 
 	var cache documentCache
 	if err := json.Unmarshal(raw, &cache); err != nil {
-		l.Errorw("unmarshal document cache fail",
+		logx.WithContext(ctx).Errorw("unmarshal document cache fail",
 			logx.Field("error", err),
 			logx.Field("document_id", detail.Id),
 		)
@@ -102,7 +102,7 @@ func (l *GetDocumentContentLogic) mergeCache(detail *model.Documents) (content, 
 	if len(cache.Ops) > 0 {
 		oper := &ot.Operator{}
 		if err := json.Unmarshal(cache.Ops, oper); err != nil {
-			l.Errorw("decode document cache operator fail",
+			logx.WithContext(ctx).Errorw("decode document cache operator fail",
 				logx.Field("error", err),
 				logx.Field("document_id", detail.Id),
 			)

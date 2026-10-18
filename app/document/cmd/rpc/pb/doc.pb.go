@@ -988,6 +988,238 @@ func (x *SearchDocumentResp) GetResult() string {
 	return ""
 }
 
+type PublishDocumentSnapshotReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	DocumentId    string                 `protobuf:"bytes,1,opt,name=DocumentId,proto3" json:"DocumentId,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PublishDocumentSnapshotReq) Reset() {
+	*x = PublishDocumentSnapshotReq{}
+	mi := &file_pb_doc_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PublishDocumentSnapshotReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PublishDocumentSnapshotReq) ProtoMessage() {}
+
+func (x *PublishDocumentSnapshotReq) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_doc_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PublishDocumentSnapshotReq.ProtoReflect.Descriptor instead.
+func (*PublishDocumentSnapshotReq) Descriptor() ([]byte, []int) {
+	return file_pb_doc_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *PublishDocumentSnapshotReq) GetDocumentId() string {
+	if x != nil {
+		return x.DocumentId
+	}
+	return ""
+}
+
+type PublishDocumentSnapshotResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	SnapshotId    string                 `protobuf:"bytes,1,opt,name=SnapshotId,proto3" json:"SnapshotId,omitempty"`
+	ShortLink     string                 `protobuf:"bytes,2,opt,name=ShortLink,proto3" json:"ShortLink,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PublishDocumentSnapshotResp) Reset() {
+	*x = PublishDocumentSnapshotResp{}
+	mi := &file_pb_doc_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PublishDocumentSnapshotResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PublishDocumentSnapshotResp) ProtoMessage() {}
+
+func (x *PublishDocumentSnapshotResp) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_doc_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PublishDocumentSnapshotResp.ProtoReflect.Descriptor instead.
+func (*PublishDocumentSnapshotResp) Descriptor() ([]byte, []int) {
+	return file_pb_doc_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *PublishDocumentSnapshotResp) GetSnapshotId() string {
+	if x != nil {
+		return x.SnapshotId
+	}
+	return ""
+}
+
+func (x *PublishDocumentSnapshotResp) GetShortLink() string {
+	if x != nil {
+		return x.ShortLink
+	}
+	return ""
+}
+
+type GetSnapshotDocumentReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	SnapshotId    string                 `protobuf:"bytes,1,opt,name=SnapshotId,proto3" json:"SnapshotId,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetSnapshotDocumentReq) Reset() {
+	*x = GetSnapshotDocumentReq{}
+	mi := &file_pb_doc_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetSnapshotDocumentReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetSnapshotDocumentReq) ProtoMessage() {}
+
+func (x *GetSnapshotDocumentReq) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_doc_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetSnapshotDocumentReq.ProtoReflect.Descriptor instead.
+func (*GetSnapshotDocumentReq) Descriptor() ([]byte, []int) {
+	return file_pb_doc_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *GetSnapshotDocumentReq) GetSnapshotId() string {
+	if x != nil {
+		return x.SnapshotId
+	}
+	return ""
+}
+
+type GetSnapshotDocumentResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=Id,proto3" json:"Id,omitempty"`
+	OwnerId       string                 `protobuf:"bytes,2,opt,name=OwnerId,proto3" json:"OwnerId,omitempty"`
+	Summary       string                 `protobuf:"bytes,3,opt,name=Summary,proto3" json:"Summary,omitempty"`
+	Content       string                 `protobuf:"bytes,4,opt,name=Content,proto3" json:"Content,omitempty"`
+	Version       int64                  `protobuf:"varint,5,opt,name=Version,proto3" json:"Version,omitempty"`
+	CreateAt      int64                  `protobuf:"varint,6,opt,name=CreateAt,proto3" json:"CreateAt,omitempty"`
+	UpdateAt      int64                  `protobuf:"varint,7,opt,name=UpdateAt,proto3" json:"UpdateAt,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetSnapshotDocumentResp) Reset() {
+	*x = GetSnapshotDocumentResp{}
+	mi := &file_pb_doc_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetSnapshotDocumentResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetSnapshotDocumentResp) ProtoMessage() {}
+
+func (x *GetSnapshotDocumentResp) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_doc_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetSnapshotDocumentResp.ProtoReflect.Descriptor instead.
+func (*GetSnapshotDocumentResp) Descriptor() ([]byte, []int) {
+	return file_pb_doc_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *GetSnapshotDocumentResp) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *GetSnapshotDocumentResp) GetOwnerId() string {
+	if x != nil {
+		return x.OwnerId
+	}
+	return ""
+}
+
+func (x *GetSnapshotDocumentResp) GetSummary() string {
+	if x != nil {
+		return x.Summary
+	}
+	return ""
+}
+
+func (x *GetSnapshotDocumentResp) GetContent() string {
+	if x != nil {
+		return x.Content
+	}
+	return ""
+}
+
+func (x *GetSnapshotDocumentResp) GetVersion() int64 {
+	if x != nil {
+		return x.Version
+	}
+	return 0
+}
+
+func (x *GetSnapshotDocumentResp) GetCreateAt() int64 {
+	if x != nil {
+		return x.CreateAt
+	}
+	return 0
+}
+
+func (x *GetSnapshotDocumentResp) GetUpdateAt() int64 {
+	if x != nil {
+		return x.UpdateAt
+	}
+	return 0
+}
+
 var File_pb_doc_proto protoreflect.FileDescriptor
 
 const file_pb_doc_proto_rawDesc = "" +
@@ -1061,7 +1293,28 @@ const file_pb_doc_proto_rawDesc = "" +
 	"DocumentId\x12\x18\n" +
 	"\aOwnerId\x18\x04 \x01(\tR\aOwnerId\",\n" +
 	"\x12SearchDocumentResp\x12\x16\n" +
-	"\x06Result\x18\x01 \x01(\tR\x06Result2\x82\x06\n" +
+	"\x06Result\x18\x01 \x01(\tR\x06Result\"<\n" +
+	"\x1aPublishDocumentSnapshotReq\x12\x1e\n" +
+	"\n" +
+	"DocumentId\x18\x01 \x01(\tR\n" +
+	"DocumentId\"[\n" +
+	"\x1bPublishDocumentSnapshotResp\x12\x1e\n" +
+	"\n" +
+	"SnapshotId\x18\x01 \x01(\tR\n" +
+	"SnapshotId\x12\x1c\n" +
+	"\tShortLink\x18\x02 \x01(\tR\tShortLink\"8\n" +
+	"\x16GetSnapshotDocumentReq\x12\x1e\n" +
+	"\n" +
+	"SnapshotId\x18\x01 \x01(\tR\n" +
+	"SnapshotId\"\xc9\x01\n" +
+	"\x17GetSnapshotDocumentResp\x12\x0e\n" +
+	"\x02Id\x18\x01 \x01(\tR\x02Id\x12\x18\n" +
+	"\aOwnerId\x18\x02 \x01(\tR\aOwnerId\x12\x18\n" +
+	"\aSummary\x18\x03 \x01(\tR\aSummary\x12\x18\n" +
+	"\aContent\x18\x04 \x01(\tR\aContent\x12\x18\n" +
+	"\aVersion\x18\x05 \x01(\x03R\aVersion\x12\x1a\n" +
+	"\bCreateAt\x18\x06 \x01(\x03R\bCreateAt\x12\x1a\n" +
+	"\bUpdateAt\x18\a \x01(\x03R\bUpdateAt2\xc6\a\n" +
 	"\bdocument\x12K\n" +
 	"\x0eCreateDocument\x12\x1b.document.CreateDocumentReq\x1a\x1c.document.CreateDocumentResp\x12K\n" +
 	"\x0eDeleteDocument\x12\x1b.document.DeleteDocumentReq\x1a\x1c.document.DeleteDocumentResp\x12K\n" +
@@ -1071,7 +1324,9 @@ const file_pb_doc_proto_rawDesc = "" +
 	"\x12GetDocumentContent\x12\x1f.document.GetDocumentContentReq\x1a .document.GetDocumentContentResp\x12`\n" +
 	"\x15GetDocumentPermission\x12\".document.GetDocumentPermissionReq\x1a#.document.GetDocumentPermissionResp\x12g\n" +
 	"\x18GrantaDocumentPermission\x12$.document.GrantDocumentPermissionReq\x1a%.document.GrantDocumentPermissionResp\x12K\n" +
-	"\x0eSearchDocument\x12\x1b.document.SearchDocumentReq\x1a\x1c.document.SearchDocumentRespB\x06Z\x04./pbb\x06proto3"
+	"\x0eSearchDocument\x12\x1b.document.SearchDocumentReq\x1a\x1c.document.SearchDocumentResp\x12f\n" +
+	"\x17PublishDocumentSnapshot\x12$.document.PublishDocumentSnapshotReq\x1a%.document.PublishDocumentSnapshotResp\x12Z\n" +
+	"\x13GetSnapshotDocument\x12 .document.GetSnapshotDocumentReq\x1a!.document.GetSnapshotDocumentRespB\x06Z\x04./pbb\x06proto3"
 
 var (
 	file_pb_doc_proto_rawDescOnce sync.Once
@@ -1085,7 +1340,7 @@ func file_pb_doc_proto_rawDescGZIP() []byte {
 	return file_pb_doc_proto_rawDescData
 }
 
-var file_pb_doc_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
+var file_pb_doc_proto_msgTypes = make([]protoimpl.MessageInfo, 23)
 var file_pb_doc_proto_goTypes = []any{
 	(*Document)(nil),                    // 0: document.Document
 	(*CreateDocumentReq)(nil),           // 1: document.CreateDocumentReq
@@ -1106,6 +1361,10 @@ var file_pb_doc_proto_goTypes = []any{
 	(*GrantDocumentPermissionResp)(nil), // 16: document.GrantDocumentPermissionResp
 	(*SearchDocumentReq)(nil),           // 17: document.SearchDocumentReq
 	(*SearchDocumentResp)(nil),          // 18: document.SearchDocumentResp
+	(*PublishDocumentSnapshotReq)(nil),  // 19: document.PublishDocumentSnapshotReq
+	(*PublishDocumentSnapshotResp)(nil), // 20: document.PublishDocumentSnapshotResp
+	(*GetSnapshotDocumentReq)(nil),      // 21: document.GetSnapshotDocumentReq
+	(*GetSnapshotDocumentResp)(nil),     // 22: document.GetSnapshotDocumentResp
 }
 var file_pb_doc_proto_depIdxs = []int32{
 	0,  // 0: document.GetDocumentInfoResp.DocumentInfo:type_name -> document.Document
@@ -1119,17 +1378,21 @@ var file_pb_doc_proto_depIdxs = []int32{
 	13, // 8: document.document.GetDocumentPermission:input_type -> document.GetDocumentPermissionReq
 	15, // 9: document.document.GrantaDocumentPermission:input_type -> document.GrantDocumentPermissionReq
 	17, // 10: document.document.SearchDocument:input_type -> document.SearchDocumentReq
-	2,  // 11: document.document.CreateDocument:output_type -> document.CreateDocumentResp
-	4,  // 12: document.document.DeleteDocument:output_type -> document.DeleteDocumentResp
-	6,  // 13: document.document.UpdateDocument:output_type -> document.UpdateDocumentResp
-	8,  // 14: document.document.GetDocumentInfo:output_type -> document.GetDocumentInfoResp
-	10, // 15: document.document.GetDocumentList:output_type -> document.GetDocumentListResp
-	12, // 16: document.document.GetDocumentContent:output_type -> document.GetDocumentContentResp
-	14, // 17: document.document.GetDocumentPermission:output_type -> document.GetDocumentPermissionResp
-	16, // 18: document.document.GrantaDocumentPermission:output_type -> document.GrantDocumentPermissionResp
-	18, // 19: document.document.SearchDocument:output_type -> document.SearchDocumentResp
-	11, // [11:20] is the sub-list for method output_type
-	2,  // [2:11] is the sub-list for method input_type
+	19, // 11: document.document.PublishDocumentSnapshot:input_type -> document.PublishDocumentSnapshotReq
+	21, // 12: document.document.GetSnapshotDocument:input_type -> document.GetSnapshotDocumentReq
+	2,  // 13: document.document.CreateDocument:output_type -> document.CreateDocumentResp
+	4,  // 14: document.document.DeleteDocument:output_type -> document.DeleteDocumentResp
+	6,  // 15: document.document.UpdateDocument:output_type -> document.UpdateDocumentResp
+	8,  // 16: document.document.GetDocumentInfo:output_type -> document.GetDocumentInfoResp
+	10, // 17: document.document.GetDocumentList:output_type -> document.GetDocumentListResp
+	12, // 18: document.document.GetDocumentContent:output_type -> document.GetDocumentContentResp
+	14, // 19: document.document.GetDocumentPermission:output_type -> document.GetDocumentPermissionResp
+	16, // 20: document.document.GrantaDocumentPermission:output_type -> document.GrantDocumentPermissionResp
+	18, // 21: document.document.SearchDocument:output_type -> document.SearchDocumentResp
+	20, // 22: document.document.PublishDocumentSnapshot:output_type -> document.PublishDocumentSnapshotResp
+	22, // 23: document.document.GetSnapshotDocument:output_type -> document.GetSnapshotDocumentResp
+	13, // [13:24] is the sub-list for method output_type
+	2,  // [2:13] is the sub-list for method input_type
 	2,  // [2:2] is the sub-list for extension type_name
 	2,  // [2:2] is the sub-list for extension extendee
 	0,  // [0:2] is the sub-list for field type_name
@@ -1146,7 +1409,7 @@ func file_pb_doc_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_pb_doc_proto_rawDesc), len(file_pb_doc_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   19,
+			NumMessages:   23,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

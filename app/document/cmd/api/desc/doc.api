@@ -40,5 +40,18 @@ service document {
 	@doc "get grant link"
 	@handler getGrantLink
 	get /document/grant (GetGrantLinkReq) returns (GetGrantLinkResp)
+
+	@doc "publish document snapshot"
+	@handler publishDocumentSnapshot
+	post /document/snapshot (PublishDocumentSnapshotReq) returns (PublishDocumentSnapshotResp)
+}
+
+@server (
+	prefix: /api/doc/v1
+)
+service document {
+	@doc "get snapshot document content"
+	@handler getSnapshotDocument
+	get /document/snapshot/content (GetSnapshotDocumentReq) returns (GetSnapshotDocumentResp)
 }
 

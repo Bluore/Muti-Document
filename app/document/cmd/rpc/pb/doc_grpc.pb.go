@@ -28,6 +28,8 @@ const (
 	Document_GetDocumentPermission_FullMethodName    = "/document.document/GetDocumentPermission"
 	Document_GrantaDocumentPermission_FullMethodName = "/document.document/GrantaDocumentPermission"
 	Document_SearchDocument_FullMethodName           = "/document.document/SearchDocument"
+	Document_PublishDocumentSnapshot_FullMethodName  = "/document.document/PublishDocumentSnapshot"
+	Document_GetSnapshotDocument_FullMethodName      = "/document.document/GetSnapshotDocument"
 )
 
 // DocumentClient is the client API for Document service.
@@ -52,6 +54,10 @@ type DocumentClient interface {
 	GrantaDocumentPermission(ctx context.Context, in *GrantDocumentPermissionReq, opts ...grpc.CallOption) (*GrantDocumentPermissionResp, error)
 	// 向量检索文档内容(返回相似度最高的前 K 条分块)
 	SearchDocument(ctx context.Context, in *SearchDocumentReq, opts ...grpc.CallOption) (*SearchDocumentResp, error)
+	// 发布文档快照, 返回快照短链
+	PublishDocumentSnapshot(ctx context.Context, in *PublishDocumentSnapshotReq, opts ...grpc.CallOption) (*PublishDocumentSnapshotResp, error)
+	// 获取快照文档内容(无需鉴权)
+	GetSnapshotDocument(ctx context.Context, in *GetSnapshotDocumentReq, opts ...grpc.CallOption) (*GetSnapshotDocumentResp, error)
 }
 
 type documentClient struct {
@@ -152,6 +158,26 @@ func (c *documentClient) SearchDocument(ctx context.Context, in *SearchDocumentR
 	return out, nil
 }
 
+func (c *documentClient) PublishDocumentSnapshot(ctx context.Context, in *PublishDocumentSnapshotReq, opts ...grpc.CallOption) (*PublishDocumentSnapshotResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PublishDocumentSnapshotResp)
+	err := c.cc.Invoke(ctx, Document_PublishDocumentSnapshot_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *documentClient) GetSnapshotDocument(ctx context.Context, in *GetSnapshotDocumentReq, opts ...grpc.CallOption) (*GetSnapshotDocumentResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetSnapshotDocumentResp)
+	err := c.cc.Invoke(ctx, Document_GetSnapshotDocument_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // DocumentServer is the server API for Document service.
 // All implementations must embed UnimplementedDocumentServer
 // for forward compatibility.
@@ -174,6 +200,10 @@ type DocumentServer interface {
 	GrantaDocumentPermission(context.Context, *GrantDocumentPermissionReq) (*GrantDocumentPermissionResp, error)
 	// 向量检索文档内容(返回相似度最高的前 K 条分块)
 	SearchDocument(context.Context, *SearchDocumentReq) (*SearchDocumentResp, error)
+	// 发布文档快照, 返回快照短链
+	PublishDocumentSnapshot(context.Context, *PublishDocumentSnapshotReq) (*PublishDocumentSnapshotResp, error)
+	// 获取快照文档内容(无需鉴权)
+	GetSnapshotDocument(context.Context, *GetSnapshotDocumentReq) (*GetSnapshotDocumentResp, error)
 	mustEmbedUnimplementedDocumentServer()
 }
 
@@ -210,6 +240,12 @@ func (UnimplementedDocumentServer) GrantaDocumentPermission(context.Context, *Gr
 }
 func (UnimplementedDocumentServer) SearchDocument(context.Context, *SearchDocumentReq) (*SearchDocumentResp, error) {
 	return nil, status.Error(codes.Unimplemented, "method SearchDocument not implemented")
+}
+func (UnimplementedDocumentServer) PublishDocumentSnapshot(context.Context, *PublishDocumentSnapshotReq) (*PublishDocumentSnapshotResp, error) {
+	return nil, status.Error(codes.Unimplemented, "method PublishDocumentSnapshot not implemented")
+}
+func (UnimplementedDocumentServer) GetSnapshotDocument(context.Context, *GetSnapshotDocumentReq) (*GetSnapshotDocumentResp, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetSnapshotDocument not implemented")
 }
 func (UnimplementedDocumentServer) mustEmbedUnimplementedDocumentServer() {}
 func (UnimplementedDocumentServer) testEmbeddedByValue()                  {}
@@ -394,6 +430,42 @@ func _Document_SearchDocument_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Document_PublishDocumentSnapshot_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PublishDocumentSnapshotReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DocumentServer).PublishDocumentSnapshot(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Document_PublishDocumentSnapshot_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DocumentServer).PublishDocumentSnapshot(ctx, req.(*PublishDocumentSnapshotReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Document_GetSnapshotDocument_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetSnapshotDocumentReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DocumentServer).GetSnapshotDocument(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Document_GetSnapshotDocument_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DocumentServer).GetSnapshotDocument(ctx, req.(*GetSnapshotDocumentReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Document_ServiceDesc is the grpc.ServiceDesc for Document service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -436,6 +508,14 @@ var Document_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SearchDocument",
 			Handler:    _Document_SearchDocument_Handler,
+		},
+		{
+			MethodName: "PublishDocumentSnapshot",
+			Handler:    _Document_PublishDocumentSnapshot_Handler,
+		},
+		{
+			MethodName: "GetSnapshotDocument",
+			Handler:    _Document_GetSnapshotDocument_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

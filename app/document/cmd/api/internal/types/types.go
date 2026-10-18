@@ -60,3 +60,26 @@ type GetGrantLinkReq struct {
 type GetGrantLinkResp struct {
 	Link string `json:"link"`
 }
+
+type GetSnapshotDocumentReq struct {
+	SnapshotId string `form:"snapshot_id"`
+}
+
+type GetSnapshotDocumentResp struct {
+	Id       string `json:"id"`
+	OwnerId  string `json:"owner_id"`
+	Summary  string `json:"summary"`
+	Content  string `json:"content"`
+	Version  int64  `json:"version"`
+	CreateAt int64  `json:"create_at"`
+	UpdateAt int64  `json:"update_at"`
+}
+
+type PublishDocumentSnapshotReq struct {
+	DocumentId string `json:"document_id"`
+}
+
+type PublishDocumentSnapshotResp struct {
+	SnapshotId string `json:"snapshot_id"`
+	ShortLink  string `json:"short_link"`
+}

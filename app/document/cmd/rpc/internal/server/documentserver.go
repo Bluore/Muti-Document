@@ -76,3 +76,15 @@ func (s *DocumentServer) SearchDocument(ctx context.Context, in *pb.SearchDocume
 	l := logic.NewSearchDocumentLogic(ctx, s.svcCtx)
 	return l.SearchDocument(in)
 }
+
+// 发布文档快照, 返回快照短链
+func (s *DocumentServer) PublishDocumentSnapshot(ctx context.Context, in *pb.PublishDocumentSnapshotReq) (*pb.PublishDocumentSnapshotResp, error) {
+	l := logic.NewPublishDocumentSnapshotLogic(ctx, s.svcCtx)
+	return l.PublishDocumentSnapshot(in)
+}
+
+// 获取快照文档内容(无需鉴权)
+func (s *DocumentServer) GetSnapshotDocument(ctx context.Context, in *pb.GetSnapshotDocumentReq) (*pb.GetSnapshotDocumentResp, error) {
+	l := logic.NewGetSnapshotDocumentLogic(ctx, s.svcCtx)
+	return l.GetSnapshotDocument(in)
+}

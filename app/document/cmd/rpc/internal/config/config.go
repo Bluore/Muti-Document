@@ -24,6 +24,9 @@ type Config struct {
 	Qdrant model.QdrantConf
 	// Embedding 文本向量化(OpenAI 兼容 /embeddings 接口)
 	Embedding embedding.Config
+
+	// LinkRpcConf 发布快照时创建短链
+	LinkRpcConf zrpc.RpcClientConf
 }
 
 type RedisConfig struct {

@@ -3,10 +3,12 @@ package svc
 import (
 	"github.com/Bluore/mutidoc/app/document/cmd/rpc/internal/config"
 	"github.com/Bluore/mutidoc/app/document/model"
+	"github.com/Bluore/mutidoc/app/link/cmd/rpc/link"
 	"github.com/Bluore/mutidoc/pkg/embedding"
 	"github.com/redis/go-redis/v9"
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
+	"github.com/zeromicro/go-zero/zrpc"
 )
 
 type ServiceContext struct {
@@ -14,6 +16,11 @@ type ServiceContext struct {
 
 	DocumentModel           model.DocumentsModel
 	DocumentPermissionModel model.GrantDocumentsPermissionModel
+	// PublicDocumentsModel 公开文档快照
+	PublicDocumentsModel model.PublicDocumentsModel
+
+	// LinkRpc 发布快照时创建短链
+	LinkRpc link.Link
 
 	// DocumentChunks 文档分块向量表, 用于相似内容检索; 向量库不可用时为 nil
 	DocumentChunks model.DocumentChunksModel
@@ -36,6 +43,8 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		Config:                  c,
 		DocumentModel:           model.NewDocumentsModel(sqlConn, c.Cache),
 		DocumentPermissionModel: model.NewGrantDocumentsPermissionModel(sqlConn, c.Cache),
+		PublicDocumentsModel:    model.NewPublicDocumentsModel(sqlConn, c.Cache),
+		LinkRpc:                 link.NewLink(zrpc.MustNewClient(c.LinkRpcConf)),
 		Embedder:                embedding.NewClient(c.Embedding),
 		RedisClient:             redisClient,
 	}

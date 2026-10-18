@@ -27,8 +27,12 @@ type (
 	GetDocumentListResp         = pb.GetDocumentListResp
 	GetDocumentPermissionReq    = pb.GetDocumentPermissionReq
 	GetDocumentPermissionResp   = pb.GetDocumentPermissionResp
+	GetSnapshotDocumentReq      = pb.GetSnapshotDocumentReq
+	GetSnapshotDocumentResp     = pb.GetSnapshotDocumentResp
 	GrantDocumentPermissionReq  = pb.GrantDocumentPermissionReq
 	GrantDocumentPermissionResp = pb.GrantDocumentPermissionResp
+	PublishDocumentSnapshotReq  = pb.PublishDocumentSnapshotReq
+	PublishDocumentSnapshotResp = pb.PublishDocumentSnapshotResp
 	SearchDocumentReq           = pb.SearchDocumentReq
 	SearchDocumentResp          = pb.SearchDocumentResp
 	UpdateDocumentReq           = pb.UpdateDocumentReq
@@ -53,6 +57,10 @@ type (
 		GrantaDocumentPermission(ctx context.Context, in *GrantDocumentPermissionReq, opts ...grpc.CallOption) (*GrantDocumentPermissionResp, error)
 		// 向量检索文档内容(返回相似度最高的前 K 条分块)
 		SearchDocument(ctx context.Context, in *SearchDocumentReq, opts ...grpc.CallOption) (*SearchDocumentResp, error)
+		// 发布文档快照, 返回快照短链
+		PublishDocumentSnapshot(ctx context.Context, in *PublishDocumentSnapshotReq, opts ...grpc.CallOption) (*PublishDocumentSnapshotResp, error)
+		// 获取快照文档内容(无需鉴权)
+		GetSnapshotDocument(ctx context.Context, in *GetSnapshotDocumentReq, opts ...grpc.CallOption) (*GetSnapshotDocumentResp, error)
 	}
 
 	defaultDocumentZrpcClient struct {
@@ -118,4 +126,16 @@ func (m *defaultDocumentZrpcClient) GrantaDocumentPermission(ctx context.Context
 func (m *defaultDocumentZrpcClient) SearchDocument(ctx context.Context, in *SearchDocumentReq, opts ...grpc.CallOption) (*SearchDocumentResp, error) {
 	client := pb.NewDocumentClient(m.cli.Conn())
 	return client.SearchDocument(ctx, in, opts...)
+}
+
+// 发布文档快照, 返回快照短链
+func (m *defaultDocumentZrpcClient) PublishDocumentSnapshot(ctx context.Context, in *PublishDocumentSnapshotReq, opts ...grpc.CallOption) (*PublishDocumentSnapshotResp, error) {
+	client := pb.NewDocumentClient(m.cli.Conn())
+	return client.PublishDocumentSnapshot(ctx, in, opts...)
+}
+
+// 获取快照文档内容(无需鉴权)
+func (m *defaultDocumentZrpcClient) GetSnapshotDocument(ctx context.Context, in *GetSnapshotDocumentReq, opts ...grpc.CallOption) (*GetSnapshotDocumentResp, error) {
+	client := pb.NewDocumentClient(m.cli.Conn())
+	return client.GetSnapshotDocument(ctx, in, opts...)
 }

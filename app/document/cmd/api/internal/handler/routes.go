@@ -50,8 +50,26 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Path:    "/document/list",
 				Handler: listDocumentHandler(serverCtx),
 			},
+			{
+				// publish document snapshot
+				Method:  http.MethodPost,
+				Path:    "/document/snapshot",
+				Handler: publishDocumentSnapshotHandler(serverCtx),
+			},
 		},
 		rest.WithJwt(serverCtx.Config.JwtAuth.AccessSecret),
+		rest.WithPrefix("/api/doc/v1"),
+	)
+
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				// get snapshot document content
+				Method:  http.MethodGet,
+				Path:    "/document/snapshot/content",
+				Handler: getSnapshotDocumentHandler(serverCtx),
+			},
+		},
 		rest.WithPrefix("/api/doc/v1"),
 	)
 }

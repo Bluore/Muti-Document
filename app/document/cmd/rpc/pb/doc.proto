@@ -32,6 +32,12 @@ service document {
 
   // 向量检索文档内容(返回相似度最高的前 K 条分块)
   rpc SearchDocument(SearchDocumentReq) returns (SearchDocumentResp);
+
+  // 发布文档快照, 返回快照短链
+  rpc PublishDocumentSnapshot(PublishDocumentSnapshotReq) returns (PublishDocumentSnapshotResp);
+
+  // 获取快照文档内容(无需鉴权)
+  rpc GetSnapshotDocument(GetSnapshotDocumentReq) returns (GetSnapshotDocumentResp);
 }
 
 message Document{
@@ -134,4 +140,27 @@ message SearchDocumentReq{
 message SearchDocumentResp{
   // 命中分块的 JSON 数组, 每项含 doc_id/owner_id/chunk_index/text/create_at/score
   string Result = 1;
+}
+
+message PublishDocumentSnapshotReq{
+  string DocumentId = 1;
+}
+
+message PublishDocumentSnapshotResp{
+  string SnapshotId = 1;
+  string ShortLink = 2;
+}
+
+message GetSnapshotDocumentReq{
+  string SnapshotId = 1;
+}
+
+message GetSnapshotDocumentResp{
+  string Id = 1;
+  string OwnerId = 2;
+  string Summary = 3;
+  string Content = 4;
+  int64 Version = 5;
+  int64 CreateAt = 6;
+  int64 UpdateAt = 7;
 }

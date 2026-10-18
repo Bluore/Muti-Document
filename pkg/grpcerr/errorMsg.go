@@ -22,6 +22,7 @@ func init() {
 	// document模块
 	codeMsg[DOCUMENT_NOT_EXIST_ERROR] = "document no exist"
 	codeMsg[DOCUMENT_NO_PERMISSION_ERROR] = "document permission denied"
+	codeMsg[DOCUMENT_SNAPSHOT_NOT_EXIST_ERROR] = "document snapshot no exist"
 
 	// edit模块 - 机器人协作编辑
 	codeMsg[BOT_NOT_EXIST_ERROR] = "bot connection no exist"
