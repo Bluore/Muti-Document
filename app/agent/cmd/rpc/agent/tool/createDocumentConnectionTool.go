@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/Bluore/mutidoc/app/agent/cmd/rpc/agent/approval"
 	"github.com/Bluore/mutidoc/app/agent/cmd/rpc/agent/botconn"
 	"github.com/Bluore/mutidoc/app/agent/cmd/rpc/agent/tool/toolcallresp"
 	"github.com/Bluore/mutidoc/app/document/cmd/edit/edit"
@@ -24,10 +25,11 @@ type createDocumentConnectionReq struct {
 
 // NewCreateDocumentConnectionTool 构建建立文档编辑连接的工具。
 // 同一用户对同一文档只需建立一次, 之后才能执行替换/插入/读取。
+// 首次为某个文档建立连接时会打断并请求用户授权, 授权通过后本次会话不再重复询问。
 // 工具错误经 toolcallresp 转成自然语言结果回传模型, 不中断整轮对话。
 func NewCreateDocumentConnectionTool(editRpc edit.Edit) (tool.InvokableTool, error) {
 	it, err := utils.InferTool(CreateDocumentConnectionToolName,
-		"为当前用户与指定文档建立一个机器人协作编辑连接。编辑文档前必须先调用它。同一用户对同一文档只需建立一次。",
+		"为当前用户与指定文档建立一个机器人协作编辑连接。编辑文档前必须先调用它。同一用户对同一文档只需建立一次。首次建立时会请求用户授权。",
 		func(ctx context.Context, req createDocumentConnectionReq) (string, error) {
 			return createDocumentConnection(ctx, editRpc, req)
 		})
@@ -56,9 +58,19 @@ func createDocumentConnection(ctx context.Context, editRpc edit.Edit, req create
 	if botName == "" {
 		botName = "AI 编辑助手"
 	}
+
+	// 首次为某个文档建立连接时先请求用户授权
+	approved, feedback, err := requestApproval(ctx, req.DocumentID, botName)
+	if err != nil {
+		return "", err
+	}
+	if !approved {
+		return toolcallresp.DocumentConnectionRejected(req.DocumentID, feedback), nil
+	}
+
 	botID := botIDFor(userID, req.DocumentID)
 
-	if _, err := editRpc.CreateBot(ctx, &edit.CreateBotReq{
+	if _, err = editRpc.CreateBot(ctx, &edit.CreateBotReq{
 		DocumentId: req.DocumentID,
 		BotId:      botID,
 		BotName:    botName,
@@ -70,5 +82,44 @@ func createDocumentConnection(ctx context.Context, editRpc edit.Edit, req create
 	// 记录本次建立的连接, EditAgent 结束后由程序自动退出
 	botconn.Track(ctx, botID)
 
-	return toolcallresp.DocumentConnectionCreated(req.DocumentID, botID), nil
+	return toolcallresp.DocumentConnectionCreatedWithFeedback(req.DocumentID, botID, feedback), nil
+}
+
+// requestApproval 请求用户授权建立编辑连接; 已授权时直接放行。
+// 返回 (是否批准, 用户补充说明, 错误)。未批准且 err 为 nil 表示用户明确拒绝。
+func requestApproval(ctx context.Context, documentID, botName string) (bool, string, error) {
+	if approval.Allowed(ctx, documentID) {
+		return true, "", nil
+	}
+
+	info := approval.NewInfo(documentID, botName)
+	wasInterrupted, hasState, state := tool.GetInterruptState[approval.Info](ctx)
+	if wasInterrupted && hasState {
+		info = state
+	}
+	// 恢复入参与打断时不一致时重新确认, 避免把授权用到别的文档
+	if info.DocumentID != "" && info.DocumentID != documentID {
+		info = approval.NewInfo(documentID, botName)
+		return false, "", tool.StatefulInterrupt(ctx, info, info)
+	}
+	if !wasInterrupted || !hasState {
+		return false, "", tool.StatefulInterrupt(ctx, info, info)
+	}
+
+	// 只处理明确以本打断点为目标的恢复; 其他场景保持打断状态
+	isTarget, hasData, decision := tool.GetResumeContext[*approval.Decision](ctx)
+	if !isTarget {
+		return false, "", tool.StatefulInterrupt(ctx, info, info)
+	}
+	if !hasData || decision == nil || !decision.Approved {
+		feedback := ""
+		if hasData && decision != nil {
+			feedback = decision.Feedback
+		}
+		return false, feedback, nil
+	}
+
+	// 本次会话内该文档不再重复询问
+	approval.Allow(ctx, info.DocumentID)
+	return true, decision.Feedback, nil
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/Bluore/mutidoc/app/agent/cmd/rpc/agent/approval"
 	"github.com/Bluore/mutidoc/app/agent/model"
 	"github.com/Bluore/mutidoc/pkg/globalkey"
 	"github.com/Bluore/mutidoc/pkg/idgenerate"
@@ -22,6 +23,8 @@ var (
 	ErrNoRunner = errors.New("session runner is not ready")
 	// ErrInterrupted 会话被中断, 等待人反馈
 	ErrInterrupted = errors.New("session interrupted")
+	// ErrNotInterrupted 会话当前没有待反馈的打断点
+	ErrNotInterrupted = errors.New("session is not interrupted")
 )
 
 // Config 会话客户端构造依赖
@@ -79,27 +82,59 @@ func (c *SessionClient) Generate(query string) error {
 	if c.isClosed() {
 		return ErrSessionClosed
 	}
+	// 有未处理的打断时必须先完成人工反馈, 避免覆盖检查点
+	if c.Status() == globalkey.SessionStatusInterrupted {
+		return ErrInterrupted
+	}
+
+	return c.startTurn(func(ctx context.Context) error {
+		// 首轮用提问生成标题
+		if c.GetSession().SessionTitle == "" {
+			c.setTitle(truncateRunes(query, sessionTitleMaxRunes))
+		}
+		return c.generateTurn(ctx, query)
+	})
+}
+
+// HumanFeedback 提交人工审批结果并恢复被打断的执行
+func (c *SessionClient) HumanFeedback(approved bool, feedback string) error {
+	if c == nil {
+		return ErrNilSession
+	}
+	if c.isClosed() {
+		return ErrSessionClosed
+	}
+	if c.Status() == globalkey.SessionStatusGenerating {
+		return ErrGenerating
+	}
+	if c.Status() != globalkey.SessionStatusInterrupted || !c.hasPendingInterrupt() {
+		return ErrNotInterrupted
+	}
+
+	decision := approval.Decision{Approved: approved, Feedback: feedback}
+	return c.startTurn(func(ctx context.Context) error {
+		return c.resumeTurn(ctx, decision)
+	})
+}
+
+// startTurn 标记生成中并在后台执行一轮, 结束后更新状态并落库
+func (c *SessionClient) startTurn(turn func(context.Context) error) error {
 	if !c.tryStartGenerate() {
 		return ErrGenerating
 	}
 
-	// 首轮用提问生成标题
-	if c.GetSession().SessionTitle == "" {
-		c.setTitle(truncateRunes(query, sessionTitleMaxRunes))
-	}
-
 	go func() {
 		status := globalkey.SessionStatusDone
-		logx.Infof("session %s generate start", c.SessionID)
-		switch err := c.generateTurn(c.context(), query); {
+		logx.Infof("session %s turn start", c.SessionID)
+		switch err := turn(c.context()); {
 		case errors.Is(err, ErrInterrupted):
 			status = globalkey.SessionStatusInterrupted
-			logx.Errorf("session %s generate interrupted, waiting for human feedback", c.SessionID)
+			logx.Errorf("session %s turn interrupted, waiting for human feedback", c.SessionID)
 		case err != nil:
 			status = globalkey.SessionStatusFailed
-			logx.Errorf("session %s generate fail: %v", c.SessionID, err)
+			logx.Errorf("session %s turn fail: %v", c.SessionID, err)
 		}
-		logx.Infof("session %s generate end, status=%d", c.SessionID, status)
+		logx.Infof("session %s turn end, status=%d", c.SessionID, status)
 		c.setStatus(status)
 		c.persist()
 	}()
@@ -133,7 +168,13 @@ func fromRow(conf Config, row *model.AgentSessions) (*SessionClient, error) {
 		return nil, err
 	}
 	client.appendContext(msgs...)
-	client.setStatus(globalkey.SessionStatus(row.Status))
+
+	status := globalkey.SessionStatus(row.Status)
+	// 待反馈的打断点只保存在内存, 重启后无法恢复, 降级为失败避免会话卡死
+	if status == globalkey.SessionStatusInterrupted {
+		status = globalkey.SessionStatusFailed
+	}
+	client.setStatus(status)
 	client.bind()
 	return client, nil
 }

@@ -75,6 +75,24 @@ func DocumentConnectionCreated(documentID, botID string) string {
 	return fmt.Sprintf("已建立与文档 %s 的编辑连接(bot_id: %s), 现在可以对其执行替换或插入。", documentID, botID)
 }
 
+// DocumentConnectionCreatedWithFeedback 建立连接成功的自然语言响应, 附带用户补充说明
+func DocumentConnectionCreatedWithFeedback(documentID, botID, feedback string) string {
+	msg := DocumentConnectionCreated(documentID, botID)
+	if strings.TrimSpace(feedback) == "" {
+		return msg
+	}
+	return fmt.Sprintf("%s\n用户补充说明：%s", msg, strings.TrimSpace(feedback))
+}
+
+// DocumentConnectionRejected 用户拒绝建立编辑连接时的自然语言响应, 作为工具结果回传模型
+func DocumentConnectionRejected(documentID, feedback string) string {
+	if strings.TrimSpace(feedback) == "" {
+		return fmt.Sprintf("用户拒绝对文档 %s 的编辑授权，操作已取消。不要再次尝试建立连接。", documentID)
+	}
+	return fmt.Sprintf("用户拒绝对文档 %s 的编辑授权，操作已取消。用户补充说明：%s。不要再次尝试建立连接。",
+		documentID, strings.TrimSpace(feedback))
+}
+
 // DocumentConnectionContent 机器人视角文档内容的自然语言响应
 func DocumentConnectionContent(content string) string {
 	if strings.TrimSpace(content) == "" {

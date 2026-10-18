@@ -9,7 +9,9 @@ import (
 	"github.com/cloudwego/eino/adk"
 	"github.com/cloudwego/eino/schema"
 
+	"github.com/Bluore/mutidoc/app/agent/cmd/rpc/agent/approval"
 	"github.com/Bluore/mutidoc/app/agent/cmd/rpc/agent/botconn"
+	"github.com/Bluore/mutidoc/app/agent/cmd/rpc/protocol"
 	"github.com/Bluore/mutidoc/pkg/ctxdata"
 	"github.com/Bluore/mutidoc/pkg/globalkey"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -47,6 +49,8 @@ type SessionClient struct {
 	mu     sync.Mutex
 	closed bool
 	status globalkey.SessionStatus
+	// pendingInterrupt 等待人工反馈的打断点, 仅保存在内存
+	pendingInterrupt []protocol.SSEInterrupt
 
 	conf Config
 }
@@ -60,6 +64,8 @@ func NewSessionClient(session Session) *SessionClient {
 	}
 	// 挂载机器人连接追踪器, 供 EditAgent 结束后统一退出
 	ctx = botconn.WithTracker(ctx)
+	// 挂载审批白名单, 同一会话内已授权的文档不再重复询问
+	ctx = approval.WithTracker(ctx)
 	return &SessionClient{
 		Session:   session,
 		Output:    NewOutput(),
@@ -187,6 +193,48 @@ func (c *SessionClient) snapshotContext() []*schema.Message {
 	out := make([]*schema.Message, len(c.Context))
 	copy(out, c.Context)
 	return out
+}
+
+// setPendingInterrupts 记录等待人工反馈的打断点
+func (c *SessionClient) setPendingInterrupts(list []protocol.SSEInterrupt) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.pendingInterrupt = list
+}
+
+// hasPendingInterrupt 返回是否存在等待人工反馈的打断点
+func (c *SessionClient) hasPendingInterrupt() bool {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	return len(c.pendingInterrupt) > 0
+}
+
+// resumeTargets 把待处理打断点转为恢复目标, 同一审批结果回传给所有根因点
+func (c *SessionClient) resumeTargets(decision approval.Decision) map[string]any {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	targets := make(map[string]any, len(c.pendingInterrupt))
+	for _, it := range c.pendingInterrupt {
+		if it.IsRootCause && it.ID != "" {
+			targets[it.ID] = &decision
+		}
+	}
+	// 没有根因标记时退化为恢复所有打断点
+	if len(targets) == 0 {
+		for _, it := range c.pendingInterrupt {
+			if it.ID != "" {
+				targets[it.ID] = &decision
+			}
+		}
+	}
+	return targets
+}
+
+// clearInterrupt 清除待处理打断信息, 同时清空前端可见的 interrupt
+func (c *SessionClient) clearInterrupt() {
+	c.setPendingInterrupts(nil)
+	c.Output.SetInterrupt(nil)
 }
 
 // setTitle 设置会话标题

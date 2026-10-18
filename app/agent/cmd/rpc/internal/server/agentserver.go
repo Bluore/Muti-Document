@@ -41,6 +41,12 @@ func (s *AgentServer) ResumeSession(ctx context.Context, in *pb.ResumeSessionReq
 	return l.ResumeSession(in)
 }
 
+// 人工反馈, 恢复被打断的会话
+func (s *AgentServer) HumanFeedback(ctx context.Context, in *pb.HumanFeedbackReq) (*pb.HumanFeedbackResp, error) {
+	l := logic.NewHumanFeedbackLogic(ctx, s.svcCtx)
+	return l.HumanFeedback(in)
+}
+
 // 会话列表
 func (s *AgentServer) ListSession(ctx context.Context, in *pb.ListSessionReq) (*pb.ListSessionResp, error) {
 	l := logic.NewListSessionLogic(ctx, s.svcCtx)

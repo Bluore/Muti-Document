@@ -8,6 +8,7 @@ import (
 	"io"
 	"strings"
 
+	"github.com/Bluore/mutidoc/app/agent/cmd/rpc/agent/approval"
 	"github.com/Bluore/mutidoc/app/agent/cmd/rpc/protocol"
 
 	"github.com/cloudwego/eino/adk"
@@ -35,6 +36,9 @@ func (c *SessionClient) generateTurn(ctx context.Context, query string) error {
 		logx.Field("query_len", len(query)),
 	)
 
+	// 新一轮开始, 清掉上一轮遗留的打断信息
+	c.clearInterrupt()
+
 	// 用户消息写入可见输出, 同时追加到模型上下文
 	c.appendOutput(schema.UserMessage(query))
 	c.appendContext(schema.UserMessage(query))
@@ -45,6 +49,43 @@ func (c *SessionClient) generateTurn(ctx context.Context, query string) error {
 		return err
 	}
 
+	return c.consume(ctx, iter)
+}
+
+// resumeTurn 从打断点恢复一轮执行, 把用户审批结果回传给触发打断的工具
+func (c *SessionClient) resumeTurn(ctx context.Context, decision approval.Decision) error {
+	if c == nil {
+		return ErrNilSession
+	}
+	if c.isClosed() {
+		return ErrSessionClosed
+	}
+
+	targets := c.resumeTargets(decision)
+	if len(targets) == 0 {
+		return ErrNotInterrupted
+	}
+
+	logx.WithContext(ctx).Infow("qa: resume turn start",
+		logx.Field("session_id", c.SessionID),
+		logx.Field("approved", decision.Approved),
+		logx.Field("targets", len(targets)),
+	)
+
+	// 恢复前清掉旧打断信息, 若再次打断会重新记录
+	c.clearInterrupt()
+
+	iter, err := c.ResumeCheckpoint(ctx, &adk.ResumeParams{Targets: targets})
+	if err != nil {
+		logx.WithContext(ctx).Errorf("qa: resume fail | session=%s err=%v", c.SessionID, err)
+		return err
+	}
+
+	return c.consume(ctx, iter)
+}
+
+// consume 消费一轮 agent 事件, 维护可见输出与模型上下文
+func (c *SessionClient) consume(ctx context.Context, iter *adk.AsyncIterator[*adk.AgentEvent]) error {
 	answered := false
 	for {
 		event, ok := iter.Next()
@@ -68,7 +109,7 @@ func (c *SessionClient) generateTurn(ctx context.Context, query string) error {
 		mo := event.Output.MessageOutput
 		if mo.IsStreaming && mo.MessageStream != nil {
 			// 流式: 每个分片即时写入可见输出, SSE 轮询即可增量返回
-			if err = c.stream(mo.MessageStream, mo.Role, &answered); err != nil {
+			if err := c.stream(mo.MessageStream, mo.Role, &answered); err != nil {
 				logx.WithContext(ctx).Errorf("qa: consume stream fail | session=%s agent=%s err=%v",
 					c.SessionID, event.AgentName, err)
 				return err
@@ -239,6 +280,9 @@ func (c *SessionClient) recordInterrupt(info *adk.InterruptInfo) {
 		}
 		list = append(list, item)
 	}
+
+	// 记录待处理打断点, 供 human feedback 构造恢复目标
+	c.setPendingInterrupts(list)
 
 	raw, err := json.Marshal(list)
 	if err != nil {

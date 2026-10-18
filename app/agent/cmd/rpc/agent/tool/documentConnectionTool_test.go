@@ -6,10 +6,12 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/Bluore/mutidoc/app/agent/cmd/rpc/agent/approval"
 	"github.com/Bluore/mutidoc/app/agent/cmd/rpc/agent/tool/toolcallresp"
 	"github.com/Bluore/mutidoc/app/document/cmd/edit/edit"
 	"github.com/Bluore/mutidoc/pkg/ctxdata"
 	"github.com/Bluore/mutidoc/pkg/grpcerr"
+	"github.com/cloudwego/eino/compose"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -46,7 +48,15 @@ func (f *fakeEditRpc) Insert(_ context.Context, _ *edit.InsertReq, _ ...grpc.Cal
 }
 
 func userCtx() context.Context {
-	return context.WithValue(context.Background(), ctxdata.CtxKewJwtUserId, "u1")
+	ctx := context.WithValue(context.Background(), ctxdata.CtxKewJwtUserId, "u1")
+	return approval.WithTracker(ctx)
+}
+
+// approvedUserCtx 返回已授权指定文档的会话上下文
+func approvedUserCtx(documentID string) context.Context {
+	ctx := userCtx()
+	approval.Allow(ctx, documentID)
+	return ctx
 }
 
 func TestCreateDocumentConnectionRequiresParams(t *testing.T) {
@@ -60,7 +70,7 @@ func TestCreateDocumentConnectionRequiresParams(t *testing.T) {
 
 func TestCreateDocumentConnectionDerivesBotID(t *testing.T) {
 	rpc := &fakeEditRpc{}
-	out, err := createDocumentConnection(userCtx(), rpc, createDocumentConnectionReq{DocumentID: "d1", BotName: "助手"})
+	out, err := createDocumentConnection(approvedUserCtx("d1"), rpc, createDocumentConnectionReq{DocumentID: "d1", BotName: "助手"})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -80,12 +90,48 @@ func TestCreateDocumentConnectionDerivesBotID(t *testing.T) {
 
 func TestCreateDocumentConnectionDefaultsBotName(t *testing.T) {
 	rpc := &fakeEditRpc{}
-	if _, err := createDocumentConnection(userCtx(), rpc, createDocumentConnectionReq{DocumentID: "d1"}); err != nil {
+	if _, err := createDocumentConnection(approvedUserCtx("d1"), rpc, createDocumentConnectionReq{DocumentID: "d1"}); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 	if rpc.createReq.GetBotName() == "" {
 		t.Fatal("bot name should default to a non-empty value")
 	}
+}
+
+// TestCreateDocumentConnectionInterruptsWithoutApproval 未授权时应打断且不建连接
+func TestCreateDocumentConnectionInterruptsWithoutApproval(t *testing.T) {
+	rpc := &fakeEditRpc{}
+	_, err := createDocumentConnection(userCtx(), rpc, createDocumentConnectionReq{DocumentID: "d1"})
+	if !isInterruptError(err) {
+		t.Fatalf("err = %v, want interrupt error", err)
+	}
+	if rpc.createCalled {
+		t.Fatal("CreateBot should not be called before approval")
+	}
+}
+
+// TestApprovalAllowsAgain 授权后同一文档不再请求确认
+func TestApprovalAllowsAgain(t *testing.T) {
+	ctx := approvedUserCtx("d1")
+	if !approval.Allowed(ctx, "d1") {
+		t.Fatal("document should be allowed")
+	}
+	rpc := &fakeEditRpc{}
+	if _, err := createDocumentConnection(ctx, rpc, createDocumentConnectionReq{DocumentID: "d1"}); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if !rpc.createCalled {
+		t.Fatal("CreateBot should be called for allowed document")
+	}
+}
+
+// isInterruptError 判断错误是否为 eino 打断信号
+func isInterruptError(err error) bool {
+	if err == nil {
+		return false
+	}
+	_, ok := compose.IsInterruptRerunError(err)
+	return ok
 }
 
 func TestGetDocumentConnectionReturnsContent(t *testing.T) {
