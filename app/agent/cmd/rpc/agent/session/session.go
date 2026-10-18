@@ -35,10 +35,10 @@ type SessionClient struct {
 	Store        adk.CheckPointStore
 	CheckpointID string
 
-	// History 用户界面可见的对话与思考内容
-	History *History
-	// Memory 大模型实际输入的消息
-	Memory []*schema.Message
+	// Output 用户界面可见的对话与思考内容, 只追加
+	Output *Output
+	// Context 大模型实际输入的消息, 只追加
+	Context []*schema.Message
 
 	ctx       context.Context
 	cancel    context.CancelFunc
@@ -62,8 +62,8 @@ func NewSessionClient(session Session) *SessionClient {
 	ctx = botconn.WithTracker(ctx)
 	return &SessionClient{
 		Session:   session,
-		History:   NewHistory(),
-		Memory:    make([]*schema.Message, 0),
+		Output:    NewOutput(),
+		Context:   make([]*schema.Message, 0),
 		ctx:       ctx,
 		cancel:    cancel,
 		createdAt: time.Now(),
@@ -75,13 +75,13 @@ func (c *SessionClient) GetSession() Session {
 	return c.Session
 }
 
-// Context 返回会话级上下文, 随会话关闭一起取消
-func (c *SessionClient) Context() context.Context {
+// context 返回会话级上下文, 随会话关闭一起取消
+func (c *SessionClient) context() context.Context {
 	return c.ctx
 }
 
-// SetRuntime 绑定 eino 运行态
-func (c *SessionClient) SetRuntime(runner *adk.Runner, agent adk.Agent, store adk.CheckPointStore, checkpointID string) {
+// setRuntime 绑定 eino 运行态
+func (c *SessionClient) setRuntime(runner *adk.Runner, agent adk.Agent, store adk.CheckPointStore, checkpointID string) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	c.Runner = runner
@@ -128,7 +128,7 @@ func (c *SessionClient) Close() {
 		cancel()
 	}
 
-	// 先落库(会话历史/记忆/状态), 再释放运行态, 避免持久化与读写锁互相阻塞
+	// 先落库(输出/上下文/状态), 再释放运行态, 避免持久化与读写锁互相阻塞
 	c.persist()
 
 	c.mu.Lock()
@@ -138,30 +138,30 @@ func (c *SessionClient) Close() {
 	c.mu.Unlock()
 }
 
-// IsClosed 返回会话是否已关闭
-func (c *SessionClient) IsClosed() bool {
+// isClosed 返回会话是否已关闭
+func (c *SessionClient) isClosed() bool {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	return c.closed
 }
 
-// AppendHistory 追加用户界面可见的历史消息
-func (c *SessionClient) AppendHistory(msgs ...*schema.Message) {
-	c.History.AppendChunks(msgs...)
+// appendOutput 追加用户界面可见的输出消息
+func (c *SessionClient) appendOutput(msgs ...*schema.Message) {
+	c.Output.AppendChunks(msgs...)
 }
 
-// HistorySSE 返回历史 JSONL 从 offset 开始的增量与新的总长度
-func (c *SessionClient) HistorySSE(offset int64) ([]byte, int64) {
-	return c.History.ReadFromOffset(offset)
+// OutputSSE 返回输出 JSONL 从 offset 开始的增量与新的总长度
+func (c *SessionClient) OutputSSE(offset int64) ([]byte, int64) {
+	return c.Output.ReadFromOffset(offset)
 }
 
-// SnapshotHistory 返回用户界面可见的历史消息副本
-func (c *SessionClient) SnapshotHistory() []*schema.Message {
-	return c.History.Messages()
+// snapshotOutput 返回用户界面可见的输出消息副本
+func (c *SessionClient) snapshotOutput() []*schema.Message {
+	return c.Output.Messages()
 }
 
-// Runtime 返回绑定的 eino 运行态
-func (c *SessionClient) Runtime() (*adk.Runner, string, error) {
+// runtime 返回绑定的 eino 运行态
+func (c *SessionClient) runtime() (*adk.Runner, string, error) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	if c.closed {
@@ -173,31 +173,24 @@ func (c *SessionClient) Runtime() (*adk.Runner, string, error) {
 	return c.Runner, c.CheckpointID, nil
 }
 
-// AppendMemory 追加大模型输入消息
-func (c *SessionClient) AppendMemory(msgs ...*schema.Message) {
+// appendContext 追加大模型输入消息
+func (c *SessionClient) appendContext(msgs ...*schema.Message) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	c.Memory = append(c.Memory, msgs...)
+	c.Context = append(c.Context, msgs...)
 }
 
-// SnapshotMemory 返回大模型输入消息副本
-func (c *SessionClient) SnapshotMemory() []*schema.Message {
+// snapshotContext 返回大模型输入消息副本
+func (c *SessionClient) snapshotContext() []*schema.Message {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	out := make([]*schema.Message, len(c.Memory))
-	copy(out, c.Memory)
+	out := make([]*schema.Message, len(c.Context))
+	copy(out, c.Context)
 	return out
 }
 
-// SetMemory 覆盖大模型输入消息
-func (c *SessionClient) SetMemory(msgs []*schema.Message) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	c.Memory = msgs
-}
-
-// SetTitle 设置会话标题
-func (c *SessionClient) SetTitle(title string) {
+// setTitle 设置会话标题
+func (c *SessionClient) setTitle(title string) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	c.SessionTitle = title
@@ -210,16 +203,16 @@ func (c *SessionClient) Status() globalkey.SessionStatus {
 	return c.status
 }
 
-// SetStatus 设置会话运行状态
-func (c *SessionClient) SetStatus(status globalkey.SessionStatus) {
+// setStatus 设置会话运行状态
+func (c *SessionClient) setStatus(status globalkey.SessionStatus) {
 	c.mu.Lock()
 	c.status = status
 	c.mu.Unlock()
-	c.History.setStatus(status)
+	c.Output.setStatus(status)
 }
 
-// TryStartGenerate 尝试进入生成状态, 已在生成中或已关闭时返回 false
-func (c *SessionClient) TryStartGenerate() bool {
+// tryStartGenerate 尝试进入生成状态, 已在生成中或已关闭时返回 false
+func (c *SessionClient) tryStartGenerate() bool {
 	c.mu.Lock()
 	if c.closed || c.status == globalkey.SessionStatusGenerating {
 		c.mu.Unlock()
@@ -227,6 +220,6 @@ func (c *SessionClient) TryStartGenerate() bool {
 	}
 	c.status = globalkey.SessionStatusGenerating
 	c.mu.Unlock()
-	c.History.setStatus(globalkey.SessionStatusGenerating)
+	c.Output.setStatus(globalkey.SessionStatusGenerating)
 	return true
 }

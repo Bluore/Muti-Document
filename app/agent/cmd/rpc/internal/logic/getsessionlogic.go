@@ -43,8 +43,8 @@ func (l *GetSessionLogic) GetSession(in *pb.GetSessionReq) (*pb.GetSessionResp, 
 		return nil, errors.Wrapf(grpcerr.SERVER_COMMON_ERROR, "get session error: %v", err)
 	}
 
-	// 从 offset 处返回增量内容 (History 内部维护字符前缀和)
-	data, newOffset := client.HistorySSE(in.Offset)
+	// 从 offset 处返回增量内容 (Output 内部维护字符前缀和)
+	data, newOffset := client.OutputSSE(in.Offset)
 
 	return &pb.GetSessionResp{
 		Data:      string(data),

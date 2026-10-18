@@ -18,22 +18,18 @@ const sessionTitleMaxRunes = 30
 var (
 	// ErrGenerating 会话正在生成中
 	ErrGenerating = errors.New("session is generating")
-	// ErrNoRunner 未配置生成逻辑
-	ErrNoRunner = errors.New("session run func is nil")
+	// ErrNoRunner 未绑定 eino 运行态
+	ErrNoRunner = errors.New("session runner is not ready")
 	// ErrInterrupted 会话被中断, 等待人反馈
 	ErrInterrupted = errors.New("session interrupted")
 )
 
-// RunFunc 执行一次问答, 由上层注入 (workflow)
-type RunFunc func(ctx context.Context, client *SessionClient, query string) error
-
 // Config 会话客户端构造依赖
 type Config struct {
-	Model       model.AgentSessionsModel
-	Agent       adk.Agent
-	MemoryStore adk.CheckPointStore
-	ServerID    int64
-	Run         RunFunc
+	Model           model.AgentSessionsModel
+	Agent           adk.Agent
+	CheckpointStore adk.CheckPointStore
+	ServerID        int64
 }
 
 // Create 创建会话, 由会话客户端负责落库
@@ -75,24 +71,27 @@ func Get(ctx context.Context, conf Config, sessionID string) (*SessionClient, er
 	})
 }
 
-// Resume 提交一轮对话: 标记生成中并在后台执行, 完成后落库
-func (c *SessionClient) Resume(query string) error {
-	if c.conf.Run == nil {
-		return ErrNoRunner
+// Generate 提交一轮问答: 标记生成中并在后台执行, 完成后落库
+func (c *SessionClient) Generate(query string) error {
+	if c == nil {
+		return ErrNilSession
 	}
-	if !c.TryStartGenerate() {
+	if c.isClosed() {
+		return ErrSessionClosed
+	}
+	if !c.tryStartGenerate() {
 		return ErrGenerating
 	}
 
 	// 首轮用提问生成标题
 	if c.GetSession().SessionTitle == "" {
-		c.SetTitle(truncateRunes(query, sessionTitleMaxRunes))
+		c.setTitle(truncateRunes(query, sessionTitleMaxRunes))
 	}
 
 	go func() {
 		status := globalkey.SessionStatusDone
 		logx.Infof("session %s generate start", c.SessionID)
-		switch err := c.conf.Run(c.Context(), c, query); {
+		switch err := c.generateTurn(c.context(), query); {
 		case errors.Is(err, ErrInterrupted):
 			status = globalkey.SessionStatusInterrupted
 			logx.Errorf("session %s generate interrupted, waiting for human feedback", c.SessionID)
@@ -101,7 +100,7 @@ func (c *SessionClient) Resume(query string) error {
 			logx.Errorf("session %s generate fail: %v", c.SessionID, err)
 		}
 		logx.Infof("session %s generate end, status=%d", c.SessionID, status)
-		c.SetStatus(status)
+		c.setStatus(status)
 		c.persist()
 	}()
 	return nil
@@ -112,14 +111,14 @@ func (c *SessionClient) bind() {
 	runner := adk.NewRunner(context.Background(), adk.RunnerConfig{
 		Agent:           c.conf.Agent,
 		EnableStreaming: true,
-		CheckPointStore: c.conf.MemoryStore,
+		CheckPointStore: c.conf.CheckpointStore,
 	})
-	c.SetRuntime(runner, c.conf.Agent, c.conf.MemoryStore, c.SessionID)
+	c.setRuntime(runner, c.conf.Agent, c.conf.CheckpointStore, c.SessionID)
 }
 
-// fromRow 由数据库记录重建会话客户端
+// fromRow 由数据库记录重建会话客户端; 库列 history/memory 分别对应输出/上下文
 func fromRow(conf Config, row *model.AgentSessions) (*SessionClient, error) {
-	memory, err := DecodeHistory([]byte(row.Memory))
+	msgs, err := DecodeMessages([]byte(row.Memory))
 	if err != nil {
 		return nil, err
 	}
@@ -130,25 +129,25 @@ func fromRow(conf Config, row *model.AgentSessions) (*SessionClient, error) {
 		UserID:       row.UserId,
 	})
 	client.conf = conf
-	if err = client.History.Load([]byte(row.History)); err != nil {
+	if err = client.Output.Load([]byte(row.History)); err != nil {
 		return nil, err
 	}
-	client.AppendMemory(memory...)
-	client.SetStatus(globalkey.SessionStatus(row.Status))
+	client.appendContext(msgs...)
+	client.setStatus(globalkey.SessionStatus(row.Status))
 	client.bind()
 	return client, nil
 }
 
-// persist 把会话历史/记忆/状态写回数据库
+// persist 把会话输出/上下文/状态写回数据库
 func (c *SessionClient) persist() {
 	if c.conf.Model == nil {
 		return
 	}
 	ctx := context.Background()
 
-	memory, err := EncodeHistory(c.SnapshotMemory())
+	msgs, err := EncodeMessages(c.snapshotContext())
 	if err != nil {
-		logx.Errorf("encode session memory fail: %v", err)
+		logx.Errorf("encode session context fail: %v", err)
 		return
 	}
 
@@ -160,8 +159,8 @@ func (c *SessionClient) persist() {
 
 	meta := c.GetSession()
 	row.Title = meta.SessionTitle
-	row.History = string(c.History.Bytes())
-	row.Memory = string(memory)
+	row.History = string(c.Output.Bytes())
+	row.Memory = string(msgs)
 	row.Status = int64(c.Status())
 	if err = c.conf.Model.UpdateWithVersion(ctx, nil, row); err != nil {
 		logx.Errorf("update session %s fail: %v", c.SessionID, err)

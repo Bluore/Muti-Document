@@ -25,8 +25,8 @@ func EncodeMessage(m *schema.Message) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-// EncodeHistory 将消息序列化为 JSONL, 每条消息一行
-func EncodeHistory(msgs []*schema.Message) ([]byte, error) {
+// EncodeMessages 将消息序列化为 JSONL, 每条消息一行
+func EncodeMessages(msgs []*schema.Message) ([]byte, error) {
 	var buf bytes.Buffer
 	for _, m := range msgs {
 		if m == nil {
@@ -41,8 +41,8 @@ func EncodeHistory(msgs []*schema.Message) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-// DecodeHistory 解析 JSONL 历史消息
-func DecodeHistory(data []byte) ([]*schema.Message, error) {
+// DecodeMessages 解析 JSONL 消息
+func DecodeMessages(data []byte) ([]*schema.Message, error) {
 	msgs := make([]*schema.Message, 0)
 	dec := json.NewDecoder(bytes.NewReader(data))
 	for {
@@ -76,9 +76,9 @@ type entry struct {
 	role      schema.RoleType
 }
 
-// History 会话历史(用户界面可见), 以文本消息与工具调用组成的时间线并维护字节游标,
-// 支持按字节 offset 二分定位并输出增量 SSE 载荷
-type History struct {
+// Output 会话输出(用户界面可见), 以文本消息与工具调用组成的时间线并维护字节游标,
+// 支持按字节 offset 二分定位并输出增量 SSE 载荷; 只追加, 不覆盖
+type Output struct {
 	mu       sync.Mutex
 	messages []*schema.Message
 	entries  []entry
@@ -89,13 +89,13 @@ type History struct {
 	status    globalkey.SessionStatus
 }
 
-// NewHistory 创建空历史
-func NewHistory() *History {
-	return &History{toolIDs: make(map[string]struct{})}
+// NewOutput 创建空输出
+func NewOutput() *Output {
+	return &Output{toolIDs: make(map[string]struct{})}
 }
 
 // AppendChunks 追加消息(流式分片会与上一条同角色文本消息合并)
-func (h *History) AppendChunks(chunks ...*schema.Message) {
+func (h *Output) AppendChunks(chunks ...*schema.Message) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
 
@@ -104,9 +104,9 @@ func (h *History) AppendChunks(chunks ...*schema.Message) {
 	}
 }
 
-func (h *History) appendChunk(chunk *schema.Message) {
+func (h *Output) appendChunk(chunk *schema.Message) {
 	if chunk == nil {
-		logx.Error("history: append nil message")
+		logx.Error("output: append nil message")
 		return
 	}
 
@@ -128,7 +128,7 @@ func (h *History) appendChunk(chunk *schema.Message) {
 }
 
 // lastTextEntry 若最后一项是文本消息则返回其指针
-func (h *History) lastTextEntry() *entry {
+func (h *Output) lastTextEntry() *entry {
 	n := len(h.entries)
 	if n == 0 || h.entries[n-1].kind != entryText {
 		return nil
@@ -137,7 +137,7 @@ func (h *History) lastTextEntry() *entry {
 }
 
 // appendText 追加一条可见文本消息, 思考文本在前正文在后
-func (h *History) appendText(m *schema.Message) {
+func (h *Output) appendText(m *schema.Message) {
 	h.messages = append(h.messages, m)
 
 	start := int64(len(h.content))
@@ -153,7 +153,7 @@ func (h *History) appendText(m *schema.Message) {
 }
 
 // FinalizeMessage 标记最后一条消息已完整, 记录其携带的工具调用
-func (h *History) FinalizeMessage() {
+func (h *Output) FinalizeMessage() {
 	h.mu.Lock()
 	defer h.mu.Unlock()
 
@@ -165,7 +165,7 @@ func (h *History) FinalizeMessage() {
 }
 
 // recordToolCalls 追加消息携带的工具调用, 按 ID 去重
-func (h *History) recordToolCalls(m *schema.Message) {
+func (h *Output) recordToolCalls(m *schema.Message) {
 	if m == nil || len(m.ToolCalls) == 0 {
 		return
 	}
@@ -186,8 +186,8 @@ func (h *History) recordToolCalls(m *schema.Message) {
 	}
 }
 
-// Messages 返回可见历史消息副本
-func (h *History) Messages() []*schema.Message {
+// Messages 返回可见输出消息副本
+func (h *Output) Messages() []*schema.Message {
 	h.mu.Lock()
 	defer h.mu.Unlock()
 
@@ -197,21 +197,21 @@ func (h *History) Messages() []*schema.Message {
 }
 
 // Bytes 序列化为 JSONL, 用于落库存储
-func (h *History) Bytes() []byte {
+func (h *Output) Bytes() []byte {
 	h.mu.Lock()
 	defer h.mu.Unlock()
 
-	data, err := EncodeHistory(h.messages)
+	data, err := EncodeMessages(h.messages)
 	if err != nil {
-		logx.Errorf("history: encode fail: %v", err)
+		logx.Errorf("output: encode fail: %v", err)
 		return nil
 	}
 	return data
 }
 
-// Load 从 JSONL 反序列化历史, 重建时间线与字节游标
-func (h *History) Load(data []byte) error {
-	msgs, err := DecodeHistory(data)
+// Load 从 JSONL 追加输出消息, 重建时间线与字节游标; 只追加, 不覆盖已有内容
+func (h *Output) Load(data []byte) error {
+	msgs, err := DecodeMessages(data)
 	if err != nil {
 		return err
 	}
@@ -219,10 +219,9 @@ func (h *History) Load(data []byte) error {
 	h.mu.Lock()
 	defer h.mu.Unlock()
 
-	h.messages = h.messages[:0]
-	h.entries = h.entries[:0]
-	h.content = h.content[:0]
-	h.toolIDs = make(map[string]struct{})
+	if h.toolIDs == nil {
+		h.toolIDs = make(map[string]struct{})
+	}
 	for _, m := range msgs {
 		if m == nil {
 			continue
@@ -234,21 +233,21 @@ func (h *History) Load(data []byte) error {
 }
 
 // SetInterrupt 记录最近一次打断信息(已序列化的 []SSEInterrupt)
-func (h *History) SetInterrupt(raw *json.RawMessage) {
+func (h *Output) SetInterrupt(raw *json.RawMessage) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
 	h.interrupt = raw
 }
 
 // setStatus 同步会话状态, 供 SSE 载荷输出
-func (h *History) setStatus(status globalkey.SessionStatus) {
+func (h *Output) setStatus(status globalkey.SessionStatus) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
 	h.status = status
 }
 
 // ReadFromOffset 从字节 offset 处读取增量, 返回 SSE 载荷与新游标
-func (h *History) ReadFromOffset(offset int64) ([]byte, int64) {
+func (h *Output) ReadFromOffset(offset int64) ([]byte, int64) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
 
@@ -300,7 +299,7 @@ func (h *History) ReadFromOffset(offset int64) ([]byte, int64) {
 }
 
 // marshalSSE 组装并序列化 SSE 载荷
-func (h *History) marshalSSE(msgs []protocol.SSEMessageItem, calls []protocol.SSEToolCall, offset, total int64) []byte {
+func (h *Output) marshalSSE(msgs []protocol.SSEMessageItem, calls []protocol.SSEToolCall, offset, total int64) []byte {
 	msg := protocol.SSEMessage{
 		Offset:    offset,
 		Length:    total,

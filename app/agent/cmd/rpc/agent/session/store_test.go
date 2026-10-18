@@ -35,18 +35,18 @@ func TestGetOrInit(t *testing.T) {
 func TestTryStartGenerate(t *testing.T) {
 	client := NewSessionClient(Session{SessionID: "test-generate"})
 
-	if !client.TryStartGenerate() {
+	if !client.tryStartGenerate() {
 		t.Fatal("首次应能进入生成状态")
 	}
 	if client.Status() != globalkey.SessionStatusGenerating {
 		t.Fatalf("status = %d", client.Status())
 	}
-	if client.TryStartGenerate() {
+	if client.tryStartGenerate() {
 		t.Fatal("生成中不应再次进入")
 	}
 
-	client.SetStatus(globalkey.SessionStatusIdle)
-	if !client.TryStartGenerate() {
+	client.setStatus(globalkey.SessionStatusIdle)
+	if !client.tryStartGenerate() {
 		t.Fatal("空闲后应能再次进入生成状态")
 	}
 }

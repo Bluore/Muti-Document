@@ -9,13 +9,13 @@ import (
 	"github.com/cloudwego/eino/schema"
 )
 
-func TestHistoryJSONLRoundTrip(t *testing.T) {
+func TestMessagesJSONLRoundTrip(t *testing.T) {
 	msgs := []*schema.Message{
 		schema.UserMessage("你好"),
 		schema.AssistantMessage("hello", nil),
 	}
 
-	data, err := EncodeHistory(msgs)
+	data, err := EncodeMessages(msgs)
 	if err != nil {
 		t.Fatalf("encode: %v", err)
 	}
@@ -24,7 +24,7 @@ func TestHistoryJSONLRoundTrip(t *testing.T) {
 		t.Fatalf("want trailing newline, got %q", string(data))
 	}
 
-	got, err := DecodeHistory(data)
+	got, err := DecodeMessages(data)
 	if err != nil {
 		t.Fatalf("decode: %v", err)
 	}
@@ -39,15 +39,15 @@ func TestHistoryJSONLRoundTrip(t *testing.T) {
 	}
 }
 
-func TestHistoryAppendKeepsPrefixStable(t *testing.T) {
+func TestEncodeMessagesAppendKeepsPrefixStable(t *testing.T) {
 	first := []*schema.Message{schema.UserMessage("a")}
-	firstData, err := EncodeHistory(first)
+	firstData, err := EncodeMessages(first)
 	if err != nil {
 		t.Fatalf("encode: %v", err)
 	}
 
 	more := append(append([]*schema.Message{}, first...), schema.AssistantMessage("b", nil))
-	moreData, err := EncodeHistory(more)
+	moreData, err := EncodeMessages(more)
 	if err != nil {
 		t.Fatalf("encode: %v", err)
 	}
@@ -57,8 +57,8 @@ func TestHistoryAppendKeepsPrefixStable(t *testing.T) {
 	}
 }
 
-func TestDecodeEmptyHistory(t *testing.T) {
-	msgs, err := DecodeHistory([]byte(""))
+func TestDecodeEmptyMessages(t *testing.T) {
+	msgs, err := DecodeMessages([]byte(""))
 	if err != nil {
 		t.Fatalf("decode empty: %v", err)
 	}
@@ -67,8 +67,8 @@ func TestDecodeEmptyHistory(t *testing.T) {
 	}
 }
 
-func TestHistoryReadFromOffset(t *testing.T) {
-	h := NewHistory()
+func TestOutputReadFromOffset(t *testing.T) {
+	h := NewOutput()
 	user := schema.UserMessage("你好")
 	assistant := schema.AssistantMessage("hello", nil)
 	h.AppendChunks(user, assistant)
@@ -96,8 +96,8 @@ func TestHistoryReadFromOffset(t *testing.T) {
 	}
 }
 
-func TestHistoryReadFromOffsetMidMessage(t *testing.T) {
-	h := NewHistory()
+func TestOutputReadFromOffsetMidMessage(t *testing.T) {
+	h := NewOutput()
 	h.AppendChunks(schema.UserMessage("你好"), schema.AssistantMessage("hello", nil))
 
 	off := int64(len("你好"))
@@ -115,9 +115,9 @@ func TestHistoryReadFromOffsetMidMessage(t *testing.T) {
 	}
 }
 
-// TestHistoryReadFromOffsetNoNew 游标已到末尾时返回空增量
-func TestHistoryReadFromOffsetNoNew(t *testing.T) {
-	h := NewHistory()
+// TestOutputReadFromOffsetNoNew 游标已到末尾时返回空增量
+func TestOutputReadFromOffsetNoNew(t *testing.T) {
+	h := NewOutput()
 	h.AppendChunks(schema.UserMessage("abc"))
 
 	total := int64(len("abc"))
@@ -132,8 +132,8 @@ func TestHistoryReadFromOffsetNoNew(t *testing.T) {
 	}
 }
 
-func TestHistoryStreamingMerge(t *testing.T) {
-	h := NewHistory()
+func TestOutputStreamingMerge(t *testing.T) {
+	h := NewOutput()
 	h.AppendChunks(schema.AssistantMessage("hel", nil), schema.AssistantMessage("lo", nil))
 
 	if len(h.Messages()) != 1 {
@@ -150,9 +150,9 @@ func TestHistoryStreamingMerge(t *testing.T) {
 	}
 }
 
-// TestHistoryStreamingDeltas 思考文本与正文分片应作为独立增量返回(打字机效果)
-func TestHistoryStreamingDeltas(t *testing.T) {
-	h := NewHistory()
+// TestOutputStreamingDeltas 思考文本与正文分片应作为独立增量返回(打字机效果)
+func TestOutputStreamingDeltas(t *testing.T) {
+	h := NewOutput()
 	h.AppendChunks(&schema.Message{Role: schema.Assistant, ReasoningContent: "thin"})
 
 	data, off := h.ReadFromOffset(0)
@@ -183,9 +183,9 @@ func TestHistoryStreamingDeltas(t *testing.T) {
 	}
 }
 
-// TestHistoryReasoningSeparated 思考文本与正文应分开返回
-func TestHistoryReasoningSeparated(t *testing.T) {
-	h := NewHistory()
+// TestOutputReasoningSeparated 思考文本与正文应分开返回
+func TestOutputReasoningSeparated(t *testing.T) {
+	h := NewOutput()
 	m := schema.AssistantMessage("answer", nil)
 	m.ReasoningContent = "think"
 	h.AppendChunks(m)
@@ -197,11 +197,11 @@ func TestHistoryReasoningSeparated(t *testing.T) {
 	}
 }
 
-func TestHistoryBytesLoadRoundTrip(t *testing.T) {
-	h := NewHistory()
+func TestOutputBytesLoadRoundTrip(t *testing.T) {
+	h := NewOutput()
 	h.AppendChunks(schema.UserMessage("你好"), schema.AssistantMessage("hello", nil))
 
-	h2 := NewHistory()
+	h2 := NewOutput()
 	if err := h2.Load(h.Bytes()); err != nil {
 		t.Fatalf("load: %v", err)
 	}
@@ -224,8 +224,8 @@ func TestHistoryBytesLoadRoundTrip(t *testing.T) {
 	}
 }
 
-func TestHistoryToolCall(t *testing.T) {
-	h := NewHistory()
+func TestOutputToolCall(t *testing.T) {
+	h := NewOutput()
 	assistant := schema.AssistantMessage("", []schema.ToolCall{{
 		ID:       "call_1",
 		Type:     "function",

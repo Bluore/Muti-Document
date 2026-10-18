@@ -9,7 +9,6 @@ import (
 	"github.com/Bluore/mutidoc/app/agent/cmd/rpc/agent/memory"
 	"github.com/Bluore/mutidoc/app/agent/cmd/rpc/agent/session"
 	agenttool "github.com/Bluore/mutidoc/app/agent/cmd/rpc/agent/tool"
-	"github.com/Bluore/mutidoc/app/agent/cmd/rpc/agent/workflow"
 	"github.com/Bluore/mutidoc/app/agent/cmd/rpc/internal/config"
 	"github.com/Bluore/mutidoc/app/agent/model"
 	"github.com/Bluore/mutidoc/app/document/cmd/edit/edit"
@@ -95,11 +94,10 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	return &ServiceContext{
 		Config: c,
 		Session: session.Config{
-			Model:       model.NewAgentSessionsModel(sqlConn, c.Cache),
-			Agent:       ag,
-			MemoryStore: memoryStore,
-			ServerID:    c.ServerID,
-			Run:         workflow.Run,
+			Model:           model.NewAgentSessionsModel(sqlConn, c.Cache),
+			Agent:           ag,
+			CheckpointStore: memoryStore,
+			ServerID:        c.ServerID,
 		},
 	}
 }

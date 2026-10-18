@@ -56,7 +56,7 @@ func (l *ResumeSessionLogic) ResumeSession(in *pb.ResumeSessionReq) (*pb.ResumeS
 	}
 
 	// 提交一轮对话给会话客户端, 后台生成并落库
-	if err = client.Resume(query); err != nil {
+	if err = client.Generate(query); err != nil {
 		if errors.Is(err, session.ErrGenerating) {
 			return nil, grpcerr.AGENT_SESSION_BUSY_ERROR
 		}
