@@ -18,9 +18,9 @@ Prometheus:
 
 Telemetry:
   Name: agent-api
-  Endpoint: http://jaeger:14268/api/traces
+  Endpoint: jaeger:4317
   Sampler: 1.0
-  Batcher: otlphttp
+  Batcher: otlpgrpc
 
 AgentRpcConf:
   Etcd:
