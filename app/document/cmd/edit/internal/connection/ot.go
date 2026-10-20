@@ -68,7 +68,9 @@ type DocumentClient struct {
 	closing  bool
 	stopCh   chan struct{}
 	stopOnce sync.Once
-	onClose  func(*DocumentClient)
+	// metricsOnce 保证 OT 计数只减少一次, Close 与空闲关闭可能先后触发
+	metricsOnce sync.Once
+	onClose     func(*DocumentClient)
 	// onFlushed 在正文成功落库后回调, 用于触发向量索引重建; 可为 nil
 	onFlushed func(docID string)
 
@@ -106,6 +108,7 @@ func NewOt(
 		stopCh:         make(chan struct{}),
 	}
 
+	otGauge.Inc()
 	client.restoreFromCache()
 	client.savedTitle = client.Title
 
@@ -128,6 +131,7 @@ func (o *DocumentClient) IsClosed() bool {
 // 会中断进行中的持久化操作并等待协程退出, 避免删除后被写入覆盖。
 func (o *DocumentClient) Close() {
 	o.stopOnce.Do(func() {
+		o.releaseMetrics()
 		o.UserMu.Lock()
 		o.closing = true
 		o.UserMu.Unlock()
@@ -145,6 +149,13 @@ func (o *DocumentClient) Close() {
 		case <-time.After(closeWait):
 		}
 	}
+}
+
+// releaseMetrics 减少 OT 会话计数, 只会生效一次
+func (o *DocumentClient) releaseMetrics() {
+	o.metricsOnce.Do(func() {
+		otGauge.Dec()
+	})
 }
 
 func (o *DocumentClient) ConnectUser(userID string, userInfo protocol.User, subscriber chan<- protocol.ServerMessage) bool {
@@ -566,6 +577,7 @@ func (o *DocumentClient) restoreFromCache() {
 // 无用户连接超过 10s 时落库并关闭文档协程。
 func (o *DocumentClient) autoDocumentSave() {
 	defer close(o.done)
+	defer o.releaseMetrics()
 
 	saveTicker := time.NewTicker(autoSaveInterval)
 	defer saveTicker.Stop()

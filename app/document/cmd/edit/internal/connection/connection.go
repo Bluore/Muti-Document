@@ -51,6 +51,7 @@ func NewConnection(
 	userCtx context.Context,
 ) *Connection {
 	ctx, cancel := context.WithCancel(context.Background())
+	connectionGauge.Inc()
 	return &Connection{
 		UserID: userID,
 		UserDetail: protocol.User{
@@ -69,6 +70,8 @@ func NewConnection(
 }
 
 func (c *Connection) Handle() {
+	defer connectionGauge.Dec()
+
 	connSuccess := c.Ot.ConnectUser(c.UserID, c.UserDetail, c.Outbox)
 	if !connSuccess {
 		logx.WithContext(c.Ctx).Infow("user is already connected, kill conn",

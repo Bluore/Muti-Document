@@ -42,6 +42,7 @@ type BotConnection struct {
 
 func NewBotConnection() *BotConnection {
 	ctx, cancel := context.WithCancel(context.Background())
+	connectionGauge.Inc()
 	return &BotConnection{
 		Ctx:    ctx,
 		Cancel: cancel,
@@ -50,6 +51,8 @@ func NewBotConnection() *BotConnection {
 }
 
 func (c *BotConnection) Handle() {
+	defer connectionGauge.Dec()
+
 	if ok := c.Ot.ConnectUser(c.BotID, c.BotDetail, c.Outbox); !ok {
 		logx.WithContext(c.Ctx).Infow("bot is already connected, kill conn",
 			logx.Field("bot_id", c.BotID),
